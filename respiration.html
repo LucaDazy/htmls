@@ -14,6 +14,7 @@
             --caret-color: #e2b714;
             --error-color: #ca4754;
             --correct-color: #a6e22e;
+            --revealed-color: #e2b714; /* Color for hinted/revealed answers */
             --font-family: 'Roboto Mono', monospace;
         }
 
@@ -44,7 +45,7 @@
             color: var(--sub-text);
         }
 
-        button {
+        button.control-btn {
             background: transparent;
             border: 2px solid var(--sub-text);
             color: var(--sub-text);
@@ -57,7 +58,7 @@
             outline: none;
         }
 
-        button:hover {
+        button.control-btn:hover {
             color: var(--main-text);
             border-color: var(--main-text);
         }
@@ -122,7 +123,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 220px;
+            width: 240px;
             margin-bottom: 1rem;
         }
 
@@ -134,39 +135,83 @@
             letter-spacing: 1px;
         }
 
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            border-bottom: 2px solid var(--sub-text);
+            transition: border-color 0.2s;
+            padding-bottom: 0.3rem;
+        }
+
+        .input-wrapper:focus-within {
+            border-bottom-color: var(--caret-color);
+        }
+
         input {
             background: transparent;
             border: none;
-            border-bottom: 2px solid var(--sub-text);
-            color: var(--caret-color);
+            color: var(--main-text);
             font-family: var(--font-family);
             font-size: 1.5rem;
             text-align: center;
             width: 100%;
             outline: none;
             caret-color: var(--caret-color);
-            padding-bottom: 0.5rem;
-            transition: border-color 0.2s, color 0.2s;
         }
 
-        input:focus {
-            border-bottom-color: var(--caret-color);
+        input::placeholder {
+            color: var(--sub-text);
+            opacity: 0.6;
+            font-family: var(--font-family);
         }
 
         input:disabled {
             background: transparent;
         }
 
+        .hint-btn {
+            background: transparent;
+            border: 1px solid var(--sub-text);
+            color: var(--sub-text);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 2px 8px;
+            font-family: var(--font-family);
+            transition: all 0.2s;
+            margin-left: 5px;
+        }
+
+        .hint-btn:hover {
+            color: var(--caret-color);
+            border-color: var(--caret-color);
+        }
+
         /* Feedback States */
-        input.correct {
-            color: var(--correct-color);
+        .input-wrapper.correct {
             border-bottom-color: var(--correct-color);
         }
 
-        input.error {
-            color: var(--error-color);
+        .input-wrapper.correct input {
+            color: var(--correct-color);
+        }
+
+        .input-wrapper.revealed {
+            border-bottom-color: var(--revealed-color);
+        }
+
+        .input-wrapper.revealed input {
+            color: var(--revealed-color);
+        }
+
+        .input-wrapper.error {
             border-bottom-color: var(--error-color);
             animation: shake 0.4s;
+        }
+
+        .input-wrapper.error input {
+            color: var(--error-color);
         }
 
         @keyframes shake {
@@ -204,9 +249,17 @@
         .purpose-text {
             color: var(--sub-text);
             font-style: italic;
-            margin-bottom: 2rem;
+            margin-bottom: 0.5rem;
             max-width: 600px;
             line-height: 1.4;
+        }
+
+        .hint-notice {
+            color: var(--revealed-color);
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            font-weight: 700;
+            display: none;
         }
 
         .next-btn {
@@ -214,6 +267,11 @@
             padding: 0.5rem 3rem;
             border-color: var(--caret-color);
             color: var(--caret-color);
+            background: transparent;
+            font-family: var(--font-family);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
         .next-btn:hover {
@@ -259,13 +317,13 @@
 <body>
 
     <div class="top-bar">
-        <button id="restartBtn">Restart</button>
+        <button class="control-btn" id="restartBtn">Restart</button>
     </div>
 
     <div class="rules-blurb">
         Order does not matter when entering multiple reactants/products.<br>
         Spacing, hyphens, and capitalization are ignored. You <span>MUST</span> include numbers and + signs (e.g., <span>2nad+</span> or <span>2 ADP + 2 Pi</span>).<br>
-        For stages, you can abbreviate (e.g. <span>Krebs Cycle</span> or <span>Citric Acid Cycle</span> / <span>ETC</span> or <span>Electron Transport Chain</span>).
+        Use the <span>[?]</span> button for hints. Using a hint puts the slide back into the deck to practice later.
     </div>
 
     <div class="game-container" id="gameUI">
@@ -285,13 +343,14 @@
                 ATP Produced: <span>2</span>
             </div>
             <div class="purpose-text" id="purposeText">"Purpose goes here"</div>
+            <div class="hint-notice" id="hintNotice">(Hint used: This slide will appear again later)</div>
             <button class="next-btn" id="nextBtn">NEXT (Enter)</button>
         </div>
     </div>
 
     <div id="completionScreen">
         <h1>Deck Completed!</h1>
-        <button onclick="initDeck()">Study Again</button>
+        <button class="control-btn" onclick="initDeck()">Study Again</button>
     </div>
 
     <div class="counter">
@@ -300,15 +359,32 @@
     </div>
 
     <script>
-        // --- Data Normalization Helper ---
+        // --- Data Normalization & Formatting Helpers ---
         function normalize(str) {
-            // Remove all spaces and hyphens, convert to lowercase. 
-            // Keeps +, numbers, and letters intact.
             return str.toLowerCase().replace(/[\s-]/g, '');
         }
 
+        function generateHintText(str) {
+            let hint = "";
+            let isNewWord = true;
+            for (let i = 0; i < str.length; i++) {
+                let char = str[i];
+                if (/[a-zA-Z]/.test(char)) {
+                    if (isNewWord) {
+                        hint += char;
+                        isNewWord = false;
+                    } else {
+                        hint += "_";
+                    }
+                } else {
+                    hint += char;
+                    isNewWord = true; 
+                }
+            }
+            return hint;
+        }
+
         // --- Database ---
-        // Synonyms are provided as arrays. If an item has multiple valid names, any will be accepted.
         const stagesData = [
             {
                 names: ["glycolysis"],
@@ -359,10 +435,11 @@
         // --- Game State ---
         let deck = [];
         let currentSlideIndex = 0;
-        let activePools = {}; // Tracks remaining answers needed for the current slide
+        let activePools = {}; 
         let inputsCompleted = 0;
         let totalInputsNeeded = 0;
         let isNextState = false;
+        let slideFlagged = false; 
 
         // UI Elements
         const restartBtn = document.getElementById('restartBtn');
@@ -373,6 +450,7 @@
         const infoStats1 = document.getElementById('infoStats1');
         const infoStats2 = document.getElementById('infoStats2');
         const purposeText = document.getElementById('purposeText');
+        const hintNotice = document.getElementById('hintNotice');
         const nextBtn = document.getElementById('nextBtn');
         const countValue = document.getElementById('countValue');
         const gameUI = document.getElementById('gameUI');
@@ -383,25 +461,22 @@
             deck = [];
             
             stagesData.forEach(stage => {
-                // 1. Given Stage -> Type Reactants
                 deck.push({
                     promptLabel: "STAGE (Name the Reactants)",
                     promptValue: stage.displayName,
                     inputs: stage.reactants.map(() => ({ type: 'reactant', label: 'Reactant' })),
-                    pools: { reactant: JSON.parse(JSON.stringify(stage.reactants)) },
+                    originalPools: { reactant: JSON.parse(JSON.stringify(stage.reactants)) },
                     info: stage
                 });
 
-                // 2. Given Stage -> Type Products
                 deck.push({
                     promptLabel: "STAGE (Name the Products)",
                     promptValue: stage.displayName,
                     inputs: stage.products.map(() => ({ type: 'product', label: 'Product' })),
-                    pools: { product: JSON.parse(JSON.stringify(stage.products)) },
+                    originalPools: { product: JSON.parse(JSON.stringify(stage.products)) },
                     info: stage
                 });
 
-                // 3. Given Reactants -> Type Stage & Products
                 deck.push({
                     promptLabel: "REACTANTS (Name Stage & Products)",
                     promptValue: stage.displayReactants,
@@ -409,14 +484,13 @@
                         { type: 'stage', label: 'Stage Name' },
                         ...stage.products.map(() => ({ type: 'product', label: 'Product' }))
                     ],
-                    pools: {
+                    originalPools: {
                         stage: [ stage.names ], 
                         product: JSON.parse(JSON.stringify(stage.products))
                     },
                     info: stage
                 });
 
-                // 4. Given Products -> Type Stage & Reactants
                 deck.push({
                     promptLabel: "PRODUCTS (Name Stage & Reactants)",
                     promptValue: stage.displayProducts,
@@ -424,7 +498,7 @@
                         { type: 'stage', label: 'Stage Name' },
                         ...stage.reactants.map(() => ({ type: 'reactant', label: 'Reactant' }))
                     ],
-                    pools: {
+                    originalPools: {
                         stage: [ stage.names ],
                         reactant: JSON.parse(JSON.stringify(stage.reactants))
                     },
@@ -444,6 +518,35 @@
             loadSlide();
         }
 
+        function updateCounter() {
+            countValue.innerText = `${deck.length - currentSlideIndex} out of ${deck.length}`;
+        }
+
+        function flagSlideAndClone() {
+            if (slideFlagged) return; // Only duplicate once per slide
+            slideFlagged = true;
+
+            const currentSlide = deck[currentSlideIndex];
+            const clonedSlide = {
+                promptLabel: currentSlide.promptLabel,
+                promptValue: currentSlide.promptValue,
+                inputs: JSON.parse(JSON.stringify(currentSlide.inputs)),
+                originalPools: JSON.parse(JSON.stringify(currentSlide.originalPools)),
+                info: currentSlide.info
+            };
+
+            // Insert the cloned slide back into the deck randomly, but at least 2 steps away
+            const remaining = deck.length - currentSlideIndex - 1;
+            let insertIndex = deck.length; // Default to end
+            
+            if (remaining > 2) {
+                insertIndex = currentSlideIndex + 2 + Math.floor(Math.random() * (remaining - 1));
+            }
+            
+            deck.splice(insertIndex, 0, clonedSlide);
+            updateCounter();
+        }
+
         function loadSlide() {
             if (currentSlideIndex >= deck.length) {
                 gameUI.style.display = 'none';
@@ -457,11 +560,12 @@
             inputsCompleted = 0;
             totalInputsNeeded = slide.inputs.length;
             isNextState = false;
+            slideFlagged = false;
             infoPanel.classList.remove('visible');
-            countValue.innerText = `${deck.length - currentSlideIndex} out of ${deck.length}`;
+            hintNotice.style.display = 'none';
+            updateCounter();
 
-            // Reset matching pools for this slide
-            activePools = JSON.parse(JSON.stringify(slide.pools));
+            activePools = JSON.parse(JSON.stringify(slide.originalPools));
 
             // Setup Prompt
             promptLabel.innerText = slide.promptLabel;
@@ -477,10 +581,50 @@
                 label.className = 'input-label';
                 label.innerText = inputConfig.label;
                 
+                const wrapper = document.createElement('div');
+                wrapper.className = 'input-wrapper';
+
                 const input = document.createElement('input');
                 input.type = 'text';
                 input.dataset.inputType = inputConfig.type;
                 input.autocomplete = "off";
+
+                const hintBtn = document.createElement('button');
+                hintBtn.className = 'hint-btn';
+                hintBtn.innerText = '?';
+                hintBtn.tabIndex = -1;
+                hintBtn.dataset.hintState = "0";
+
+                // Hint Button Logic
+                hintBtn.addEventListener('click', () => {
+                    const type = input.dataset.inputType;
+                    const state = hintBtn.dataset.hintState;
+
+                    if (state === "0") {
+                        // Requesting Hint
+                        const pool = activePools[type];
+                        if (!pool || pool.length === 0) return;
+
+                        flagSlideAndClone();
+
+                        const reserved = pool.shift(); 
+                        input.dataset.reservedSynonyms = JSON.stringify(reserved);
+                        input.dataset.hintTarget = reserved[0];
+                        
+                        input.placeholder = generateHintText(reserved[0]);
+                        hintBtn.innerText = '!';
+                        hintBtn.dataset.hintState = "1";
+                        input.focus();
+
+                    } else if (state === "1") {
+                        // Requesting full answer reveal
+                        const target = input.dataset.hintTarget;
+                        input.value = target;
+                        // Passing 'true' to flag it as a forced reveal
+                        markInputCorrect(input, target, true); 
+                        hintBtn.style.display = 'none';
+                    }
+                });
 
                 // Auto-check as the user types
                 input.addEventListener('input', () => {
@@ -488,24 +632,31 @@
                     const typedNorm = normalize(typedRaw);
                     const type = input.dataset.inputType;
                     
-                    // Look for a match in the active pool for this input type
+                    if (input.dataset.reservedSynonyms) {
+                        const reserved = JSON.parse(input.dataset.reservedSynonyms);
+                        if (reserved.includes(typedNorm)) {
+                            // Typed manually after a hint, mark as normal correct
+                            markInputCorrect(input, typedRaw, false);
+                            hintBtn.style.display = 'none';
+                        }
+                        return; 
+                    }
+
                     const pool = activePools[type];
                     if (!pool) return;
 
                     const matchIndex = pool.findIndex(synonyms => synonyms.includes(typedNorm));
                     
                     if (matchIndex !== -1) {
-                        // Match found! Remove from pool so it can't be used again
                         pool.splice(matchIndex, 1);
-                        markInputCorrect(input, typedRaw);
+                        markInputCorrect(input, typedRaw, false);
+                        hintBtn.style.display = 'none';
                     }
                 });
 
-                // Listen for Enter key to show error shakes, prevent bubbling
                 input.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') {
                         e.stopPropagation();
-                        
                         const typedNorm = normalize(input.value);
                         if (typedNorm !== "" && !input.disabled) {
                             showInputError(input);
@@ -513,40 +664,48 @@
                     }
                 });
 
+                wrapper.appendChild(input);
+                wrapper.appendChild(hintBtn);
                 group.appendChild(label);
-                group.appendChild(input);
+                group.appendChild(wrapper);
                 inputsContainer.appendChild(group);
 
-                // Auto focus first input
                 if (index === 0) {
                     setTimeout(() => input.focus(), 50);
                 }
             });
         }
 
-        function markInputCorrect(inputObj, finalValue) {
+        // Updated parameter to handle reveals
+        function markInputCorrect(inputObj, finalValue, isRevealed = false) {
             if (!inputObj.disabled) {
-                inputObj.classList.remove('error');
-                inputObj.classList.add('correct');
-                inputObj.disabled = true;
+                const wrapper = inputObj.parentElement;
+                wrapper.classList.remove('error');
                 
-                // Format the locked text to look nice based on what they typed (optional, we'll keep their raw typing)
+                // Color it differently based on if they typed it or force-revealed it
+                if (isRevealed) {
+                    wrapper.classList.add('revealed');
+                } else {
+                    wrapper.classList.add('correct');
+                }
+                
+                inputObj.disabled = true;
                 inputObj.value = finalValue; 
 
                 inputsCompleted++;
                 checkSlideCompletion();
                 
-                // Focus next available input if any
                 const nextInput = Array.from(document.querySelectorAll('input:not(:disabled)')).find(i => i !== inputObj);
                 if (nextInput) nextInput.focus();
             }
         }
 
         function showInputError(inputObj) {
-            inputObj.classList.remove('error');
-            void inputObj.offsetWidth; // trigger reflow to reset animation
-            inputObj.classList.add('error');
-            inputObj.value = ''; // clear for retry
+            const wrapper = inputObj.parentElement;
+            wrapper.classList.remove('error');
+            void wrapper.offsetWidth;
+            wrapper.classList.add('error');
+            inputObj.value = ''; 
         }
 
         function checkSlideCompletion() {
@@ -557,6 +716,11 @@
                 infoStats1.innerHTML = `Location: <span>${info.location}</span>`;
                 infoStats2.innerHTML = `ATP Produced: <span>${info.atp}</span>`;
                 purposeText.innerText = `Purpose: ${info.purpose}`;
+                
+                // Explicitly show the hint notice if the slide was cloned
+                if (slideFlagged) {
+                    hintNotice.style.display = 'block';
+                }
                 
                 infoPanel.classList.add('visible');
                 nextBtn.focus();
@@ -574,7 +738,6 @@
         restartBtn.addEventListener('click', initDeck);
         nextBtn.addEventListener('click', goNext);
 
-        // Global Enter listener for next button
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && isNextState) {
                 e.preventDefault();
@@ -582,7 +745,6 @@
             }
         });
 
-        // Focus fallback: clicking background refocuses empty inputs
         document.addEventListener('click', (e) => {
             if (!isNextState && e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
                 const openInput = document.querySelector('input:not(:disabled)');
