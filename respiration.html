@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cellular Respiration Trainer</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
+
+        :root {
+            --bg-color: #323437;
+            --main-text: #d1d0c5;
+            --sub-text: #646669;
+            --caret-color: #e2b714;
+            --error-color: #ca4754;
+            --correct-color: #a6e22e;
+            --font-family: 'Roboto Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--main-text);
+            font-family: var(--font-family);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 2rem;
+            color: var(--sub-text);
+        }
+
+        button {
+            background: transparent;
+            border: 2px solid var(--sub-text);
+            color: var(--sub-text);
+            font-family: var(--font-family);
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        button:hover {
+            color: var(--main-text);
+            border-color: var(--main-text);
+        }
+
+        .rules-blurb {
+            font-size: 0.85rem;
+            color: var(--sub-text);
+            margin-bottom: 2rem;
+            text-align: center;
+            line-height: 1.5;
+            max-width: 800px;
+            padding: 0 1rem;
+        }
+
+        .rules-blurb span {
+            color: var(--caret-color);
+        }
+
+        /* Main Game Area */
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 1000px;
+            flex-grow: 1;
+            justify-content: center;
+            padding-bottom: 5vh;
+        }
+
+        .prompt-box {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 0 1rem;
+        }
+
+        .prompt-label {
+            font-size: 1.2rem;
+            color: var(--sub-text);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .prompt-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--main-text);
+            line-height: 1.2;
+        }
+
+        .inputs-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            width: 100%;
+            justify-content: center;
+            padding: 0 1rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 220px;
+            margin-bottom: 1rem;
+        }
+
+        .input-label {
+            font-size: 0.9rem;
+            color: var(--sub-text);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        input {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid var(--sub-text);
+            color: var(--caret-color);
+            font-family: var(--font-family);
+            font-size: 1.5rem;
+            text-align: center;
+            width: 100%;
+            outline: none;
+            caret-color: var(--caret-color);
+            padding-bottom: 0.5rem;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        input:focus {
+            border-bottom-color: var(--caret-color);
+        }
+
+        input:disabled {
+            background: transparent;
+        }
+
+        /* Feedback States */
+        input.correct {
+            color: var(--correct-color);
+            border-bottom-color: var(--correct-color);
+        }
+
+        input.error {
+            color: var(--error-color);
+            border-bottom-color: var(--error-color);
+            animation: shake 0.4s;
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        /* Info Panel & Next Button */
+        .info-panel {
+            margin-top: 3rem;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeIn 0.3s ease-in;
+            text-align: center;
+        }
+
+        .info-panel.visible {
+            display: flex;
+        }
+
+        .info-stats {
+            color: var(--main-text);
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-stats span {
+            color: var(--caret-color);
+        }
+
+        .purpose-text {
+            color: var(--sub-text);
+            font-style: italic;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            line-height: 1.4;
+        }
+
+        .next-btn {
+            font-size: 1.5rem;
+            padding: 0.5rem 3rem;
+            border-color: var(--caret-color);
+            color: var(--caret-color);
+        }
+
+        .next-btn:hover {
+            background-color: var(--caret-color);
+            color: var(--bg-color);
+        }
+
+        /* Bottom Left Counter */
+        .counter {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            font-size: 1.5rem;
+            color: var(--caret-color);
+        }
+        
+        .counter-label {
+            font-size: 0.8rem;
+            color: var(--sub-text);
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Completion Screen */
+        #completionScreen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+        }
+
+        #completionScreen h1 {
+            font-size: 3rem;
+            color: var(--correct-color);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <button id="restartBtn">Restart</button>
+    </div>
+
+    <div class="rules-blurb">
+        Order does not matter when entering multiple reactants/products.<br>
+        Spacing, hyphens, and capitalization are ignored. You <span>MUST</span> include numbers and + signs (e.g., <span>2nad+</span> or <span>2 ADP + 2 Pi</span>).<br>
+        For stages, you can abbreviate (e.g. <span>Krebs Cycle</span> or <span>Citric Acid Cycle</span> / <span>ETC</span> or <span>Electron Transport Chain</span>).
+    </div>
+
+    <div class="game-container" id="gameUI">
+        <div class="prompt-box">
+            <div class="prompt-label" id="promptLabel">Attribute</div>
+            <div class="prompt-value" id="promptValue">Value</div>
+        </div>
+
+        <div class="inputs-container" id="inputsContainer">
+            </div>
+
+        <div class="info-panel" id="infoPanel">
+            <div class="info-stats" id="infoStats1">
+                Location: <span>Cytoplasm</span>
+            </div>
+            <div class="info-stats" id="infoStats2">
+                ATP Produced: <span>2</span>
+            </div>
+            <div class="purpose-text" id="purposeText">"Purpose goes here"</div>
+            <button class="next-btn" id="nextBtn">NEXT (Enter)</button>
+        </div>
+    </div>
+
+    <div id="completionScreen">
+        <h1>Deck Completed!</h1>
+        <button onclick="initDeck()">Study Again</button>
+    </div>
+
+    <div class="counter">
+        <span class="counter-label">slides remaining</span>
+        <span id="countValue">0 out of 0</span>
+    </div>
+
+    <script>
+        // --- Data Normalization Helper ---
+        function normalize(str) {
+            // Remove all spaces and hyphens, convert to lowercase. 
+            // Keeps +, numbers, and letters intact.
+            return str.toLowerCase().replace(/[\s-]/g, '');
+        }
+
+        // --- Database ---
+        // Synonyms are provided as arrays. If an item has multiple valid names, any will be accepted.
+        const stagesData = [
+            {
+                names: ["glycolysis"],
+                displayName: "Glycolysis",
+                reactants: [ ["glucose"], ["2nad+"], ["2adp+2pi"] ],
+                displayReactants: "Glucose, 2 NAD+, 2 ADP + 2 Pi",
+                products: [ ["2pyruvate"], ["2nadh"], ["2atp"] ],
+                displayProducts: "2 Pyruvate, 2 NADH, 2 ATP",
+                location: "Cytoplasm",
+                atp: "2",
+                purpose: "Break glucose into smaller molecules and capture energy"
+            },
+            {
+                names: ["pyruvateoxidation"],
+                displayName: "Pyruvate Oxidation",
+                reactants: [ ["2pyruvate"], ["2nad+"], ["2coa"] ],
+                displayReactants: "2 Pyruvate, 2 NAD+, 2 CoA",
+                products: [ ["2acetylcoa"], ["2co2"], ["2nadh"] ],
+                displayProducts: "2 Acetyl-CoA, 2 CO2, 2 NADH",
+                location: "Mitochondrial Matrix",
+                atp: "0",
+                purpose: "Convert pyruvate into Acetyl-CoA for Krebs cycle"
+            },
+            {
+                names: ["krebscycle", "citricacidcycle"],
+                displayName: "Krebs Cycle (Citric Acid Cycle)",
+                reactants: [ ["2acetylcoa"], ["6nad+"], ["2fad"], ["2adp+2pi"] ],
+                displayReactants: "2 Acetyl-CoA, 6 NAD+, 2 FAD, 2 ADP + 2 Pi",
+                products: [ ["4co2"], ["6nadh"], ["2fadh2"], ["2atp"] ],
+                displayProducts: "4 CO2, 6 NADH, 2 FADH2, 2 ATP",
+                location: "Mitochondrial Matrix",
+                atp: "2",
+                purpose: "Produce electron carriers for ETC"
+            },
+            {
+                names: ["electrontransportchain", "etc", "electrontransportchainchemiosmosis"],
+                displayName: "Electron Transport Chain & Chemiosmosis",
+                reactants: [ ["10nadh"], ["2fadh2"], ["6o2"], ["adp+pi"] ],
+                displayReactants: "10 NADH, 2 FADH2, 6 O2, ADP + Pi",
+                products: [ ["10nad+"], ["2fad"], ["6h2o"], ["atp"] ],
+                displayProducts: "10 NAD+, 2 FAD, 6 H2O, ATP",
+                location: "Inner Mitochondrial Membrane",
+                atp: "~28 (Total ~32 ATP per glucose including earlier steps)",
+                purpose: "Use electrons to create proton gradient and produce majority of ATP"
+            }
+        ];
+
+        // --- Game State ---
+        let deck = [];
+        let currentSlideIndex = 0;
+        let activePools = {}; // Tracks remaining answers needed for the current slide
+        let inputsCompleted = 0;
+        let totalInputsNeeded = 0;
+        let isNextState = false;
+
+        // UI Elements
+        const restartBtn = document.getElementById('restartBtn');
+        const promptLabel = document.getElementById('promptLabel');
+        const promptValue = document.getElementById('promptValue');
+        const inputsContainer = document.getElementById('inputsContainer');
+        const infoPanel = document.getElementById('infoPanel');
+        const infoStats1 = document.getElementById('infoStats1');
+        const infoStats2 = document.getElementById('infoStats2');
+        const purposeText = document.getElementById('purposeText');
+        const nextBtn = document.getElementById('nextBtn');
+        const countValue = document.getElementById('countValue');
+        const gameUI = document.getElementById('gameUI');
+        const completionScreen = document.getElementById('completionScreen');
+
+        // --- Core Logic ---
+        function initDeck() {
+            deck = [];
+            
+            stagesData.forEach(stage => {
+                // 1. Given Stage -> Type Reactants
+                deck.push({
+                    promptLabel: "STAGE (Name the Reactants)",
+                    promptValue: stage.displayName,
+                    inputs: stage.reactants.map(() => ({ type: 'reactant', label: 'Reactant' })),
+                    pools: { reactant: JSON.parse(JSON.stringify(stage.reactants)) },
+                    info: stage
+                });
+
+                // 2. Given Stage -> Type Products
+                deck.push({
+                    promptLabel: "STAGE (Name the Products)",
+                    promptValue: stage.displayName,
+                    inputs: stage.products.map(() => ({ type: 'product', label: 'Product' })),
+                    pools: { product: JSON.parse(JSON.stringify(stage.products)) },
+                    info: stage
+                });
+
+                // 3. Given Reactants -> Type Stage & Products
+                deck.push({
+                    promptLabel: "REACTANTS (Name Stage & Products)",
+                    promptValue: stage.displayReactants,
+                    inputs: [
+                        { type: 'stage', label: 'Stage Name' },
+                        ...stage.products.map(() => ({ type: 'product', label: 'Product' }))
+                    ],
+                    pools: {
+                        stage: [ stage.names ], 
+                        product: JSON.parse(JSON.stringify(stage.products))
+                    },
+                    info: stage
+                });
+
+                // 4. Given Products -> Type Stage & Reactants
+                deck.push({
+                    promptLabel: "PRODUCTS (Name Stage & Reactants)",
+                    promptValue: stage.displayProducts,
+                    inputs: [
+                        { type: 'stage', label: 'Stage Name' },
+                        ...stage.reactants.map(() => ({ type: 'reactant', label: 'Reactant' }))
+                    ],
+                    pools: {
+                        stage: [ stage.names ],
+                        reactant: JSON.parse(JSON.stringify(stage.reactants))
+                    },
+                    info: stage
+                });
+            });
+
+            // Shuffle Deck
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+
+            currentSlideIndex = 0;
+            gameUI.style.display = 'flex';
+            completionScreen.style.display = 'none';
+            loadSlide();
+        }
+
+        function loadSlide() {
+            if (currentSlideIndex >= deck.length) {
+                gameUI.style.display = 'none';
+                completionScreen.style.display = 'flex';
+                countValue.innerText = `0 out of ${deck.length}`;
+                return;
+            }
+
+            const slide = deck[currentSlideIndex];
+            
+            inputsCompleted = 0;
+            totalInputsNeeded = slide.inputs.length;
+            isNextState = false;
+            infoPanel.classList.remove('visible');
+            countValue.innerText = `${deck.length - currentSlideIndex} out of ${deck.length}`;
+
+            // Reset matching pools for this slide
+            activePools = JSON.parse(JSON.stringify(slide.pools));
+
+            // Setup Prompt
+            promptLabel.innerText = slide.promptLabel;
+            promptValue.innerText = slide.promptValue;
+
+            // Setup Inputs
+            inputsContainer.innerHTML = '';
+            slide.inputs.forEach((inputConfig, index) => {
+                const group = document.createElement('div');
+                group.className = 'input-group';
+                
+                const label = document.createElement('div');
+                label.className = 'input-label';
+                label.innerText = inputConfig.label;
+                
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.dataset.inputType = inputConfig.type;
+                input.autocomplete = "off";
+
+                // Auto-check as the user types
+                input.addEventListener('input', () => {
+                    const typedRaw = input.value;
+                    const typedNorm = normalize(typedRaw);
+                    const type = input.dataset.inputType;
+                    
+                    // Look for a match in the active pool for this input type
+                    const pool = activePools[type];
+                    if (!pool) return;
+
+                    const matchIndex = pool.findIndex(synonyms => synonyms.includes(typedNorm));
+                    
+                    if (matchIndex !== -1) {
+                        // Match found! Remove from pool so it can't be used again
+                        pool.splice(matchIndex, 1);
+                        markInputCorrect(input, typedRaw);
+                    }
+                });
+
+                // Listen for Enter key to show error shakes, prevent bubbling
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.stopPropagation();
+                        
+                        const typedNorm = normalize(input.value);
+                        if (typedNorm !== "" && !input.disabled) {
+                            showInputError(input);
+                        }
+                    }
+                });
+
+                group.appendChild(label);
+                group.appendChild(input);
+                inputsContainer.appendChild(group);
+
+                // Auto focus first input
+                if (index === 0) {
+                    setTimeout(() => input.focus(), 50);
+                }
+            });
+        }
+
+        function markInputCorrect(inputObj, finalValue) {
+            if (!inputObj.disabled) {
+                inputObj.classList.remove('error');
+                inputObj.classList.add('correct');
+                inputObj.disabled = true;
+                
+                // Format the locked text to look nice based on what they typed (optional, we'll keep their raw typing)
+                inputObj.value = finalValue; 
+
+                inputsCompleted++;
+                checkSlideCompletion();
+                
+                // Focus next available input if any
+                const nextInput = Array.from(document.querySelectorAll('input:not(:disabled)')).find(i => i !== inputObj);
+                if (nextInput) nextInput.focus();
+            }
+        }
+
+        function showInputError(inputObj) {
+            inputObj.classList.remove('error');
+            void inputObj.offsetWidth; // trigger reflow to reset animation
+            inputObj.classList.add('error');
+            inputObj.value = ''; // clear for retry
+        }
+
+        function checkSlideCompletion() {
+            if (inputsCompleted === totalInputsNeeded) {
+                isNextState = true;
+                const info = deck[currentSlideIndex].info;
+                
+                infoStats1.innerHTML = `Location: <span>${info.location}</span>`;
+                infoStats2.innerHTML = `ATP Produced: <span>${info.atp}</span>`;
+                purposeText.innerText = `Purpose: ${info.purpose}`;
+                
+                infoPanel.classList.add('visible');
+                nextBtn.focus();
+            }
+        }
+
+        function goNext() {
+            if (isNextState) {
+                currentSlideIndex++;
+                loadSlide();
+            }
+        }
+
+        // --- Event Listeners ---
+        restartBtn.addEventListener('click', initDeck);
+        nextBtn.addEventListener('click', goNext);
+
+        // Global Enter listener for next button
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && isNextState) {
+                e.preventDefault();
+                goNext();
+            }
+        });
+
+        // Focus fallback: clicking background refocuses empty inputs
+        document.addEventListener('click', (e) => {
+            if (!isNextState && e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
+                const openInput = document.querySelector('input:not(:disabled)');
+                if (openInput) openInput.focus();
+            }
+        });
+
+        // Initialize App
+        initDeck();
+
+    </script>
+</body>
+</html>
