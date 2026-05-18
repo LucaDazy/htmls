@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BI112 Exam 2 Cram Terminal v6</title>
+    <title>BI112 Exam 2 Cram Terminal v8</title>
     <style>
         :root {
             --bg-color: #323437;
@@ -68,6 +68,10 @@
         .option-btn.wrong { border-color: var(--error); color: var(--error); background: rgba(202, 71, 84, 0.1); }
         .option-btn:disabled { cursor: default; }
         
+        .explanation-box { margin-top: 1.5rem; padding: 1rem; background: rgba(0,0,0,0.2); border-left: 4px solid var(--accent); border-radius: 4px; display: none; line-height: 1.5; font-size: 0.95rem; }
+        .next-mcq-btn { display: none; margin-top: 1rem; width: 100%; background: var(--accent); color: var(--bg-color); border: none; padding: 0.8rem; font-size: 1.1rem; font-family: inherit; font-weight: bold; cursor: pointer; border-radius: 4px; }
+        .next-mcq-btn:hover { opacity: 0.9; }
+
         .end-screen { text-align: center; display: none; }
         .end-screen h2 { color: var(--accent); }
 
@@ -78,7 +82,7 @@
         .difficulty-selector button { background: none; border: 1px solid var(--text-muted); color: var(--text-muted); font-family: inherit; font-size: 0.85rem; padding: 0.4rem 0.8rem; cursor: pointer; border-radius: 4px; }
         .difficulty-selector button.active, .difficulty-selector button:hover { border-color: var(--accent); color: var(--accent); }
         
-        .ctq-nav-bar { display: flex; gap: 0.5rem; margin-top: 1rem; border-top: 1px solid var(--text-muted); padding-top: 1.5rem; justify-content: center; }
+        .ctq-nav-bar { display: flex; gap: 0.5rem; margin-top: 1.5rem; border-top: 1px solid var(--text-muted); padding-top: 1.5rem; justify-content: center; flex-wrap: wrap; }
         .ctq-nav-bar button { background: none; border: 1px solid var(--text-muted); color: var(--text-muted); font-family: inherit; font-size: 0.9rem; padding: 0.4rem 0.8rem; cursor: pointer; border-radius: 4px; }
         .ctq-nav-bar button.active { border-color: var(--accent); color: var(--accent); }
 
@@ -112,6 +116,10 @@
         .warmup-btn:hover { border-color: var(--accent); color: var(--accent); }
         .warmup-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
 
+        /* Pre-Submit Glossary */
+        .pre-submit-glossary-container { margin-top: 2rem; background: rgba(0,0,0,0.1); border: 1px solid var(--text-muted); border-radius: 4px; padding: 1rem; }
+        .pre-submit-title { font-weight: bold; color: var(--accent); margin-bottom: 0.8rem; font-size: 0.95rem; }
+
         /* Feedback Area */
         .feedback { margin-top: 1.5rem; padding: 1rem; border-radius: 4px; display: none; background: rgba(0,0,0,0.2); }
         
@@ -130,11 +138,10 @@
             outline: none;
             user-select: none;
         }
-        .keyword-summary:hover {
-            opacity: 0.8;
-        }
+        .keyword-summary:hover { opacity: 0.8; }
         .text-success { color: var(--success); }
         .text-error { color: var(--error); }
+        .text-neutral { color: var(--text-main); }
         .keyword-def-text {
             margin-top: 0.5rem;
             padding-top: 0.5rem;
@@ -162,6 +169,10 @@
         <div id="mcq-quiz-area">
             <div class="mcq-question" id="mcq-q">Loading...</div>
             <div class="options-grid" id="mcq-opts"></div>
+            
+            <div id="mcq-exp-box" class="explanation-box"></div>
+            <button id="mcq-next-btn" class="next-mcq-btn" onclick="nextMCQ()">Next Question ➔</button>
+
             <div class="progress" id="mcq-prog"></div>
         </div>
         <div id="mcq-end-screen" class="end-screen">
@@ -181,7 +192,7 @@
 
         <div class="ctq-prompt" id="ctq-q">Loading...</div>
         
-        <button class="warmup-btn" style="margin-bottom:0;" onclick="toggleWarmup()">💡 Need a Hint? Try a Warm-up Question</button>
+        <button class="warmup-btn" style="margin-bottom:1rem;" onclick="toggleWarmup()">💡 Need a Hint? Try a Warm-up Question</button>
         <div class="warmup-box" id="warmup-box">
             <div class="warmup-controls">
                 <div style="color: var(--accent); font-size: 0.9rem;">Warm-up Hint:</div>
@@ -206,6 +217,11 @@
             <div class="full-answer" id="ctq-actual"></div>
         </div>
 
+        <div class="pre-submit-glossary-container">
+            <div class="pre-submit-title">📚 Pre-Study Glossary (Click to Expand Definitions)</div>
+            <div id="pre-submit-badges"></div>
+        </div>
+
         <div class="ctq-nav-bar">
             <button id="nav-ctq-0" onclick="goToCTQ(0)">CTQ 1</button>
             <button id="nav-ctq-1" onclick="goToCTQ(1)">CTQ 2</button>
@@ -219,53 +235,53 @@
         // --- DATA ---
         const originalMcqs = [
             // Cell Comm
-            { q: "Which type of signaling involves a cell secreting a ligand that binds to its own receptors?", opts: ["Autocrine", "Paracrine", "Endocrine", "Synaptic"], ans: 0 },
-            { q: "Which type of signaling acts on nearby target cells and is generally fast but short-lived?", opts: ["Endocrine", "Paracrine", "Autocrine", "Synaptic"], ans: 1 },
-            { q: "Which signaling uses the bloodstream to transport hormones over long distances?", opts: ["Autocrine", "Paracrine", "Synaptic", "Endocrine"], ans: 3 },
-            { q: "Synaptic signaling is unique because it:", opts: ["Is slower than endocrine signaling", "Involves neurotransmitters crossing a very short distance (synapse)", "Only uses intracellular receptors", "Does not require a ligand"], ans: 1 },
-            { q: "What is the general term for a molecule that specifically binds to a receptor?", opts: ["Enzyme", "Target cell", "Ligand", "Phosphatase"], ans: 2 },
-            { q: "Where would a receptor for a small, hydrophobic (nonpolar) ligand likely be located?", opts: ["On the cell surface", "Intracellularly (inside the cytoplasm/nucleus)", "In the extracellular matrix", "Inside a vesicle"], ans: 1 },
-            { q: "Where would a receptor for a large, hydrophilic (polar) ligand be located?", opts: ["Intracellularly", "In the nucleus", "Cell-surface (plasma membrane)", "On the mitochondria"], ans: 2 },
-            { q: "Which receptor type opens or closes a channel when a ligand binds, allowing specific ions to pass?", opts: ["G-protein linked", "Enzyme-linked", "Ion-channel linked", "Intracellular"], ans: 2 },
-            { q: "Which receptor type requires two ligands to bind, causing the receptors to dimerize and self-phosphorylate?", opts: ["Ion-channel linked", "Enzyme-linked (tyrosine kinase)", "G-protein linked", "Autocrine"], ans: 1 },
-            { q: "What is the sequence of the three main stages of cell signaling?", opts: ["Transduction → Reception → Response", "Reception → Transduction → Response", "Response → Reception → Transduction", "Transduction → Response → Reception"], ans: 1 },
-            { q: "Which type of enzyme adds a phosphate group to a protein to activate it?", opts: ["Phosphatase", "Adenylyl cyclase", "Kinase", "Lipase"], ans: 2 },
-            { q: "Which type of enzyme removes a phosphate group from a protein (dephosphorylation)?", opts: ["Kinase", "Phosphatase", "Isomerase", "Protease"], ans: 1 },
-            { q: "Which of the following is NOT a common second messenger?", opts: ["cAMP", "ATP", "Calcium ions (Ca2+)", "IP3/DAG"], ans: 1 },
-            { q: "Apoptosis is critically important for:", opts: ["Regenerating lost limbs", "Rapid tumor growth", "Removing damaged or infected cells safely", "Increasing ATP yield"], ans: 2 },
-            { q: "Quorum sensing is a signaling mechanism used by bacteria to:", opts: ["Trigger apoptosis", "Form biofilms when population density is high", "Generate heat", "Evade viruses"], ans: 1 },
+            { q: "Which type of signaling involves a cell secreting a ligand that binds to its own receptors?", opts: ["Autocrine", "Paracrine", "Endocrine", "Synaptic"], ans: 0, exp: "Autocrine ('auto' = self) means the cell targets itself by secreting signals that bind to its own surface." },
+            { q: "Which type of signaling acts on nearby target cells and is generally fast but short-lived?", opts: ["Endocrine", "Paracrine", "Autocrine", "Synaptic"], ans: 1, exp: "Paracrine ('para' = nearby) signaling diffuses across short distances to affect neighboring cells." },
+            { q: "Which signaling uses the bloodstream to transport hormones over long distances?", opts: ["Autocrine", "Paracrine", "Synaptic", "Endocrine"], ans: 3, exp: "Endocrine signaling relies on the circulatory system to carry hormones throughout the entire body." },
+            { q: "Synaptic signaling is unique because it:", opts: ["Is slower than endocrine signaling", "Involves neurotransmitters crossing a very short distance (synapse)", "Only uses intracellular receptors", "Does not require a ligand"], ans: 1, exp: "Synaptic signaling occurs exclusively in the nervous system, where neurotransmitters cross a tiny gap called a synapse." },
+            { q: "What is the general term for a molecule that specifically binds to a receptor?", opts: ["Enzyme", "Target cell", "Ligand", "Phosphatase"], ans: 2, exp: "A ligand is the specific chemical messenger that fits exactly into a corresponding receptor." },
+            { q: "Where would a receptor for a small, hydrophobic (nonpolar) ligand likely be located?", opts: ["On the cell surface", "Intracellularly (inside the cytoplasm/nucleus)", "In the extracellular matrix", "Inside a vesicle"], ans: 1, exp: "Hydrophobic molecules can easily slide through the lipid bilayer, so their receptors wait inside the cell." },
+            { q: "Where would a receptor for a large, hydrophilic (polar) ligand be located?", opts: ["Intracellularly", "In the nucleus", "Cell-surface (plasma membrane)", "On the mitochondria"], ans: 2, exp: "Hydrophilic/polar molecules cannot cross the lipid membrane, so they must bind to receptors on the cell surface." },
+            { q: "Which receptor type opens or closes a channel when a ligand binds, allowing specific ions to pass?", opts: ["G-protein linked", "Enzyme-linked", "Ion-channel linked", "Intracellular"], ans: 2, exp: "Ion-channel linked receptors act as literal physical gates that open/close in response to a ligand." },
+            { q: "Which receptor type requires two ligands to bind, causing the receptors to dimerize and self-phosphorylate?", opts: ["Ion-channel linked", "Enzyme-linked (tyrosine kinase)", "G-protein linked", "Autocrine"], ans: 1, exp: "Receptor Tyrosine Kinases (RTKs) are enzyme-linked. They must pair up (dimerize) and activate each other via phosphorylation." },
+            { q: "What is the sequence of the three main stages of cell signaling?", opts: ["Transduction → Reception → Response", "Reception → Transduction → Response", "Response → Reception → Transduction", "Transduction → Response → Reception"], ans: 1, exp: "First the signal binds (Reception), then it travels through the cell (Transduction), and finally causes a change (Response)." },
+            { q: "Which type of enzyme adds a phosphate group to a protein to activate it?", opts: ["Phosphatase", "Adenylyl cyclase", "Kinase", "Lipase"], ans: 2, exp: "Kinases act as switches that turn proteins 'on' by adding phosphate groups (phosphorylation)." },
+            { q: "Which type of enzyme removes a phosphate group from a protein (dephosphorylation)?", opts: ["Kinase", "Phosphatase", "Isomerase", "Protease"], ans: 1, exp: "Phosphatases turn proteins 'off' by removing the phosphate groups." },
+            { q: "Which of the following is NOT a common second messenger?", opts: ["cAMP", "ATP", "Calcium ions (Ca2+)", "IP3/DAG"], ans: 1, exp: "ATP is an energy source. cAMP, Calcium, and IP3/DAG are the most common second messengers." },
+            { q: "Apoptosis is critically important for:", opts: ["Regenerating lost limbs", "Rapid tumor growth", "Removing damaged or infected cells safely", "Increasing ATP yield"], ans: 2, exp: "Apoptosis is programmed cell death, preventing damaged cells from turning into cancer or infecting neighbors." },
+            { q: "Quorum sensing is a signaling mechanism used by bacteria to:", opts: ["Trigger apoptosis", "Form biofilms when population density is high", "Generate heat", "Evade viruses"], ans: 1, exp: "Quorum sensing allows bacteria to monitor their population density and act as a group, like forming a protective biofilm." },
             
             // Energy & Metabolism
-            { q: "The First Law of Thermodynamics states that energy:", opts: ["Cannot be created or destroyed, only transferred", "Always increases entropy", "Is constantly lost as mass", "Is created during cellular respiration"], ans: 0 },
-            { q: "According to the Second Law of Thermodynamics, every energy transfer increases the universe's:", opts: ["Kinetic energy", "Potential energy", "Enthalpy", "Entropy (disorder)"], ans: 3 },
-            { q: "Chemical energy stored in the bonds of glucose is a form of:", opts: ["Kinetic energy", "Thermal energy", "Potential energy", "Activation energy"], ans: 2 },
-            { q: "A metabolic pathway that builds complex molecules from simpler ones (requiring energy) is:", opts: ["Catabolism", "Anabolism", "Hydrolysis", "Exergonic"], ans: 1 },
-            { q: "A chemical reaction that releases energy to its surroundings is termed:", opts: ["Exergonic", "Endergonic", "Anabolic", "Catalytic"], ans: 0 },
+            { q: "The First Law of Thermodynamics states that energy:", opts: ["Cannot be created or destroyed, only transferred", "Always increases entropy", "Is constantly lost as mass", "Is created during cellular respiration"], ans: 0, exp: "Energy only changes forms. It is never created or completely destroyed." },
+            { q: "According to the Second Law of Thermodynamics, every energy transfer increases the universe's:", opts: ["Kinetic energy", "Potential energy", "Enthalpy", "Entropy (disorder)"], ans: 3, exp: "No energy transfer is 100% efficient. Some energy is always lost as heat, increasing the total chaos/entropy of the universe." },
+            { q: "Chemical energy stored in the bonds of glucose is a form of:", opts: ["Kinetic energy", "Thermal energy", "Potential energy", "Activation energy"], ans: 2, exp: "Chemical energy is potential energy waiting to be released when the bonds are broken." },
+            { q: "A metabolic pathway that builds complex molecules from simpler ones (requiring energy) is:", opts: ["Catabolism", "Anabolism", "Hydrolysis", "Exergonic"], ans: 1, exp: "Anabolism builds things up (like steroids). Catabolism breaks them down." },
+            { q: "A chemical reaction that releases energy to its surroundings is termed:", opts: ["Exergonic", "Endergonic", "Anabolic", "Catalytic"], ans: 0, exp: "Exergonic means energy is exiting/released. Endergonic means it requires an input of energy." },
 
             // Enzymes
-            { q: "Enzymes act as biological catalysts by:", opts: ["Increasing the activation energy", "Lowering the activation energy required for a reaction", "Adding heat to the system", "Changing an endergonic reaction to exergonic"], ans: 1 },
-            { q: "The specific region of an enzyme where the substrate binds is the:", opts: ["Allosteric site", "Receptor site", "Active site", "Catalytic core"], ans: 2 },
-            { q: "Extreme temperatures or pH can cause an enzyme to lose its 3D shape, a process called:", opts: ["Inhibition", "Dephosphorylation", "Denaturation", "Saturation"], ans: 2 },
-            { q: "An inhibitor that structurally resembles the substrate and competes for the active site is a(n):", opts: ["Noncompetitive inhibitor", "Competitive inhibitor", "Allosteric inhibitor", "Feedback inhibitor"], ans: 1 },
-            { q: "If an inhibitor binds to a site other than the active site (allosteric site), changing the enzyme's shape, it is a(n):", opts: ["Competitive inhibitor", "Noncompetitive inhibitor", "Coenzyme", "Substrate analog"], ans: 1 },
-            { q: "When the end-product of a metabolic pathway shuts down the pathway by inhibiting an early enzyme, this is:", opts: ["Positive feedback", "Competitive inhibition", "Feedback inhibition", "Denaturation"], ans: 2 },
+            { q: "Enzymes act as biological catalysts by:", opts: ["Increasing the activation energy", "Lowering the activation energy required for a reaction", "Adding heat to the system", "Changing an endergonic reaction to exergonic"], ans: 1, exp: "Enzymes make it easier for reactions to happen by lowering the initial energy hurdle (activation energy)." },
+            { q: "The specific region of an enzyme where the substrate binds is the:", opts: ["Allosteric site", "Receptor site", "Active site", "Catalytic core"], ans: 2, exp: "The active site is perfectly shaped to fit the specific substrate." },
+            { q: "Extreme temperatures or pH can cause an enzyme to lose its 3D shape, a process called:", opts: ["Inhibition", "Dephosphorylation", "Denaturation", "Saturation"], ans: 2, exp: "Denaturation destroys the protein structure, ruining the active site." },
+            { q: "An inhibitor that structurally resembles the substrate and competes for the active site is a(n):", opts: ["Noncompetitive inhibitor", "Competitive inhibitor", "Allosteric inhibitor", "Feedback inhibitor"], ans: 1, exp: "Competitive inhibitors literally block the active site so the real substrate can't get in." },
+            { q: "If an inhibitor binds to a site other than the active site (allosteric site), changing the enzyme's shape, it is a(n):", opts: ["Competitive inhibitor", "Noncompetitive inhibitor", "Coenzyme", "Substrate analog"], ans: 1, exp: "Noncompetitive (allosteric) inhibitors bind elsewhere, warping the entire enzyme so it stops working." },
+            { q: "When the end-product of a metabolic pathway shuts down the pathway by inhibiting an early enzyme, this is:", opts: ["Positive feedback", "Competitive inhibition", "Feedback inhibition", "Denaturation"], ans: 2, exp: "Feedback inhibition is a smart cell mechanism to prevent wasting resources making too much of a product." },
 
             // ATP & Redox
-            { q: "Energy is released from ATP when:", opts: ["Adenine is removed", "The bond between the second and third phosphate groups is broken (hydrolysis)", "It is oxidized", "Ribose is converted to glucose"], ans: 1 },
-            { q: "In a redox reaction, the substance that loses electrons is:", opts: ["Oxidized", "Reduced", "Phosphorylated", "Hydrolyzed"], ans: 0 },
-            { q: "In a redox reaction, the substance that gains electrons is:", opts: ["Oxidized", "Reduced", "Catalyzed", "Denatured"], ans: 1 },
+            { q: "Energy is released from ATP when:", opts: ["Adenine is removed", "The bond between the second and third phosphate groups is broken (hydrolysis)", "It is oxidized", "Ribose is converted to glucose"], ans: 1, exp: "The bonds between the phosphates are unstable. Breaking off the 3rd phosphate releases a burst of energy." },
+            { q: "In a redox reaction, the substance that loses electrons is:", opts: ["Oxidized", "Reduced", "Phosphorylated", "Hydrolyzed"], ans: 0, exp: "LEO says GER: Loses Electrons = Oxidized." },
+            { q: "In a redox reaction, the substance that gains electrons is:", opts: ["Oxidized", "Reduced", "Catalyzed", "Denatured"], ans: 1, exp: "LEO says GER: Gains Electrons = Reduced. (It's charge is reduced because electrons are negative)." },
 
             // Cellular Respiration
-            { q: "What are the three main stages of Cellular Respiration in order?", opts: ["Glycolysis → Citric Acid Cycle → Electron Transport Chain", "Citric Acid Cycle → Glycolysis → ETC", "ETC → Glycolysis → Fermentation", "Glycolysis → Fermentation → ETC"], ans: 0 },
-            { q: "Which key product of the Citric Acid Cycle acts as an electron carrier to the ETC?", opts: ["ATP", "NADH", "CO2", "Oxygen"], ans: 1 },
-            { q: "What acts as the final electron acceptor at the end of the Electron Transport Chain?", opts: ["NAD+", "Carbon dioxide", "Oxygen", "Water"], ans: 2 },
-            { q: "Chemiosmosis produces ATP by using the energy from a gradient of:", opts: ["Sodium ions", "Hydrogen ions (protons)", "Calcium ions", "Electrons"], ans: 1 },
+            { q: "What are the three main stages of Cellular Respiration in order?", opts: ["Glycolysis → Citric Acid Cycle → Electron Transport Chain", "Citric Acid Cycle → Glycolysis → ETC", "ETC → Glycolysis → Fermentation", "Glycolysis → Fermentation → ETC"], ans: 0, exp: "Glucose is broken in half (Glycolysis), stripped of electrons (Citric Acid Cycle), and those electrons power the ETC." },
+            { q: "Which key product of the Citric Acid Cycle acts as an electron carrier to the ETC?", opts: ["ATP", "NADH", "CO2", "Oxygen"], ans: 1, exp: "NADH (and FADH2) act like shuttles carrying high-energy electrons to the ETC." },
+            { q: "What acts as the final electron acceptor at the end of the Electron Transport Chain?", opts: ["NAD+", "Carbon dioxide", "Oxygen", "Water"], ans: 2, exp: "Oxygen is highly electronegative. It sits at the end of the chain, pulling the electrons down. Without it, the chain stops." },
+            { q: "Chemiosmosis produces ATP by using the energy from a gradient of:", opts: ["Sodium ions", "Hydrogen ions (protons)", "Calcium ions", "Electrons"], ans: 1, exp: "The ETC pumps Hydrogen ions (H+) to create a pressure gradient. They flow back through ATP Synthase to make ATP." },
 
             // Fermentation
-            { q: "What is the primary trigger that forces an animal cell to switch to fermentation?", opts: ["High glucose levels", "Low ATP levels", "Low or absent oxygen conditions", "High temperature"], ans: 2 },
-            { q: "The net yield of ATP produced per glucose molecule during fermentation is:", opts: ["0", "2", "32", "36"], ans: 1 },
-            { q: "In animal cells, what is the byproduct produced during fermentation?", opts: ["Ethanol", "Carbon dioxide", "Lactic acid", "Pyruvate"], ans: 2 },
-            { q: "Biologically, what is the main purpose of fermentation?", opts: ["To produce massive amounts of ATP", "To regenerate NAD+ so glycolysis can continue", "To break down lactic acid", "To produce oxygen"], ans: 1 }
+            { q: "What is the primary trigger that forces an animal cell to switch to fermentation?", opts: ["High glucose levels", "Low ATP levels", "Low or absent oxygen conditions", "High temperature"], ans: 2, exp: "Fermentation is an anaerobic (no oxygen) emergency backup system." },
+            { q: "The net yield of ATP produced per glucose molecule during fermentation is:", opts: ["0", "2", "32", "36"], ans: 1, exp: "Fermentation itself produces 0 ATP, but it allows Glycolysis to keep running, which produces a net of 2 ATP." },
+            { q: "In animal cells, what is the byproduct produced during fermentation?", opts: ["Ethanol", "Carbon dioxide", "Lactic acid", "Pyruvate"], ans: 2, exp: "Humans and animals produce lactic acid (causing muscle fatigue). Yeast produces ethanol." },
+            { q: "Biologically, what is the main purpose of fermentation?", opts: ["To produce massive amounts of ATP", "To regenerate NAD+ so glycolysis can continue", "To break down lactic acid", "To produce oxygen"], ans: 1, exp: "If NAD+ runs out, glycolysis stops entirely. Fermentation empties NADH back into NAD+." }
         ];
 
         let mcqs = []; 
@@ -399,6 +415,10 @@
                 endMCQ();
                 return;
             }
+            // Reset state
+            document.getElementById('mcq-exp-box').style.display = 'none';
+            document.getElementById('mcq-next-btn').style.display = 'none';
+
             const qData = mcqs[mcqIndex];
             document.getElementById('mcq-q').innerText = qData.q;
             document.getElementById('mcq-prog').innerText = `Question ${mcqIndex + 1} / ${mcqs.length}`;
@@ -412,25 +432,39 @@
                 const btn = document.createElement('button');
                 btn.className = 'option-btn';
                 btn.innerText = optObj.text;
-                btn.onclick = () => handleMCQAnswer(btn, optObj.originalIndex, qData.ans, optsWithIndex);
+                btn.onclick = () => handleMCQAnswer(btn, optObj.originalIndex, qData.ans, optsWithIndex, qData.exp);
                 optsDiv.appendChild(btn);
             });
         }
 
-        function handleMCQAnswer(btn, selectedOriginalIdx, correctOriginalIdx, shuffledOpts) {
+        function handleMCQAnswer(btn, selectedOriginalIdx, correctOriginalIdx, shuffledOpts, explanationText) {
             const btns = document.querySelectorAll('#mcq-opts .option-btn');
             btns.forEach(b => { b.disabled = true; b.onclick = null; }); 
             
+            const expBox = document.getElementById('mcq-exp-box');
+            const nextBtn = document.getElementById('mcq-next-btn');
+
             if (selectedOriginalIdx === correctOriginalIdx) {
                 btn.classList.add('correct');
                 mcqCorrectCount++;
-                setTimeout(() => { mcqIndex++; loadMCQ(); }, 1000);
+                expBox.innerHTML = `<strong style="color:var(--success);">✅ Correct!</strong><br><br>${explanationText}`;
+                expBox.style.borderLeftColor = 'var(--success)';
             } else {
                 btn.classList.add('wrong');
                 const correctBtnIndex = shuffledOpts.findIndex(o => o.originalIndex === correctOriginalIdx);
                 btns[correctBtnIndex].classList.add('correct');
-                setTimeout(() => { mcqIndex++; loadMCQ(); }, 2500); 
+                
+                expBox.innerHTML = `<strong style="color:var(--error);">❌ Incorrect.</strong><br><br>${explanationText}`;
+                expBox.style.borderLeftColor = 'var(--error)';
             }
+            
+            expBox.style.display = 'block';
+            nextBtn.style.display = 'block';
+        }
+
+        function nextMCQ() {
+            mcqIndex++;
+            loadMCQ();
         }
 
         function endMCQ() {
@@ -521,6 +555,16 @@
             document.getElementById('ctq-feedback').style.display = 'none';
             document.getElementById('warmup-box').style.display = 'none';
 
+            // Load Pre-Submit Glossary
+            const preSubmitContainer = document.getElementById('pre-submit-badges');
+            preSubmitContainer.innerHTML = '';
+            
+            // We want the pre-submit glossary sorted alphabetically so it functions like a real glossary
+            let sortedKeywords = [...qData.keywords].sort();
+            sortedKeywords.forEach(kw => {
+                createDetailsElement(kw, null, preSubmitContainer, true);
+            });
+
             // Load Input Area
             const area = document.getElementById('ctq-input-area');
             area.innerHTML = '';
@@ -555,10 +599,9 @@
                 document.getElementById('feedback-title').innerHTML = "<strong>Keyword Analysis:</strong>";
                 const input = document.getElementById('ctq-textarea').value.toLowerCase();
                 
-                // Build <details> for every keyword
                 qData.keywords.forEach(kw => {
                     const isFound = input.includes(kw.toLowerCase());
-                    createDetailsElement(kw, isFound, badgesDiv);
+                    createDetailsElement(kw, isFound, badgesDiv, false);
                 });
             } else {
                 document.getElementById('feedback-title').innerHTML = "<strong>Fill-in-the-Blank Results:</strong>";
@@ -575,34 +618,37 @@
                     } else {
                         inp.classList.add('wrong');
                         inp.classList.remove('correct');
-                        // Prevent appending the correct answer over and over
                         if (!inp.value.includes('(Correct:')) {
                             inp.value = `${inp.value} (Correct: ${inp.dataset.ans})`;
                         }
                     }
                 });
 
-                // Build <details> for every keyword in the template
                 qData.keywords.forEach(kw => {
-                    // Check if this keyword's input was correct
                     const relatedInput = document.querySelector(`.cloze-input[data-ans="${kw}"]`);
                     let isFound = false;
                     if (relatedInput && relatedInput.classList.contains('correct')) {
                         isFound = true;
                     }
-                    createDetailsElement(kw, isFound, badgesDiv);
+                    createDetailsElement(kw, isFound, badgesDiv, false);
                 });
             }
         }
 
         // Helper function to build the native HTML <details> dropdown
-        function createDetailsElement(keyword, isFound, container) {
+        function createDetailsElement(keyword, isFound, container, isNeutral) {
             const details = document.createElement('details');
             details.className = 'keyword-details';
             
             const summary = document.createElement('summary');
-            summary.className = 'keyword-summary ' + (isFound ? 'text-success' : 'text-error');
-            summary.innerText = (isFound ? '✅ ' : '❌ ') + keyword;
+            
+            if (isNeutral) {
+                summary.className = 'keyword-summary text-neutral';
+                summary.innerText = '📖 ' + keyword;
+            } else {
+                summary.className = 'keyword-summary ' + (isFound ? 'text-success' : 'text-error');
+                summary.innerText = (isFound ? '✅ ' : '❌ ') + keyword;
+            }
             
             const defDiv = document.createElement('div');
             defDiv.className = 'keyword-def-text';
