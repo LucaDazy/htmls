@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BI112 Exam 2 Cram Terminal v2</title>
+    <title>BI112 Exam 2 Cram Terminal v3</title>
     <style>
         :root {
             --bg-color: #323437;
@@ -62,9 +62,13 @@
         .mcq-question { font-size: 1.2rem; margin-bottom: 1.5rem; line-height: 1.4; }
         .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
         .option-btn { border-color: var(--text-main); color: var(--text-main); text-align: left; padding: 1rem; }
-        .option-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .option-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
         .option-btn.correct { border-color: var(--success); color: var(--success); background: rgba(140, 200, 75, 0.1); }
         .option-btn.wrong { border-color: var(--error); color: var(--error); background: rgba(202, 71, 84, 0.1); }
+        .option-btn:disabled { cursor: default; }
+        
+        .end-screen { text-align: center; display: none; }
+        .end-screen h2 { color: var(--accent); }
 
         /* CTQ Styles */
         .ctq-prompt { font-size: 1.1rem; line-height: 1.5; margin-bottom: 1rem; color: var(--accent); }
@@ -72,6 +76,9 @@
         .difficulty-selector { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--text-muted); padding-bottom: 1rem; }
         .difficulty-selector button { font-size: 0.85rem; padding: 0.4rem 0.8rem; }
         
+        .ctq-nav-bar { display: flex; gap: 0.5rem; margin-top: 1rem; border-top: 1px solid var(--text-muted); padding-top: 1.5rem; justify-content: center; }
+        .ctq-nav-bar button { font-size: 0.9rem; padding: 0.4rem 0.8rem; }
+
         textarea {
             width: 100%; height: 150px; background: transparent; border: 2px solid var(--text-muted);
             color: var(--text-main); font-family: inherit; font-size: 1rem; padding: 1rem;
@@ -80,7 +87,7 @@
         textarea:focus { border-color: var(--accent); }
 
         /* Cloze (Fill in Blank) Styles */
-        .cloze-text { font-size: 1.1rem; line-height: 2; color: var(--text-main); }
+        .cloze-text { font-size: 1.1rem; line-height: 2; color: var(--text-main); white-space: pre-wrap; }
         .cloze-input {
             background: transparent; border: none; border-bottom: 2px solid var(--text-muted);
             color: var(--accent); font-family: inherit; font-size: 1.1rem; text-align: center;
@@ -97,17 +104,19 @@
         .wb-chip { background: var(--bg-color); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.9rem; color: var(--text-muted); border: 1px solid var(--text-muted); }
 
         /* Warm-up MCQ */
-        .warmup-box {
-            margin-top: 1.5rem; padding: 1rem; border: 1px dashed var(--text-muted);
-            border-radius: 4px; display: none; background: rgba(0,0,0,0.1);
-        }
+        .warmup-box { margin-top: 1.5rem; padding: 1rem; border: 1px dashed var(--text-muted); border-radius: 4px; display: none; background: rgba(0,0,0,0.1); }
         .warmup-btn { font-size: 0.85rem; padding: 0.3rem 0.8rem; margin-bottom: 1rem; border-color: var(--text-muted); }
 
+        /* Feedback & Glossary */
         .feedback { margin-top: 1.5rem; padding: 1rem; border-radius: 4px; display: none; background: rgba(0,0,0,0.2); }
-        .keyword-badge { display: inline-block; padding: 0.2rem 0.5rem; margin: 0.2rem; border-radius: 3px; font-size: 0.9rem; }
+        .keyword-badge { display: inline-block; padding: 0.3rem 0.6rem; margin: 0.2rem; border-radius: 3px; font-size: 0.9rem; cursor: pointer; transition: transform 0.1s; }
+        .keyword-badge:hover { transform: scale(1.05); }
         .found { background: rgba(140, 200, 75, 0.2); color: var(--success); border: 1px solid var(--success); }
         .missed { background: rgba(202, 71, 84, 0.2); color: var(--error); border: 1px solid var(--error); }
-        .full-answer { margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted); border-top: 1px solid var(--text-muted); padding-top: 1rem; white-space: pre-wrap;}
+        
+        .glossary-def { margin-top: 1rem; padding: 0.8rem; background: var(--bg-color); border-left: 3px solid var(--accent); font-size: 0.9rem; display: none; }
+        
+        .full-answer { margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted); border-top: 1px solid var(--text-muted); padding-top: 1rem; white-space: pre-wrap; line-height: 1.5; }
         .progress { margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted); text-align: right; }
     </style>
 </head>
@@ -122,9 +131,16 @@
     </div>
 
     <div id="mcq-sec" class="container active">
-        <div class="mcq-question" id="mcq-q">Loading...</div>
-        <div class="options-grid" id="mcq-opts"></div>
-        <div class="progress" id="mcq-prog"></div>
+        <div id="mcq-quiz-area">
+            <div class="mcq-question" id="mcq-q">Loading...</div>
+            <div class="options-grid" id="mcq-opts"></div>
+            <div class="progress" id="mcq-prog"></div>
+        </div>
+        <div id="mcq-end-screen" class="end-screen">
+            <h2>Quiz Complete!</h2>
+            <p id="mcq-score"></p>
+            <button class="action-btn" onclick="startMCQ()">Restart Randomized Quiz</button>
+        </div>
     </div>
 
     <div id="ctq-sec" class="container">
@@ -148,52 +164,103 @@
 
         <div>
             <button class="action-btn" onclick="checkCTQ()">Submit Answer</button>
-            <button class="action-btn" onclick="nextCTQ()" style="margin-left: 1rem; border-color: var(--text-muted); color: var(--text-muted);">Next CTQ &rarr;</button>
         </div>
         
         <div class="feedback" id="ctq-feedback">
-            <div style="margin-bottom: 0.5rem;" id="feedback-title"><strong>Analysis:</strong></div>
+            <div style="margin-bottom: 0.5rem;" id="feedback-title"><strong>Analysis (Click keywords for definition):</strong></div>
             <div id="ctq-badges"></div>
+            <div id="glossary-box" class="glossary-def"></div>
             <div class="full-answer" id="ctq-actual"></div>
         </div>
-        <div class="progress" id="ctq-prog"></div>
+
+        <div class="ctq-nav-bar">
+            <button id="nav-ctq-0" onclick="goToCTQ(0)">CTQ 1</button>
+            <button id="nav-ctq-1" onclick="goToCTQ(1)">CTQ 2</button>
+            <button id="nav-ctq-2" onclick="goToCTQ(2)">CTQ 3</button>
+            <button id="nav-ctq-3" onclick="goToCTQ(3)">CTQ 4</button>
+            <button id="nav-ctq-4" onclick="goToCTQ(4)">CTQ 5</button>
+        </div>
     </div>
 
     <script>
         // --- DATA ---
-        const mcqs = [
-            { q: "Which type of signaling involves a cell secreting a ligand that binds to its own receptors?", opts: ["Autocrine", "Paracrine", "Endocrine", "Synaptic"], ans: 0 },
-            { q: "In the G-protein pathway, what happens when a ligand binds to the receptor?", opts: ["GDP is converted to GTP", "GTP is converted to GDP", "cAMP is converted to ATP", "The cell undergoes apoptosis"], ans: 0 },
-            { q: "What is the role of adenylyl cyclase?", opts: ["It acts as a primary messenger", "It produces the second messenger cAMP", "It phosphorylates proteins directly", "It creates ATP from ADP"], ans: 1 },
+        const originalMcqs = [
+            // Cell Comm
+            { q: "Which signaling type involves a cell secreting a ligand that binds to its own receptors?", opts: ["Endocrine", "Paracrine", "Autocrine", "Synaptic"], ans: 2 },
+            { q: "Which type of signaling relies on the bloodstream to transport ligands long distances?", opts: ["Autocrine", "Paracrine", "Endocrine", "Synaptic"], ans: 2 },
+            { q: "Which type of receptor acts as a gate when the receptor changes shape after a specific ligand binds?", opts: ["G-protein linked", "Intracellular", "Enzyme-linked", "Ion-channel linked"], ans: 3 },
             { q: "Receptor tyrosine kinases (RTKs) are an example of which type of receptor?", opts: ["Ion-channel linked", "G-protein linked", "Enzyme-linked", "Intracellular"], ans: 2 },
-            { q: "What happens to an enzyme at dangerously high temperatures (e.g., 40°C/104°F fever)?", opts: ["It works faster", "It denatures and changes its active site shape", "It acts as a substrate", "It switches to fermentation"], ans: 1 },
-            { q: "What is the main purpose of fermentation when oxygen is depleted?", opts: ["To produce massive amounts of ATP", "To regenerate NAD+ so glycolysis can continue", "To create oxygen", "To break down lactic acid"], ans: 1 }
+            { q: "Which of the following is NOT a common second messenger in signal transduction?", opts: ["cAMP", "ATP", "Calcium ions (Ca2+)", "IP3/DAG"], ans: 1 },
+            { q: "What is the primary biological importance of apoptosis?", opts: ["To synthesize new organelles", "To program cell death and remove damaged cells", "To rapidly divide cells", "To increase ATP production"], ans: 1 },
+            { q: "Quorum sensing is a type of signaling utilized primarily by bacteria to:", opts: ["Trigger apoptosis", "Form biofilms when population density is high", "Break down glucose", "Regulate human hormones"], ans: 1 },
+            // Energy & Metabolism
+            { q: "According to the Second Law of Thermodynamics, every energy transfer increases the universe's:", opts: ["Kinetic energy", "Enthalpy", "Potential energy", "Entropy (disorder)"], ans: 3 },
+            { q: "A reaction that releases energy (like cellular respiration) is termed:", opts: ["Endergonic", "Anabolic", "Exergonic", "Photosynthetic"], ans: 2 },
+            { q: "The building of complex molecules from simpler ones, requiring energy, is known as:", opts: ["Catabolism", "Anabolism", "Hydrolysis", "Fermentation"], ans: 1 },
+            // Enzymes
+            { q: "The specific region of an enzyme where a substrate binds is called the:", opts: ["Allosteric site", "Phospholipid bilayer", "Active site", "Receptor"], ans: 2 },
+            { q: "If an inhibitor binds to an enzyme's active site, competing with the substrate, it is called:", opts: ["Noncompetitive inhibition", "Allosteric inhibition", "Feedback inhibition", "Competitive inhibition"], ans: 3 },
+            { q: "When the end product of a metabolic pathway inhibits an earlier step in that same pathway, this is known as:", opts: ["Competitive inhibition", "Denaturation", "Feedback inhibition", "Catabolism"], ans: 2 },
+            // ATP & Redox
+            { q: "In an oxidation-reduction (redox) reaction, the substance that loses electrons is said to be:", opts: ["Reduced", "Phosphorylated", "Hydrolyzed", "Oxidized"], ans: 3 },
+            // Cellular Respiration & Fermentation
+            { q: "During cellular respiration, what acts as the final electron acceptor in the electron transport chain?", opts: ["Carbon dioxide", "Oxygen", "Water", "NAD+"], ans: 1 },
+            { q: "In animal cells deprived of oxygen, what is the primary purpose and product of fermentation?", opts: ["To produce massive ATP; produces alcohol", "To regenerate NAD+; produces lactic acid", "To breakdown water; produces oxygen", "To run the Citric Acid Cycle; produces CO2"], ans: 1 }
         ];
+
+        let mcqs = []; 
+
+        const glossary = {
+            "g-protein coupled": "A cell-surface receptor that changes shape and activates a G-protein when a ligand binds to it.",
+            "gtp": "Guanosine triphosphate; it replaces GDP to activate the G-protein.",
+            "adenylyl cyclase": "An enzyme in the plasma membrane that converts ATP to cAMP in response to an extracellular signal.",
+            "camp": "Cyclic AMP; a widely used second messenger that activates protein kinases.",
+            "kinases": "Enzymes that transfer phosphate groups to proteins (phosphorylation), often activating them.",
+            "tyrosine kinase": "An enzyme-linked receptor that phosphorylates tyrosine residues. Requires two ligands to bind to form a dimer.",
+            "dimerization": "The coming together of two receptor tyrosine kinase monomers after ligand binding.",
+            "phosphorylation": "The addition of a phosphate group to a molecule.",
+            "active": "In an operational or functioning state.",
+            "continuous": "Without interruption or end.",
+            "overproduction": "Creating more of a substance (like a second messenger) than is biologically required.",
+            "off": "The state of a signaling pathway being terminated.",
+            "denaturation": "The loss of a protein's/enzyme's normal 3D shape due to extreme temperature or pH.",
+            "active site": "The specific region of an enzyme that binds the substrate.",
+            "substrate": "The specific reactant that an enzyme acts on.",
+            "stops": "Ceases functioning.",
+            "electron transport chain": "A sequence of electron carrier molecules that shuttle electrons to release energy used to make ATP. Requires oxygen.",
+            "fermentation": "An anaerobic process that allows glycolysis to continue by regenerating NAD+.",
+            "nad+": "An electron carrier. Must be constantly regenerated for glycolysis to produce its 2 ATP.",
+            "lactic acid": "The toxic byproduct of fermentation in animal cells.",
+            "2": "The net amount of ATP produced by glycolysis/fermentation per glucose molecule.",
+            "autoinducers": "Signaling molecules secreted by bacteria to communicate with others of their kind.",
+            "density": "The concentration of bacterial individuals within a given area.",
+            "gene expression": "The process by which DNA directs the synthesis of proteins, altered here to form a biofilm."
+        };
 
         const ctqs = [
             { 
-                q: "CTQ 1: A hormone binds to a receptor on a target cell and triggers a cascade that results in increased glucose breakdown. Explain TWO different mechanisms...",
-                template: "Mech 1: A ligand binds to a [G-protein] coupled receptor, converting GDP to [GTP]. This activates [adenylyl cyclase], producing the second messenger [cAMP], which activates [kinases]. \n\nMech 2: A ligand binds to a receptor [tyrosine kinase], causing [dimerization] and [phosphorylation].",
+                q: "CTQ 1: A hormone binds to a receptor on a target cell and triggers a cascade that results in increased glucose breakdown. Explain TWO different mechanisms (receptor and their specific signaling pathway) by which this signal could activate enzymes inside the target cell. Be specific.",
+                template: "Mechanism 1: A ligand binds to a [G-protein coupled] receptor, converting GDP to [GTP]. This activates [adenylyl cyclase], producing the second messenger [cAMP], which activates [kinases]. \n\nMechanism 2: A ligand binds to a receptor [tyrosine kinase], causing [dimerization] and [phosphorylation].",
                 ans: "Mechanism 1: G-protein pathway. A ligand binds to a G-protein-coupled receptor, activating a G protein (GDP -> GTP). This activates enzymes like adenylyl cyclase, producing cAMP (second messenger). cAMP activates protein kinases.\n\nMechanism 2: Enzyme-linked. A ligand binds to a receptor tyrosine kinase, causing dimerization and phosphorylation.",
-                keywords: ["g-protein", "gtp", "adenylyl cyclase", "camp", "kinase", "tyrosine kinase", "dimerization", "phosphorylation"],
+                keywords: ["g-protein coupled", "gtp", "adenylyl cyclase", "camp", "kinases", "tyrosine kinase", "dimerization", "phosphorylation"],
                 warmup: { q: "Which enzyme is directly responsible for converting ATP into cAMP in the G-protein pathway?", opts: ["Protein Kinase", "Adenylyl Cyclase", "Tyrosine Kinase"], ans: 1 }
             },
             {
-                q: "CTQ 2: A toxin prevents G-proteins from hydrolyzing GTP. Predict how this would affect cell signaling and explain the downstream effects.",
+                q: "CTQ 2: A toxin prevents G-proteins from hydrolyzing GTP. Predict how this would affect cell signaling and explain the downstream effects on second messengers and cellular response.",
                 template: "If GTP cannot be hydrolyzed, the G-protein remains [active]. This leads to [continuous] activation of enzymes and [overproduction] of second messengers like [cAMP]. The cellular response cannot turn [off].",
                 ans: "If GTP cannot be hydrolyzed, the G-protein remains active. This leads to continuous activation of enzymes and overproduction of second messengers like cAMP. Result: continuous cellular response (cannot turn OFF).",
                 keywords: ["active", "continuous", "overproduction", "camp", "off"],
-                warmup: { q: "Hydrolyzing GTP into GDP serves what purpose in cell signaling?", opts: ["It turns the G-protein pathway 'OFF'", "It amplifies the signal", "It creates a new ligand"], ans: 0 }
+                warmup: { q: "Hydrolyzing GTP into GDP serves what biological purpose?", opts: ["It turns the G-protein pathway 'OFF'", "It amplifies the signal", "It creates a new ligand"], ans: 0 }
             },
             {
-                q: "CTQ 3: A patient has a high fever (40°C / 104°F). Explain how this temperature affects enzyme structure and function, and predict the impact on metabolism.",
+                q: "CTQ 3: A patient has a high fever (40°C / 104°F). Explain how this temperature affects enzyme structure and function, and predict how this would impact metabolism in the body.",
                 template: "High temperature causes enzyme [denaturation], changing the shape of the [active site]. This prevents [substrate] binding and slows or [stops] metabolic reactions.",
                 ans: "High temperature causes enzyme denaturation, changing the shape of the active site. This prevents substrate binding and slows or stops metabolic reactions.",
                 keywords: ["denaturation", "active site", "substrate", "stops"],
                 warmup: { q: "If an enzyme's active site changes shape, what happens?", opts: ["The substrate can no longer bind securely", "It switches from anabolic to catabolic", "It produces more ATP"], ans: 0 }
             },
             {
-                q: "CTQ 4: A cell is suddenly deprived of oxygen. Explain how this affects the electron transport chain, ATP production, and which pathway the cell will switch to.",
+                q: "CTQ 4: A cell is suddenly deprived of oxygen. Explain how this affects the electron transport chain, ATP production, and which pathway the cell will switch to. Include products formed.",
                 template: "Without oxygen, the [electron transport chain] stops. ATP production via oxidative phosphorylation [stops]. The cell switches to [fermentation] to regenerate [NAD+]. In animal cells, [lactic acid] is produced and only [2] ATP are generated.",
                 ans: "Without oxygen, the electron transport chain stops. ATP production via oxidative phosphorylation stops. The cell switches to fermentation to regenerate NAD+. In animal cells, lactic acid is produced and only 2 ATP are generated.",
                 keywords: ["electron transport chain", "stops", "fermentation", "nad+", "lactic acid", "2"],
@@ -211,8 +278,19 @@
         // --- STATE ---
         let currentMode = 'mcq';
         let mcqIndex = 0;
+        let mcqCorrectCount = 0;
         let ctqIndex = 0;
-        let currentDifficulty = 1; // 1: Word Bank, 2: Cloze, 3: Exam
+        let currentDifficulty = 1;
+
+        // --- UTILS ---
+        function shuffleArray(array) {
+            let arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
 
         function switchMode(mode) {
             currentMode = mode;
@@ -220,36 +298,65 @@
             document.getElementById('btn-ctq').classList.toggle('active', mode === 'ctq');
             document.getElementById('mcq-sec').classList.toggle('active', mode === 'mcq');
             document.getElementById('ctq-sec').classList.toggle('active', mode === 'ctq');
+            if(mode === 'mcq' && mcqs.length === 0) startMCQ();
         }
 
         // --- MCQ LOGIC ---
+        function startMCQ() {
+            mcqs = shuffleArray(originalMcqs);
+            mcqIndex = 0;
+            mcqCorrectCount = 0;
+            document.getElementById('mcq-end-screen').style.display = 'none';
+            document.getElementById('mcq-quiz-area').style.display = 'block';
+            loadMCQ();
+        }
+
         function loadMCQ() {
-            if (mcqIndex >= mcqs.length) mcqIndex = 0; 
+            if (mcqIndex >= mcqs.length) {
+                endMCQ();
+                return;
+            }
             const qData = mcqs[mcqIndex];
             document.getElementById('mcq-q').innerText = qData.q;
             document.getElementById('mcq-prog').innerText = `Question ${mcqIndex + 1} / ${mcqs.length}`;
             const optsDiv = document.getElementById('mcq-opts');
             optsDiv.innerHTML = '';
-            qData.opts.forEach((opt, idx) => {
+            
+            // Randomize options too
+            let optsWithIndex = qData.opts.map((opt, i) => ({text: opt, originalIndex: i}));
+            optsWithIndex = shuffleArray(optsWithIndex);
+
+            optsWithIndex.forEach(optObj => {
                 const btn = document.createElement('button');
                 btn.className = 'option-btn';
-                btn.innerText = opt;
-                btn.onclick = () => handleMCQAnswer(btn, idx, qData.ans);
+                btn.innerText = optObj.text;
+                btn.onclick = () => handleMCQAnswer(btn, optObj.originalIndex, qData.ans, optsWithIndex);
                 optsDiv.appendChild(btn);
             });
         }
 
-        function handleMCQAnswer(btn, selected, correct) {
+        function handleMCQAnswer(btn, selectedOriginalIdx, correctOriginalIdx, shuffledOpts) {
             const btns = document.querySelectorAll('#mcq-opts .option-btn');
-            btns.forEach(b => b.onclick = null); 
-            if (selected === correct) {
+            btns.forEach(b => { b.disabled = true; b.onclick = null; }); 
+            
+            if (selectedOriginalIdx === correctOriginalIdx) {
                 btn.classList.add('correct');
-                setTimeout(() => { mcqIndex++; loadMCQ(); }, 800);
+                mcqCorrectCount++;
+                setTimeout(() => { mcqIndex++; loadMCQ(); }, 1000);
             } else {
                 btn.classList.add('wrong');
-                btns[correct].classList.add('correct');
-                setTimeout(() => { mcqIndex++; loadMCQ(); }, 1500);
+                // Find and highlight the correct button
+                const correctBtnIndex = shuffledOpts.findIndex(o => o.originalIndex === correctOriginalIdx);
+                btns[correctBtnIndex].classList.add('correct');
+                setTimeout(() => { mcqIndex++; loadMCQ(); }, 2000); // give more time to read correct answer
             }
+        }
+
+        function endMCQ() {
+            document.getElementById('mcq-quiz-area').style.display = 'none';
+            document.getElementById('mcq-end-screen').style.display = 'block';
+            const percentage = Math.round((mcqCorrectCount / mcqs.length) * 100);
+            document.getElementById('mcq-score').innerHTML = `You scored <strong>${mcqCorrectCount} out of ${mcqs.length}</strong> (${percentage}%).`;
         }
 
         // --- CTQ LOGIC ---
@@ -264,28 +371,59 @@
             box.style.display = box.style.display === 'block' ? 'none' : 'block';
         }
 
+        function goToCTQ(index) {
+            ctqIndex = index;
+            loadCTQ();
+        }
+
+        function showGlossary(keyword) {
+            const box = document.getElementById('glossary-box');
+            const def = glossary[keyword.toLowerCase()] || "Definition not found.";
+            box.innerHTML = `<strong>${keyword}:</strong> ${def}`;
+            box.style.display = 'block';
+        }
+
         function loadCTQ() {
-            if (ctqIndex >= ctqs.length) ctqIndex = 0;
             const qData = ctqs[ctqIndex];
             
+            // Update Nav Bar UI
+            for(let i=0; i<5; i++) {
+                const btn = document.getElementById(`nav-ctq-${i}`);
+                if(i === ctqIndex) { btn.classList.add('active'); btn.style.borderColor = 'var(--accent)'; btn.style.color = 'var(--accent)'; }
+                else { btn.classList.remove('active'); btn.style.borderColor = 'var(--text-muted)'; btn.style.color = 'var(--text-muted)'; }
+            }
+
             // Reset UI
             document.getElementById('ctq-q').innerText = qData.q;
             document.getElementById('ctq-feedback').style.display = 'none';
+            document.getElementById('glossary-box').style.display = 'none';
             document.getElementById('warmup-box').style.display = 'none';
-            document.getElementById('ctq-prog').innerText = `CTQ ${ctqIndex + 1} / ${ctqs.length}`;
             
             // Load Warmup
             document.getElementById('warmup-q').innerText = qData.warmup.q;
             const wOpts = document.getElementById('warmup-opts');
             wOpts.innerHTML = '';
-            qData.warmup.opts.forEach((opt, idx) => {
+            
+            // Randomize Warmup options
+            let wOptsWithIndex = qData.warmup.opts.map((opt, i) => ({text: opt, originalIndex: i}));
+            wOptsWithIndex = shuffleArray(wOptsWithIndex);
+
+            wOptsWithIndex.forEach((optObj) => {
                 const btn = document.createElement('button');
                 btn.className = 'option-btn';
                 btn.style.padding = '0.5rem';
-                btn.innerText = opt;
+                btn.innerText = optObj.text;
                 btn.onclick = () => {
-                    if(idx === qData.warmup.ans) { btn.classList.add('correct'); } 
-                    else { btn.classList.add('wrong'); wOpts.children[qData.warmup.ans].classList.add('correct'); }
+                    const allWBtns = document.querySelectorAll('#warmup-opts .option-btn');
+                    allWBtns.forEach(b => { b.disabled = true; b.onclick = null; });
+                    
+                    if(optObj.originalIndex === qData.warmup.ans) { 
+                        btn.classList.add('correct'); 
+                    } else { 
+                        btn.classList.add('wrong'); 
+                        const correctIdx = wOptsWithIndex.findIndex(o => o.originalIndex === qData.warmup.ans);
+                        wOpts.children[correctIdx].classList.add('correct'); 
+                    }
                 };
                 wOpts.appendChild(btn);
             });
@@ -297,16 +435,14 @@
             if (currentDifficulty === 3) {
                 area.innerHTML = `<textarea id="ctq-textarea" placeholder="Exam Simulator: Type your full answer here from memory..."></textarea>`;
             } else {
-                // Parse template for Lvl 1 and 2
                 let html = `<div class="cloze-text">` + qData.template.replace(/\[(.*?)\]/g, (match, p1) => {
-                    const width = p1.length * 12 + 10; // auto size input
+                    const width = p1.length * 12 + 20; 
                     return `<input type="text" class="cloze-input" data-ans="${p1}" style="width: ${width}px;">`;
                 }) + `</div>`;
                 
-                // Add Word Bank for Lvl 1
                 if (currentDifficulty === 1) {
                     let words = [...qData.template.matchAll(/\[(.*?)\]/g)].map(m => m[1]);
-                    words.sort(() => Math.random() - 0.5); // Shuffle
+                    words = shuffleArray(words);
                     let bankHtml = `<div class="word-bank">` + words.map(w => `<span class="wb-chip">${w}</span>`).join('') + `</div>`;
                     html += bankHtml;
                 }
@@ -318,45 +454,50 @@
             const qData = ctqs[ctqIndex];
             document.getElementById('ctq-feedback').style.display = 'block';
             document.getElementById('ctq-actual').innerText = "Rubric Answer:\n" + qData.ans;
+            document.getElementById('glossary-box').style.display = 'none';
+
+            const badgesDiv = document.getElementById('ctq-badges');
+            badgesDiv.innerHTML = '';
 
             if (currentDifficulty === 3) {
-                // Free text grading
-                document.getElementById('feedback-title').innerText = "Keyword Analysis:";
+                document.getElementById('feedback-title').innerHTML = "<strong>Keyword Analysis (Click for definition):</strong>";
                 const input = document.getElementById('ctq-textarea').value.toLowerCase();
-                const badgesDiv = document.getElementById('ctq-badges');
-                badgesDiv.innerHTML = '';
                 
                 qData.keywords.forEach(kw => {
                     const span = document.createElement('span');
                     span.className = 'keyword-badge ' + (input.includes(kw.toLowerCase()) ? 'found' : 'missed');
                     span.innerText = kw;
+                    span.onclick = () => showGlossary(kw);
                     badgesDiv.appendChild(span);
                 });
             } else {
-                // Cloze grading
-                document.getElementById('feedback-title').innerText = "Fill-in-the-Blank Results:";
-                document.getElementById('ctq-badges').innerHTML = ''; // clear badges
+                document.getElementById('feedback-title').innerHTML = "<strong>Fill-in-the-Blank Results (Click missing words for definition):</strong>";
                 const inputs = document.querySelectorAll('.cloze-input');
                 inputs.forEach(inp => {
-                    if (inp.value.toLowerCase().trim() === inp.dataset.ans.toLowerCase()) {
+                    const correctAns = inp.dataset.ans.toLowerCase();
+                    const userAns = inp.value.toLowerCase().trim();
+                    
+                    if (userAns === correctAns) {
                         inp.classList.add('correct');
                         inp.classList.remove('wrong');
                     } else {
                         inp.classList.add('wrong');
                         inp.classList.remove('correct');
-                        inp.value = `${inp.value} (Correct: ${inp.dataset.ans})`; // Show correct
+                        inp.value = `${inp.value} (Correct: ${inp.dataset.ans})`;
+                        
+                        // Add missed words to badge list
+                        const span = document.createElement('span');
+                        span.className = 'keyword-badge missed';
+                        span.innerText = inp.dataset.ans;
+                        span.onclick = () => showGlossary(inp.dataset.ans);
+                        badgesDiv.appendChild(span);
                     }
                 });
             }
         }
 
-        function nextCTQ() {
-            ctqIndex++;
-            loadCTQ();
-        }
-
         // Init
-        loadMCQ();
+        startMCQ();
         loadCTQ();
     </script>
 </body>
