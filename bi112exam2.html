@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BI112 Exam 2 Cram Terminal v3</title>
+    <title>BI112 Exam 2 Cram Terminal v6</title>
     <style>
         :root {
             --bg-color: #323437;
@@ -13,6 +13,7 @@
             --error: #ca4754;
             --success: #8cc84b;
             --panel-bg: #2c2e31;
+            --hover-bg: #3a3d40;
         }
 
         body {
@@ -32,7 +33,7 @@
 
         .nav-buttons { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; justify-content: center; }
         
-        button {
+        button.tab-btn {
             background: none;
             border: 2px solid var(--text-muted);
             color: var(--text-muted);
@@ -44,8 +45,8 @@
             transition: all 0.2s;
         }
 
-        button:hover, button.active { border-color: var(--accent); color: var(--accent); }
-        .action-btn { border-color: var(--accent); color: var(--accent); margin-top: 1rem; }
+        button.tab-btn:hover, button.tab-btn.active { border-color: var(--accent); color: var(--accent); }
+        .action-btn { background: none; font-family: inherit; font-size: 1rem; cursor: pointer; border: 2px solid var(--accent); color: var(--accent); padding: 0.5rem 1.5rem; border-radius: 4px; margin-top: 1rem; transition: all 0.2s; }
         .action-btn:hover { background: var(--accent); color: var(--bg-color); }
 
         .container {
@@ -61,8 +62,8 @@
         /* MCQ Styles */
         .mcq-question { font-size: 1.2rem; margin-bottom: 1.5rem; line-height: 1.4; }
         .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        .option-btn { border-color: var(--text-main); color: var(--text-main); text-align: left; padding: 1rem; }
-        .option-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+        .option-btn { background: none; border: 2px solid var(--text-main); color: var(--text-main); text-align: left; padding: 1rem; font-family: inherit; font-size: 1rem; cursor: pointer; border-radius: 4px; transition: all 0.2s; }
+        .option-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: var(--hover-bg); }
         .option-btn.correct { border-color: var(--success); color: var(--success); background: rgba(140, 200, 75, 0.1); }
         .option-btn.wrong { border-color: var(--error); color: var(--error); background: rgba(202, 71, 84, 0.1); }
         .option-btn:disabled { cursor: default; }
@@ -74,10 +75,12 @@
         .ctq-prompt { font-size: 1.1rem; line-height: 1.5; margin-bottom: 1rem; color: var(--accent); }
         
         .difficulty-selector { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--text-muted); padding-bottom: 1rem; }
-        .difficulty-selector button { font-size: 0.85rem; padding: 0.4rem 0.8rem; }
+        .difficulty-selector button { background: none; border: 1px solid var(--text-muted); color: var(--text-muted); font-family: inherit; font-size: 0.85rem; padding: 0.4rem 0.8rem; cursor: pointer; border-radius: 4px; }
+        .difficulty-selector button.active, .difficulty-selector button:hover { border-color: var(--accent); color: var(--accent); }
         
         .ctq-nav-bar { display: flex; gap: 0.5rem; margin-top: 1rem; border-top: 1px solid var(--text-muted); padding-top: 1.5rem; justify-content: center; }
-        .ctq-nav-bar button { font-size: 0.9rem; padding: 0.4rem 0.8rem; }
+        .ctq-nav-bar button { background: none; border: 1px solid var(--text-muted); color: var(--text-muted); font-family: inherit; font-size: 0.9rem; padding: 0.4rem 0.8rem; cursor: pointer; border-radius: 4px; }
+        .ctq-nav-bar button.active { border-color: var(--accent); color: var(--accent); }
 
         textarea {
             width: 100%; height: 150px; background: transparent; border: 2px solid var(--text-muted);
@@ -86,7 +89,7 @@
         }
         textarea:focus { border-color: var(--accent); }
 
-        /* Cloze (Fill in Blank) Styles */
+        /* Cloze Styles */
         .cloze-text { font-size: 1.1rem; line-height: 2; color: var(--text-main); white-space: pre-wrap; }
         .cloze-input {
             background: transparent; border: none; border-bottom: 2px solid var(--text-muted);
@@ -105,29 +108,54 @@
 
         /* Warm-up MCQ */
         .warmup-box { margin-top: 1.5rem; padding: 1rem; border: 1px dashed var(--text-muted); border-radius: 4px; display: none; background: rgba(0,0,0,0.1); }
-        .warmup-btn { font-size: 0.85rem; padding: 0.3rem 0.8rem; margin-bottom: 1rem; border-color: var(--text-muted); }
+        .warmup-btn { background: none; color: var(--text-muted); border: 1px solid var(--text-muted); font-family: inherit; font-size: 0.85rem; padding: 0.3rem 0.8rem; cursor: pointer; border-radius: 4px; transition: all 0.2s;}
+        .warmup-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .warmup-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
 
-        /* Feedback & Glossary */
+        /* Feedback Area */
         .feedback { margin-top: 1.5rem; padding: 1rem; border-radius: 4px; display: none; background: rgba(0,0,0,0.2); }
-        .keyword-badge { display: inline-block; padding: 0.3rem 0.6rem; margin: 0.2rem; border-radius: 3px; font-size: 0.9rem; cursor: pointer; transition: transform 0.1s; }
-        .keyword-badge:hover { transform: scale(1.05); }
-        .found { background: rgba(140, 200, 75, 0.2); color: var(--success); border: 1px solid var(--success); }
-        .missed { background: rgba(202, 71, 84, 0.2); color: var(--error); border: 1px solid var(--error); }
         
-        .glossary-def { margin-top: 1rem; padding: 0.8rem; background: var(--bg-color); border-left: 3px solid var(--accent); font-size: 0.9rem; display: none; }
-        
-        .full-answer { margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted); border-top: 1px solid var(--text-muted); padding-top: 1rem; white-space: pre-wrap; line-height: 1.5; }
+        /* BULLETPROOF NATIVE HTML DETAILS/SUMMARY GLOSSARY */
+        .keyword-details {
+            margin-bottom: 0.5rem;
+            background: var(--bg-color);
+            border: 1px solid var(--text-muted);
+            border-radius: 4px;
+            padding: 0.8rem;
+        }
+        .keyword-summary {
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            outline: none;
+            user-select: none;
+        }
+        .keyword-summary:hover {
+            opacity: 0.8;
+        }
+        .text-success { color: var(--success); }
+        .text-error { color: var(--error); }
+        .keyword-def-text {
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px dashed var(--text-muted);
+            color: var(--text-main);
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        .full-answer { margin-top: 1rem; font-size: 0.95rem; color: var(--text-muted); border-top: 1px solid var(--text-muted); padding-top: 1rem; white-space: pre-wrap; line-height: 1.5; }
         .progress { margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted); text-align: right; }
     </style>
 </head>
 <body>
 
     <h1>BI112 EXAM 2 CRAM</h1>
-    <div class="subtitle">Cell Comm, Metabolism, Enzymes & Respiration</div>
+    <div class="subtitle">Complete "Must Know" Coverage & CTQ Trainer</div>
 
     <div class="nav-buttons">
-        <button id="btn-mcq" class="active" onclick="switchMode('mcq')">Phase 1: Must-Knows (MCQ)</button>
-        <button id="btn-ctq" onclick="switchMode('ctq')">Phase 2: CTQ Assessor</button>
+        <button id="btn-mcq" class="tab-btn active" onclick="switchMode('mcq')">Phase 1: Must-Knows (MCQ)</button>
+        <button id="btn-ctq" class="tab-btn" onclick="switchMode('ctq')">Phase 2: CTQ Assessor</button>
     </div>
 
     <div id="mcq-sec" class="container active">
@@ -153,10 +181,13 @@
 
         <div class="ctq-prompt" id="ctq-q">Loading...</div>
         
-        <button class="warmup-btn" onclick="toggleWarmup()">💡 Stuck? Try a Warm-up Question</button>
+        <button class="warmup-btn" style="margin-bottom:0;" onclick="toggleWarmup()">💡 Need a Hint? Try a Warm-up Question</button>
         <div class="warmup-box" id="warmup-box">
-            <div style="color: var(--accent); margin-bottom: 0.5rem; font-size: 0.9rem;">Warm-up Hint:</div>
-            <div id="warmup-q" style="margin-bottom: 1rem;"></div>
+            <div class="warmup-controls">
+                <div style="color: var(--accent); font-size: 0.9rem;">Warm-up Hint:</div>
+                <button class="warmup-btn" style="margin: 0;" onclick="loadRandomWarmup()">🔄 Shuffle Hint</button>
+            </div>
+            <div id="warmup-q" style="margin-bottom: 1rem; font-size: 1.1rem;"></div>
             <div class="options-grid" id="warmup-opts" style="grid-template-columns: 1fr;"></div>
         </div>
 
@@ -167,9 +198,11 @@
         </div>
         
         <div class="feedback" id="ctq-feedback">
-            <div style="margin-bottom: 0.5rem;" id="feedback-title"><strong>Analysis (Click keywords for definition):</strong></div>
+            <div style="margin-bottom: 0.5rem; font-size: 1.1rem; color: var(--text-main);" id="feedback-title"></div>
+            <div style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Click any keyword below to expand its definition.</div>
+            
             <div id="ctq-badges"></div>
-            <div id="glossary-box" class="glossary-def"></div>
+            
             <div class="full-answer" id="ctq-actual"></div>
         </div>
 
@@ -186,92 +219,141 @@
         // --- DATA ---
         const originalMcqs = [
             // Cell Comm
-            { q: "Which signaling type involves a cell secreting a ligand that binds to its own receptors?", opts: ["Endocrine", "Paracrine", "Autocrine", "Synaptic"], ans: 2 },
-            { q: "Which type of signaling relies on the bloodstream to transport ligands long distances?", opts: ["Autocrine", "Paracrine", "Endocrine", "Synaptic"], ans: 2 },
-            { q: "Which type of receptor acts as a gate when the receptor changes shape after a specific ligand binds?", opts: ["G-protein linked", "Intracellular", "Enzyme-linked", "Ion-channel linked"], ans: 3 },
-            { q: "Receptor tyrosine kinases (RTKs) are an example of which type of receptor?", opts: ["Ion-channel linked", "G-protein linked", "Enzyme-linked", "Intracellular"], ans: 2 },
-            { q: "Which of the following is NOT a common second messenger in signal transduction?", opts: ["cAMP", "ATP", "Calcium ions (Ca2+)", "IP3/DAG"], ans: 1 },
-            { q: "What is the primary biological importance of apoptosis?", opts: ["To synthesize new organelles", "To program cell death and remove damaged cells", "To rapidly divide cells", "To increase ATP production"], ans: 1 },
-            { q: "Quorum sensing is a type of signaling utilized primarily by bacteria to:", opts: ["Trigger apoptosis", "Form biofilms when population density is high", "Break down glucose", "Regulate human hormones"], ans: 1 },
+            { q: "Which type of signaling involves a cell secreting a ligand that binds to its own receptors?", opts: ["Autocrine", "Paracrine", "Endocrine", "Synaptic"], ans: 0 },
+            { q: "Which type of signaling acts on nearby target cells and is generally fast but short-lived?", opts: ["Endocrine", "Paracrine", "Autocrine", "Synaptic"], ans: 1 },
+            { q: "Which signaling uses the bloodstream to transport hormones over long distances?", opts: ["Autocrine", "Paracrine", "Synaptic", "Endocrine"], ans: 3 },
+            { q: "Synaptic signaling is unique because it:", opts: ["Is slower than endocrine signaling", "Involves neurotransmitters crossing a very short distance (synapse)", "Only uses intracellular receptors", "Does not require a ligand"], ans: 1 },
+            { q: "What is the general term for a molecule that specifically binds to a receptor?", opts: ["Enzyme", "Target cell", "Ligand", "Phosphatase"], ans: 2 },
+            { q: "Where would a receptor for a small, hydrophobic (nonpolar) ligand likely be located?", opts: ["On the cell surface", "Intracellularly (inside the cytoplasm/nucleus)", "In the extracellular matrix", "Inside a vesicle"], ans: 1 },
+            { q: "Where would a receptor for a large, hydrophilic (polar) ligand be located?", opts: ["Intracellularly", "In the nucleus", "Cell-surface (plasma membrane)", "On the mitochondria"], ans: 2 },
+            { q: "Which receptor type opens or closes a channel when a ligand binds, allowing specific ions to pass?", opts: ["G-protein linked", "Enzyme-linked", "Ion-channel linked", "Intracellular"], ans: 2 },
+            { q: "Which receptor type requires two ligands to bind, causing the receptors to dimerize and self-phosphorylate?", opts: ["Ion-channel linked", "Enzyme-linked (tyrosine kinase)", "G-protein linked", "Autocrine"], ans: 1 },
+            { q: "What is the sequence of the three main stages of cell signaling?", opts: ["Transduction → Reception → Response", "Reception → Transduction → Response", "Response → Reception → Transduction", "Transduction → Response → Reception"], ans: 1 },
+            { q: "Which type of enzyme adds a phosphate group to a protein to activate it?", opts: ["Phosphatase", "Adenylyl cyclase", "Kinase", "Lipase"], ans: 2 },
+            { q: "Which type of enzyme removes a phosphate group from a protein (dephosphorylation)?", opts: ["Kinase", "Phosphatase", "Isomerase", "Protease"], ans: 1 },
+            { q: "Which of the following is NOT a common second messenger?", opts: ["cAMP", "ATP", "Calcium ions (Ca2+)", "IP3/DAG"], ans: 1 },
+            { q: "Apoptosis is critically important for:", opts: ["Regenerating lost limbs", "Rapid tumor growth", "Removing damaged or infected cells safely", "Increasing ATP yield"], ans: 2 },
+            { q: "Quorum sensing is a signaling mechanism used by bacteria to:", opts: ["Trigger apoptosis", "Form biofilms when population density is high", "Generate heat", "Evade viruses"], ans: 1 },
+            
             // Energy & Metabolism
-            { q: "According to the Second Law of Thermodynamics, every energy transfer increases the universe's:", opts: ["Kinetic energy", "Enthalpy", "Potential energy", "Entropy (disorder)"], ans: 3 },
-            { q: "A reaction that releases energy (like cellular respiration) is termed:", opts: ["Endergonic", "Anabolic", "Exergonic", "Photosynthetic"], ans: 2 },
-            { q: "The building of complex molecules from simpler ones, requiring energy, is known as:", opts: ["Catabolism", "Anabolism", "Hydrolysis", "Fermentation"], ans: 1 },
+            { q: "The First Law of Thermodynamics states that energy:", opts: ["Cannot be created or destroyed, only transferred", "Always increases entropy", "Is constantly lost as mass", "Is created during cellular respiration"], ans: 0 },
+            { q: "According to the Second Law of Thermodynamics, every energy transfer increases the universe's:", opts: ["Kinetic energy", "Potential energy", "Enthalpy", "Entropy (disorder)"], ans: 3 },
+            { q: "Chemical energy stored in the bonds of glucose is a form of:", opts: ["Kinetic energy", "Thermal energy", "Potential energy", "Activation energy"], ans: 2 },
+            { q: "A metabolic pathway that builds complex molecules from simpler ones (requiring energy) is:", opts: ["Catabolism", "Anabolism", "Hydrolysis", "Exergonic"], ans: 1 },
+            { q: "A chemical reaction that releases energy to its surroundings is termed:", opts: ["Exergonic", "Endergonic", "Anabolic", "Catalytic"], ans: 0 },
+
             // Enzymes
-            { q: "The specific region of an enzyme where a substrate binds is called the:", opts: ["Allosteric site", "Phospholipid bilayer", "Active site", "Receptor"], ans: 2 },
-            { q: "If an inhibitor binds to an enzyme's active site, competing with the substrate, it is called:", opts: ["Noncompetitive inhibition", "Allosteric inhibition", "Feedback inhibition", "Competitive inhibition"], ans: 3 },
-            { q: "When the end product of a metabolic pathway inhibits an earlier step in that same pathway, this is known as:", opts: ["Competitive inhibition", "Denaturation", "Feedback inhibition", "Catabolism"], ans: 2 },
+            { q: "Enzymes act as biological catalysts by:", opts: ["Increasing the activation energy", "Lowering the activation energy required for a reaction", "Adding heat to the system", "Changing an endergonic reaction to exergonic"], ans: 1 },
+            { q: "The specific region of an enzyme where the substrate binds is the:", opts: ["Allosteric site", "Receptor site", "Active site", "Catalytic core"], ans: 2 },
+            { q: "Extreme temperatures or pH can cause an enzyme to lose its 3D shape, a process called:", opts: ["Inhibition", "Dephosphorylation", "Denaturation", "Saturation"], ans: 2 },
+            { q: "An inhibitor that structurally resembles the substrate and competes for the active site is a(n):", opts: ["Noncompetitive inhibitor", "Competitive inhibitor", "Allosteric inhibitor", "Feedback inhibitor"], ans: 1 },
+            { q: "If an inhibitor binds to a site other than the active site (allosteric site), changing the enzyme's shape, it is a(n):", opts: ["Competitive inhibitor", "Noncompetitive inhibitor", "Coenzyme", "Substrate analog"], ans: 1 },
+            { q: "When the end-product of a metabolic pathway shuts down the pathway by inhibiting an early enzyme, this is:", opts: ["Positive feedback", "Competitive inhibition", "Feedback inhibition", "Denaturation"], ans: 2 },
+
             // ATP & Redox
-            { q: "In an oxidation-reduction (redox) reaction, the substance that loses electrons is said to be:", opts: ["Reduced", "Phosphorylated", "Hydrolyzed", "Oxidized"], ans: 3 },
-            // Cellular Respiration & Fermentation
-            { q: "During cellular respiration, what acts as the final electron acceptor in the electron transport chain?", opts: ["Carbon dioxide", "Oxygen", "Water", "NAD+"], ans: 1 },
-            { q: "In animal cells deprived of oxygen, what is the primary purpose and product of fermentation?", opts: ["To produce massive ATP; produces alcohol", "To regenerate NAD+; produces lactic acid", "To breakdown water; produces oxygen", "To run the Citric Acid Cycle; produces CO2"], ans: 1 }
+            { q: "Energy is released from ATP when:", opts: ["Adenine is removed", "The bond between the second and third phosphate groups is broken (hydrolysis)", "It is oxidized", "Ribose is converted to glucose"], ans: 1 },
+            { q: "In a redox reaction, the substance that loses electrons is:", opts: ["Oxidized", "Reduced", "Phosphorylated", "Hydrolyzed"], ans: 0 },
+            { q: "In a redox reaction, the substance that gains electrons is:", opts: ["Oxidized", "Reduced", "Catalyzed", "Denatured"], ans: 1 },
+
+            // Cellular Respiration
+            { q: "What are the three main stages of Cellular Respiration in order?", opts: ["Glycolysis → Citric Acid Cycle → Electron Transport Chain", "Citric Acid Cycle → Glycolysis → ETC", "ETC → Glycolysis → Fermentation", "Glycolysis → Fermentation → ETC"], ans: 0 },
+            { q: "Which key product of the Citric Acid Cycle acts as an electron carrier to the ETC?", opts: ["ATP", "NADH", "CO2", "Oxygen"], ans: 1 },
+            { q: "What acts as the final electron acceptor at the end of the Electron Transport Chain?", opts: ["NAD+", "Carbon dioxide", "Oxygen", "Water"], ans: 2 },
+            { q: "Chemiosmosis produces ATP by using the energy from a gradient of:", opts: ["Sodium ions", "Hydrogen ions (protons)", "Calcium ions", "Electrons"], ans: 1 },
+
+            // Fermentation
+            { q: "What is the primary trigger that forces an animal cell to switch to fermentation?", opts: ["High glucose levels", "Low ATP levels", "Low or absent oxygen conditions", "High temperature"], ans: 2 },
+            { q: "The net yield of ATP produced per glucose molecule during fermentation is:", opts: ["0", "2", "32", "36"], ans: 1 },
+            { q: "In animal cells, what is the byproduct produced during fermentation?", opts: ["Ethanol", "Carbon dioxide", "Lactic acid", "Pyruvate"], ans: 2 },
+            { q: "Biologically, what is the main purpose of fermentation?", opts: ["To produce massive amounts of ATP", "To regenerate NAD+ so glycolysis can continue", "To break down lactic acid", "To produce oxygen"], ans: 1 }
         ];
 
         let mcqs = []; 
 
         const glossary = {
-            "g-protein coupled": "A cell-surface receptor that changes shape and activates a G-protein when a ligand binds to it.",
-            "gtp": "Guanosine triphosphate; it replaces GDP to activate the G-protein.",
-            "adenylyl cyclase": "An enzyme in the plasma membrane that converts ATP to cAMP in response to an extracellular signal.",
-            "camp": "Cyclic AMP; a widely used second messenger that activates protein kinases.",
-            "kinases": "Enzymes that transfer phosphate groups to proteins (phosphorylation), often activating them.",
-            "tyrosine kinase": "An enzyme-linked receptor that phosphorylates tyrosine residues. Requires two ligands to bind to form a dimer.",
-            "dimerization": "The coming together of two receptor tyrosine kinase monomers after ligand binding.",
-            "phosphorylation": "The addition of a phosphate group to a molecule.",
-            "active": "In an operational or functioning state.",
-            "continuous": "Without interruption or end.",
-            "overproduction": "Creating more of a substance (like a second messenger) than is biologically required.",
-            "off": "The state of a signaling pathway being terminated.",
-            "denaturation": "The loss of a protein's/enzyme's normal 3D shape due to extreme temperature or pH.",
-            "active site": "The specific region of an enzyme that binds the substrate.",
-            "substrate": "The specific reactant that an enzyme acts on.",
-            "stops": "Ceases functioning.",
-            "electron transport chain": "A sequence of electron carrier molecules that shuttle electrons to release energy used to make ATP. Requires oxygen.",
-            "fermentation": "An anaerobic process that allows glycolysis to continue by regenerating NAD+.",
-            "nad+": "An electron carrier. Must be constantly regenerated for glycolysis to produce its 2 ATP.",
-            "lactic acid": "The toxic byproduct of fermentation in animal cells.",
-            "2": "The net amount of ATP produced by glycolysis/fermentation per glucose molecule.",
-            "autoinducers": "Signaling molecules secreted by bacteria to communicate with others of their kind.",
-            "density": "The concentration of bacterial individuals within a given area.",
-            "gene expression": "The process by which DNA directs the synthesis of proteins, altered here to form a biofilm."
+            "g-protein coupled": "A cell-surface receptor that changes shape and activates a G-protein when a specific ligand binds.",
+            "g-protein": "A peripheral membrane protein that acts as an on/off switch depending on whether GDP or GTP is bound to it.",
+            "gtp": "Guanosine triphosphate; it replaces GDP to turn the G-protein 'ON' (active).",
+            "adenylyl cyclase": "An enzyme in the plasma membrane that converts ATP into the second messenger cAMP.",
+            "camp": "Cyclic AMP; a widely used second messenger that rapidly diffuses through the cell to activate protein kinases.",
+            "kinases": "Enzymes that transfer phosphate groups to target proteins (phosphorylation), usually activating them.",
+            "tyrosine kinase": "An enzyme-linked receptor that requires two ligands to bind. It then dimerizes and phosphorylates its own tyrosine residues.",
+            "dimerization": "The coming together of two receptor tyrosine kinase monomers to form a dimer complex after ligand binding.",
+            "phosphorylation": "The addition of a phosphate group to a molecule, altering its function or activity.",
+            "active": "In an operational or functioning state (e.g., when a G-protein holds GTP).",
+            "continuous": "Without interruption or end. The signal cannot be shut down.",
+            "overproduction": "Creating more of a substance (like cAMP) than is biologically required or safe.",
+            "off": "The state of a signaling pathway being terminated or deactivated.",
+            "denaturation": "The loss of a protein's/enzyme's normal 3D shape due to extreme temperature or pH. This destroys its function.",
+            "active site": "The specific region of an enzyme that binds to the substrate.",
+            "substrate": "The specific reactant molecule that an enzyme acts upon.",
+            "stops": "Ceases functioning. If an enzyme cannot bind its substrate, metabolism halts.",
+            "electron transport chain": "A sequence of electron carrier molecules that shuttle electrons to release energy used to make ATP. Strictly requires oxygen.",
+            "fermentation": "An anaerobic (no oxygen) process that allows glycolysis to continue by regenerating NAD+.",
+            "nad+": "An empty electron carrier. It must be constantly regenerated for glycolysis to continue producing its 2 ATP.",
+            "lactic acid": "The byproduct of fermentation in animal cells. Can cause muscle fatigue.",
+            "2": "The net amount of ATP produced by glycolysis/fermentation per glucose molecule (compared to ~30-32 in aerobic respiration).",
+            "autoinducers": "Chemical signaling molecules secreted by bacteria to communicate with others of their kind.",
+            "density": "The concentration of bacterial individuals within a given area. Quorum sensing monitors this.",
+            "gene expression": "The process by which DNA directs the synthesis of proteins. In biofilms, bacteria alter their gene expression to secrete a protective matrix."
         };
 
         const ctqs = [
             { 
                 q: "CTQ 1: A hormone binds to a receptor on a target cell and triggers a cascade that results in increased glucose breakdown. Explain TWO different mechanisms (receptor and their specific signaling pathway) by which this signal could activate enzymes inside the target cell. Be specific.",
-                template: "Mechanism 1: A ligand binds to a [G-protein coupled] receptor, converting GDP to [GTP]. This activates [adenylyl cyclase], producing the second messenger [cAMP], which activates [kinases]. \n\nMechanism 2: A ligand binds to a receptor [tyrosine kinase], causing [dimerization] and [phosphorylation].",
-                ans: "Mechanism 1: G-protein pathway. A ligand binds to a G-protein-coupled receptor, activating a G protein (GDP -> GTP). This activates enzymes like adenylyl cyclase, producing cAMP (second messenger). cAMP activates protein kinases.\n\nMechanism 2: Enzyme-linked. A ligand binds to a receptor tyrosine kinase, causing dimerization and phosphorylation.",
-                keywords: ["g-protein coupled", "gtp", "adenylyl cyclase", "camp", "kinases", "tyrosine kinase", "dimerization", "phosphorylation"],
-                warmup: { q: "Which enzyme is directly responsible for converting ATP into cAMP in the G-protein pathway?", opts: ["Protein Kinase", "Adenylyl Cyclase", "Tyrosine Kinase"], ans: 1 }
+                template: "Mechanism 1: A ligand binds to a [G-protein coupled] receptor, which activates a [G-protein] by replacing GDP with [GTP]. This activated G-protein then activates the enzyme [adenylyl cyclase], which produces the second messenger [cAMP]. This second messenger then activates [kinases]. \n\nMechanism 2: A ligand binds to a receptor [tyrosine kinase], causing [dimerization] and [phosphorylation].",
+                ans: "Mechanism 1: G-protein pathway. A ligand binds to a G-protein-coupled receptor, which activates a G-protein (GDP -> GTP). The G-protein activates adenylyl cyclase, producing cAMP (second messenger). cAMP activates protein kinases.\n\nMechanism 2: Enzyme-linked. A ligand binds to a receptor tyrosine kinase, causing dimerization and phosphorylation.",
+                keywords: ["g-protein coupled", "g-protein", "gtp", "adenylyl cyclase", "camp", "kinases", "tyrosine kinase", "dimerization", "phosphorylation"],
+                warmups: [
+                    { q: "In the G-protein pathway, what specifically turns the G-protein 'ON'?", opts: ["The hydrolysis of GTP to GDP", "The replacement of GDP with GTP", "Phosphorylation by a kinase", "The creation of cAMP"], ans: 1 },
+                    { q: "Which enzyme is directly responsible for converting ATP into cAMP?", opts: ["Protein Kinase", "Adenylyl Cyclase", "Tyrosine Kinase", "Phosphatase"], ans: 1 },
+                    { q: "What must happen to a Receptor Tyrosine Kinase (RTK) immediately after ligands bind to it?", opts: ["It turns GDP into GTP", "It produces calcium ions", "The two receptor halves must come together (dimerization)", "It detaches from the membrane"], ans: 2 },
+                    { q: "What is the primary role of a protein kinase in these signaling cascades?", opts: ["To act as a second messenger", "To remove phosphate groups", "To add phosphate groups to target proteins (phosphorylation)", "To act as a ligand"], ans: 2 }
+                ]
             },
             {
                 q: "CTQ 2: A toxin prevents G-proteins from hydrolyzing GTP. Predict how this would affect cell signaling and explain the downstream effects on second messengers and cellular response.",
                 template: "If GTP cannot be hydrolyzed, the G-protein remains [active]. This leads to [continuous] activation of enzymes and [overproduction] of second messengers like [cAMP]. The cellular response cannot turn [off].",
                 ans: "If GTP cannot be hydrolyzed, the G-protein remains active. This leads to continuous activation of enzymes and overproduction of second messengers like cAMP. Result: continuous cellular response (cannot turn OFF).",
                 keywords: ["active", "continuous", "overproduction", "camp", "off"],
-                warmup: { q: "Hydrolyzing GTP into GDP serves what biological purpose?", opts: ["It turns the G-protein pathway 'OFF'", "It amplifies the signal", "It creates a new ligand"], ans: 0 }
+                warmups: [
+                    { q: "Normally, hydrolyzing GTP into GDP serves what biological purpose?", opts: ["It turns the G-protein pathway 'OFF'", "It amplifies the signal", "It creates a new ligand", "It activates adenylyl cyclase"], ans: 0 },
+                    { q: "If a G-protein is stuck in the active state, what happens to adenylyl cyclase?", opts: ["It gets degraded", "It continuously produces cAMP", "It stops functioning completely", "It converts cAMP back to ATP"], ans: 1 },
+                    { q: "Why is 'turning off' a signal just as important as turning it on?", opts: ["To conserve oxygen", "To prevent overstimulation and unregulated cellular responses", "To trigger apoptosis", "To keep the cell membrane fluid"], ans: 1 }
+                ]
             },
             {
                 q: "CTQ 3: A patient has a high fever (40°C / 104°F). Explain how this temperature affects enzyme structure and function, and predict how this would impact metabolism in the body.",
                 template: "High temperature causes enzyme [denaturation], changing the shape of the [active site]. This prevents [substrate] binding and slows or [stops] metabolic reactions.",
                 ans: "High temperature causes enzyme denaturation, changing the shape of the active site. This prevents substrate binding and slows or stops metabolic reactions.",
                 keywords: ["denaturation", "active site", "substrate", "stops"],
-                warmup: { q: "If an enzyme's active site changes shape, what happens?", opts: ["The substrate can no longer bind securely", "It switches from anabolic to catabolic", "It produces more ATP"], ans: 0 }
+                warmups: [
+                    { q: "When an enzyme denatures due to high heat, what is actually happening?", opts: ["It is being digested", "It loses its 3D structural shape", "It is converting into a lipid", "It binds permanently to the substrate"], ans: 1 },
+                    { q: "If an enzyme's active site changes shape, what is the direct consequence?", opts: ["The substrate can no longer fit and bind to it", "It switches from anabolic to catabolic", "It produces more ATP", "It becomes a competitive inhibitor"], ans: 0 },
+                    { q: "Without functioning enzymes, what happens to the body's metabolic reactions?", opts: ["They speed up uncontrollably", "They occur at normal rates but produce the wrong products", "They slow down or stop completely", "They switch to relying on structural proteins"], ans: 2 }
+                ]
             },
             {
                 q: "CTQ 4: A cell is suddenly deprived of oxygen. Explain how this affects the electron transport chain, ATP production, and which pathway the cell will switch to. Include products formed.",
                 template: "Without oxygen, the [electron transport chain] stops. ATP production via oxidative phosphorylation [stops]. The cell switches to [fermentation] to regenerate [NAD+]. In animal cells, [lactic acid] is produced and only [2] ATP are generated.",
                 ans: "Without oxygen, the electron transport chain stops. ATP production via oxidative phosphorylation stops. The cell switches to fermentation to regenerate NAD+. In animal cells, lactic acid is produced and only 2 ATP are generated.",
                 keywords: ["electron transport chain", "stops", "fermentation", "nad+", "lactic acid", "2"],
-                warmup: { q: "Why do cells need to regenerate NAD+ during anaerobic conditions?", opts: ["To keep the Electron Transport Chain running", "To allow Glycolysis to continue producing 2 ATP", "To convert lactic acid back to glucose"], ans: 1 }
+                warmups: [
+                    { q: "What is the specific role of oxygen in the Electron Transport Chain?", opts: ["It provides electrons", "It acts as the final electron acceptor", "It creates the proton gradient", "It breaks down glucose"], ans: 1 },
+                    { q: "Why do cells need to regenerate NAD+ during anaerobic conditions?", opts: ["To keep the Electron Transport Chain running", "To allow Glycolysis to continue producing its 2 ATP", "To convert lactic acid back to glucose", "To produce oxygen internally"], ans: 1 },
+                    { q: "How does the ATP yield of fermentation compare to aerobic respiration?", opts: ["Fermentation produces much more (36 ATP)", "Fermentation produces much less (2 ATP)", "They produce the exact same amount", "Fermentation produces 0 ATP"], ans: 1 }
+                ]
             },
             {
                 q: "CTQ 5: Bacteria form a biofilm on a medical implant. Explain how quorum sensing allows this to happen and why biofilms make infections difficult to treat.",
                 template: "Bacteria release [autoinducers]. When population [density] increases, [gene expression] is triggered to form the biofilm.",
-                ans: "Bacteria release autoinducers. When population density increases, gene expression is triggered.",
+                ans: "Bacteria release autoinducers. When population density increases, gene expression is triggered to form the biofilm matrix.",
                 keywords: ["autoinducers", "density", "gene expression"],
-                warmup: { q: "Quorum sensing relies on bacteria sensing what?", opts: ["Changes in temperature", "The density of their own population", "The presence of human antibodies"], ans: 1 }
+                warmups: [
+                    { q: "What are the signaling molecules used by bacteria in quorum sensing called?", opts: ["Hormones", "Neurotransmitters", "Autoinducers", "Second messengers"], ans: 2 },
+                    { q: "Quorum sensing essentially allows bacteria to monitor their own:", opts: ["Glucose levels", "Temperature", "Population density", "Oxygen saturation"], ans: 2 },
+                    { q: "When a quorum (threshold density) is reached, how do the bacteria respond?", opts: ["By altering their gene expression to act as a coordinated group", "By dying off to conserve resources", "By attacking each other", "By migrating to a new host"], ans: 0 }
+                ]
             }
         ];
 
@@ -281,6 +363,7 @@
         let mcqCorrectCount = 0;
         let ctqIndex = 0;
         let currentDifficulty = 1;
+        let currentWarmupIndex = -1;
 
         // --- UTILS ---
         function shuffleArray(array) {
@@ -322,7 +405,6 @@
             const optsDiv = document.getElementById('mcq-opts');
             optsDiv.innerHTML = '';
             
-            // Randomize options too
             let optsWithIndex = qData.opts.map((opt, i) => ({text: opt, originalIndex: i}));
             optsWithIndex = shuffleArray(optsWithIndex);
 
@@ -345,10 +427,9 @@
                 setTimeout(() => { mcqIndex++; loadMCQ(); }, 1000);
             } else {
                 btn.classList.add('wrong');
-                // Find and highlight the correct button
                 const correctBtnIndex = shuffledOpts.findIndex(o => o.originalIndex === correctOriginalIdx);
                 btns[correctBtnIndex].classList.add('correct');
-                setTimeout(() => { mcqIndex++; loadMCQ(); }, 2000); // give more time to read correct answer
+                setTimeout(() => { mcqIndex++; loadMCQ(); }, 2500); 
             }
         }
 
@@ -368,44 +449,34 @@
 
         function toggleWarmup() {
             const box = document.getElementById('warmup-box');
-            box.style.display = box.style.display === 'block' ? 'none' : 'block';
+            if (box.style.display === 'block') {
+                box.style.display = 'none';
+            } else {
+                box.style.display = 'block';
+                if(currentWarmupIndex === -1) loadRandomWarmup();
+            }
         }
 
-        function goToCTQ(index) {
-            ctqIndex = index;
-            loadCTQ();
-        }
-
-        function showGlossary(keyword) {
-            const box = document.getElementById('glossary-box');
-            const def = glossary[keyword.toLowerCase()] || "Definition not found.";
-            box.innerHTML = `<strong>${keyword}:</strong> ${def}`;
-            box.style.display = 'block';
-        }
-
-        function loadCTQ() {
+        function loadRandomWarmup() {
             const qData = ctqs[ctqIndex];
             
-            // Update Nav Bar UI
-            for(let i=0; i<5; i++) {
-                const btn = document.getElementById(`nav-ctq-${i}`);
-                if(i === ctqIndex) { btn.classList.add('active'); btn.style.borderColor = 'var(--accent)'; btn.style.color = 'var(--accent)'; }
-                else { btn.classList.remove('active'); btn.style.borderColor = 'var(--text-muted)'; btn.style.color = 'var(--text-muted)'; }
+            if (qData.warmups.length > 1) {
+                let newIdx = currentWarmupIndex;
+                while (newIdx === currentWarmupIndex) {
+                    newIdx = Math.floor(Math.random() * qData.warmups.length);
+                }
+                currentWarmupIndex = newIdx;
+            } else {
+                currentWarmupIndex = 0;
             }
-
-            // Reset UI
-            document.getElementById('ctq-q').innerText = qData.q;
-            document.getElementById('ctq-feedback').style.display = 'none';
-            document.getElementById('glossary-box').style.display = 'none';
-            document.getElementById('warmup-box').style.display = 'none';
             
-            // Load Warmup
-            document.getElementById('warmup-q').innerText = qData.warmup.q;
+            const warmup = qData.warmups[currentWarmupIndex];
+            
+            document.getElementById('warmup-q').innerText = warmup.q;
             const wOpts = document.getElementById('warmup-opts');
             wOpts.innerHTML = '';
             
-            // Randomize Warmup options
-            let wOptsWithIndex = qData.warmup.opts.map((opt, i) => ({text: opt, originalIndex: i}));
+            let wOptsWithIndex = warmup.opts.map((opt, i) => ({text: opt, originalIndex: i}));
             wOptsWithIndex = shuffleArray(wOptsWithIndex);
 
             wOptsWithIndex.forEach((optObj) => {
@@ -417,18 +488,40 @@
                     const allWBtns = document.querySelectorAll('#warmup-opts .option-btn');
                     allWBtns.forEach(b => { b.disabled = true; b.onclick = null; });
                     
-                    if(optObj.originalIndex === qData.warmup.ans) { 
+                    if(optObj.originalIndex === warmup.ans) { 
                         btn.classList.add('correct'); 
                     } else { 
                         btn.classList.add('wrong'); 
-                        const correctIdx = wOptsWithIndex.findIndex(o => o.originalIndex === qData.warmup.ans);
+                        const correctIdx = wOptsWithIndex.findIndex(o => o.originalIndex === warmup.ans);
                         wOpts.children[correctIdx].classList.add('correct'); 
                     }
                 };
                 wOpts.appendChild(btn);
             });
+        }
 
-            // Load Input Area based on Difficulty
+        function goToCTQ(index) {
+            ctqIndex = index;
+            loadCTQ();
+        }
+
+        function loadCTQ() {
+            const qData = ctqs[ctqIndex];
+            currentWarmupIndex = -1; 
+            
+            // Update Nav Bar UI
+            for(let i=0; i<5; i++) {
+                const btn = document.getElementById(`nav-ctq-${i}`);
+                if(i === ctqIndex) { btn.classList.add('active'); btn.style.borderColor = 'var(--accent)'; btn.style.color = 'var(--accent)'; }
+                else { btn.classList.remove('active'); btn.style.borderColor = 'var(--text-muted)'; btn.style.color = 'var(--text-muted)'; }
+            }
+
+            // Reset UI
+            document.getElementById('ctq-q').innerText = qData.q;
+            document.getElementById('ctq-feedback').style.display = 'none';
+            document.getElementById('warmup-box').style.display = 'none';
+
+            // Load Input Area
             const area = document.getElementById('ctq-input-area');
             area.innerHTML = '';
 
@@ -454,46 +547,70 @@
             const qData = ctqs[ctqIndex];
             document.getElementById('ctq-feedback').style.display = 'block';
             document.getElementById('ctq-actual').innerText = "Rubric Answer:\n" + qData.ans;
-            document.getElementById('glossary-box').style.display = 'none';
 
             const badgesDiv = document.getElementById('ctq-badges');
-            badgesDiv.innerHTML = '';
+            badgesDiv.innerHTML = ''; // Clear previous
 
             if (currentDifficulty === 3) {
-                document.getElementById('feedback-title').innerHTML = "<strong>Keyword Analysis (Click for definition):</strong>";
+                document.getElementById('feedback-title').innerHTML = "<strong>Keyword Analysis:</strong>";
                 const input = document.getElementById('ctq-textarea').value.toLowerCase();
                 
+                // Build <details> for every keyword
                 qData.keywords.forEach(kw => {
-                    const span = document.createElement('span');
-                    span.className = 'keyword-badge ' + (input.includes(kw.toLowerCase()) ? 'found' : 'missed');
-                    span.innerText = kw;
-                    span.onclick = () => showGlossary(kw);
-                    badgesDiv.appendChild(span);
+                    const isFound = input.includes(kw.toLowerCase());
+                    createDetailsElement(kw, isFound, badgesDiv);
                 });
             } else {
-                document.getElementById('feedback-title').innerHTML = "<strong>Fill-in-the-Blank Results (Click missing words for definition):</strong>";
+                document.getElementById('feedback-title').innerHTML = "<strong>Fill-in-the-Blank Results:</strong>";
                 const inputs = document.querySelectorAll('.cloze-input');
+                
                 inputs.forEach(inp => {
                     const correctAns = inp.dataset.ans.toLowerCase();
                     const userAns = inp.value.toLowerCase().trim();
+                    const isFound = (userAns === correctAns);
                     
-                    if (userAns === correctAns) {
+                    if (isFound) {
                         inp.classList.add('correct');
                         inp.classList.remove('wrong');
                     } else {
                         inp.classList.add('wrong');
                         inp.classList.remove('correct');
-                        inp.value = `${inp.value} (Correct: ${inp.dataset.ans})`;
-                        
-                        // Add missed words to badge list
-                        const span = document.createElement('span');
-                        span.className = 'keyword-badge missed';
-                        span.innerText = inp.dataset.ans;
-                        span.onclick = () => showGlossary(inp.dataset.ans);
-                        badgesDiv.appendChild(span);
+                        // Prevent appending the correct answer over and over
+                        if (!inp.value.includes('(Correct:')) {
+                            inp.value = `${inp.value} (Correct: ${inp.dataset.ans})`;
+                        }
                     }
                 });
+
+                // Build <details> for every keyword in the template
+                qData.keywords.forEach(kw => {
+                    // Check if this keyword's input was correct
+                    const relatedInput = document.querySelector(`.cloze-input[data-ans="${kw}"]`);
+                    let isFound = false;
+                    if (relatedInput && relatedInput.classList.contains('correct')) {
+                        isFound = true;
+                    }
+                    createDetailsElement(kw, isFound, badgesDiv);
+                });
             }
+        }
+
+        // Helper function to build the native HTML <details> dropdown
+        function createDetailsElement(keyword, isFound, container) {
+            const details = document.createElement('details');
+            details.className = 'keyword-details';
+            
+            const summary = document.createElement('summary');
+            summary.className = 'keyword-summary ' + (isFound ? 'text-success' : 'text-error');
+            summary.innerText = (isFound ? '✅ ' : '❌ ') + keyword;
+            
+            const defDiv = document.createElement('div');
+            defDiv.className = 'keyword-def-text';
+            defDiv.innerText = glossary[keyword.toLowerCase()] || "Definition not found.";
+            
+            details.appendChild(summary);
+            details.appendChild(defDiv);
+            container.appendChild(details);
         }
 
         // Init
