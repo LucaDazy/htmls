@@ -32,50 +32,71 @@
 
         .container {
             width: 100%;
-            max-width: 900px;
+            max-width: 700px; /* Narrower for single column */
             background: var(--panel-bg);
             padding: 2rem;
             border-radius: 8px;
             box-sizing: border-box;
         }
 
-        .link-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1.5rem;
+        .link-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Grouping container for files created around the same time */
+        .group-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .group-container:last-child {
+            margin-bottom: 0;
         }
 
         .app-btn {
             background: transparent;
             border: 2px solid var(--text-muted);
             color: var(--text-main);
-            padding: 1.5rem 1rem;
+            padding: 1.2rem 1.5rem;
             font-family: inherit;
-            font-size: 1.1rem;
-            font-weight: bold;
             cursor: pointer;
             border-radius: 4px;
             transition: all 0.2s;
             text-decoration: none;
-            text-align: center;
             display: flex;
+            justify-content: space-between; /* Title left, Date right */
             align-items: center;
-            justify-content: center;
-            min-height: 80px;
         }
 
         .app-btn:hover {
             border-color: var(--accent);
-            color: var(--accent);
             background: var(--hover-bg);
-            transform: translateY(-4px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transform: translateX(4px); /* Slight slide instead of jump for lists */
+        }
+
+        .app-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--text-main);
+            transition: color 0.2s;
+        }
+
+        .app-btn:hover .app-title {
+            color: var(--accent);
+        }
+
+        .app-date {
+            font-size: 0.85rem;
+            color: var(--text-muted);
         }
 
         #loading {
             text-align: center;
             color: var(--accent);
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             margin-bottom: 1rem;
         }
     </style>
@@ -83,60 +104,119 @@
 <body>
 
     <h1>Study Hub Terminal</h1>
-    <div class="subtitle">Automated Repository Index</div>
+    <div class="subtitle">Automated Chronological Index</div>
 
     <div class="container">
-        <div id="loading">Scanning GitHub for study modules...</div>
-        <div class="link-grid" id="link-grid"></div>
+        <div id="loading">Scanning GitHub repository timeline...</div>
+        <div class="link-list" id="link-list"></div>
     </div>
 
     <script>
-        // The public GitHub API URL for your specific repository contents
         const repoUrl = 'https://api.github.com/repos/LucaDazy/htmls/contents/';
 
-        fetch(repoUrl)
-            .then(response => {
-                if (!response.ok) throw new Error("Network response was not ok");
-                return response.json();
-            })
-            .then(data => {
-                const grid = document.getElementById('link-grid');
-                document.getElementById('loading').style.display = 'none';
+        // Helper to fetch JSON safely
+        async function fetchJSON(url) {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error("Network/API error");
+            return res.json();
+        }
 
-                // 1. Filter the repo data to only include .html files
-                // 2. Exclude 'index.html' so the homepage doesn't link to itself
-                const htmlFiles = data.filter(file => 
-                    file.name.endsWith('.html') && file.name.toLowerCase() !== 'index.html'
-                );
+        async function buildTerminal() {
+            const list = document.getElementById('link-list');
+            const loading = document.getElementById('loading');
+
+            try {
+                // 1. Get current files in the repo
+                const filesData = await fetchJSON(repoUrl);
+                const htmlFiles = filesData.filter(f => f.name.endsWith('.html') && f.name.toLowerCase() !== 'index.html');
 
                 if (htmlFiles.length === 0) {
-                    grid.innerHTML = '<div style="color: var(--error);">No HTML modules found in the repository.</div>';
+                    loading.style.display = 'none';
+                    list.innerHTML = '<div style="color: var(--error); text-align: center;">No HTML modules found.</div>';
                     return;
                 }
 
-                // Create a button for each file
-                htmlFiles.forEach(file => {
+                // 2. Load Local Cache to save API requests
+                let cache = JSON.parse(localStorage.getItem('study_hub_dates')) || {};
+                let fileDataArray = [];
+
+                // 3. Process each file for its creation date
+                for (const file of htmlFiles) {
+                    if (cache[file.name]) {
+                        // We already know this file's date, pull it from cache
+                        fileDataArray.push({ 
+                            name: file.name, 
+                            date: new Date(cache[file.name]) 
+                        });
+                    } else {
+                        // New file detected! Ask GitHub for its commit history
+                        const commits = await fetchJSON(`https://api.github.com/repos/LucaDazy/htmls/commits?path=${file.name}&per_page=100`);
+                        let creationDate = new Date();
+                        
+                        if (commits && commits.length > 0) {
+                            // The oldest commit is at the end of the array
+                            creationDate = new Date(commits[commits.length - 1].commit.author.date);
+                        }
+                        
+                        fileDataArray.push({ name: file.name, date: creationDate });
+                        cache[file.name] = creationDate.toISOString(); // Save to cache for next time
+                    }
+                }
+
+                // Save updated cache
+                localStorage.setItem('study_hub_dates', JSON.stringify(cache));
+
+                // 4. Sort the array by date descending (Newest first)
+                fileDataArray.sort((a, b) => b.date - a.date);
+
+                // 5. Render to UI with chronological grouping
+                loading.style.display = 'none';
+                
+                let currentGroup = null;
+                let lastDate = null;
+                const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
+
+                fileDataArray.forEach(file => {
+                    // Check if we need to start a new group (gap > 2 days)
+                    if (!lastDate || Math.abs(lastDate - file.date) > TWO_DAYS_MS) {
+                        currentGroup = document.createElement('div');
+                        currentGroup.className = 'group-container';
+                        list.appendChild(currentGroup);
+                    }
+
+                    // Create the button
                     const a = document.createElement('a');
-                    a.href = file.name; 
-                    a.target = '_blank'; // Forces it to open in a new tab
+                    a.href = file.name;
+                    a.target = '_blank';
                     a.className = 'app-btn';
-                    
-                    // Cleanup the file name to make it look like a nice title
-                    // e.g., "MitosisMaster.html" -> "Mitosis Master"
-                    let displayName = file.name.replace('.html', '');
-                    displayName = displayName.replace(/([A-Z])/g, ' $1').trim();
-                    
-                    // Capitalize the first letter just in case
+
+                    // Clean up filename for the title
+                    let displayName = file.name.replace('.html', '').replace(/([A-Z])/g, ' $1').trim();
                     displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
 
-                    a.innerText = displayName;
-                    grid.appendChild(a);
+                    // Format date (e.g., "May 26, 2026")
+                    const dateStr = file.date.toLocaleDateString(undefined, { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                    });
+
+                    a.innerHTML = `
+                        <span class="app-title">${displayName}</span>
+                        <span class="app-date">${dateStr}</span>
+                    `;
+                    
+                    currentGroup.appendChild(a);
+                    lastDate = file.date;
                 });
-            })
-            .catch(error => {
-                document.getElementById('loading').innerHTML = `<span style="color: var(--error);">Error loading files. GitHub API might be rate-limiting you, or there is a network issue.</span>`;
-                console.error('Fetch Error:', error);
-            });
+
+            } catch (error) {
+                loading.innerHTML = `<span style="color: var(--error);">Failed to sync with GitHub API. You may have hit the rate limit. Try again in an hour.</span>`;
+                console.error(error);
+            }
+        }
+
+        buildTerminal();
     </script>
 </body>
 </html>
