@@ -27,12 +27,34 @@
             min-height: 100vh;
         }
 
-        h1 { color: var(--accent); margin-bottom: 0.5rem; text-align: center; }
-        .subtitle { color: var(--text-muted); margin-bottom: 3rem; text-align: center; }
+        .header-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo {
+            width: 60px;
+            height: auto;
+            border-radius: 50%;
+        }
+
+        h1 { 
+            color: var(--accent); 
+            margin: 0; 
+            text-align: center; 
+        }
+        
+        .subtitle { 
+            color: var(--text-muted); 
+            margin-bottom: 3rem; 
+            text-align: center; 
+        }
 
         .container {
             width: 100%;
-            max-width: 700px; /* Narrower for single column */
+            max-width: 700px;
             background: var(--panel-bg);
             padding: 2rem;
             border-radius: 8px;
@@ -44,7 +66,6 @@
             flex-direction: column;
         }
 
-        /* Grouping container for files created around the same time */
         .group-container {
             display: flex;
             flex-direction: column;
@@ -67,14 +88,14 @@
             transition: all 0.2s;
             text-decoration: none;
             display: flex;
-            justify-content: space-between; /* Title left, Date right */
+            justify-content: space-between;
             align-items: center;
         }
 
         .app-btn:hover {
             border-color: var(--accent);
             background: var(--hover-bg);
-            transform: translateX(4px); /* Slight slide instead of jump for lists */
+            transform: translateX(4px);
         }
 
         .app-title {
@@ -99,22 +120,33 @@
             font-size: 1.1rem;
             margin-bottom: 1rem;
         }
+        
+        #rate-limit-warning {
+            color: var(--error);
+            font-size: 0.9rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
     </style>
 </head>
 <body>
 
-    <h1>Study Hub Terminal</h1>
+    <div class="header-container">
+        <img src="lucadazyyellow.png" alt="Study Hub Logo" class="logo">
+        <h1>Study Hub Terminal</h1>
+    </div>
     <div class="subtitle">Automated Chronological Index</div>
 
     <div class="container">
         <div id="loading">Scanning GitHub repository timeline...</div>
+        <div id="rate-limit-warning">GitHub API rate limit reached. Displaying files with cached or approximate dates until the limit resets (1 hour).</div>
         <div class="link-list" id="link-list"></div>
     </div>
 
     <script>
         const repoUrl = 'https://api.github.com/repos/LucaDazy/htmls/contents/';
 
-        // Helper to fetch JSON safely
         async function fetchJSON(url) {
             const res = await fetch(url);
             if (!res.ok) throw new Error("Network/API error");
@@ -124,10 +156,18 @@
         async function buildTerminal() {
             const list = document.getElementById('link-list');
             const loading = document.getElementById('loading');
+            const warning = document.getElementById('rate-limit-warning');
 
             try {
                 // 1. Get current files in the repo
-                const filesData = await fetchJSON(repoUrl);
+                let filesData;
+                try {
+                    filesData = await fetchJSON(repoUrl);
+                } catch (e) {
+                    loading.innerHTML = `<span style="color: var(--error);">Failed to connect to GitHub. Please check your internet connection or repository URL.</span>`;
+                    return;
+                }
+
                 const htmlFiles = filesData.filter(f => f.name.endsWith('.html') && f.name.toLowerCase() !== 'index.html');
 
                 if (htmlFiles.length === 0) {
@@ -136,40 +176,41 @@
                     return;
                 }
 
-                // 2. Load Local Cache to save API requests
+                // 2. Load Local Cache
                 let cache = JSON.parse(localStorage.getItem('study_hub_dates')) || {};
                 let fileDataArray = [];
+                let rateLimitHit = false;
 
-                // 3. Process each file for its creation date
+                // 3. Process each file
                 for (const file of htmlFiles) {
                     if (cache[file.name]) {
-                        // We already know this file's date, pull it from cache
-                        fileDataArray.push({ 
-                            name: file.name, 
-                            date: new Date(cache[file.name]) 
-                        });
-                    } else {
-                        // New file detected! Ask GitHub for its commit history
-                        const commits = await fetchJSON(`https://api.github.com/repos/LucaDazy/htmls/commits?path=${file.name}&per_page=100`);
-                        let creationDate = new Date();
-                        
-                        if (commits && commits.length > 0) {
-                            // The oldest commit is at the end of the array
-                            creationDate = new Date(commits[commits.length - 1].commit.author.date);
+                        fileDataArray.push({ name: file.name, date: new Date(cache[file.name]) });
+                    } else if (!rateLimitHit) {
+                        try {
+                            const commits = await fetchJSON(`https://api.github.com/repos/LucaDazy/htmls/commits?path=${file.name}&per_page=100`);
+                            let creationDate = new Date();
+                            if (commits && commits.length > 0) {
+                                creationDate = new Date(commits[commits.length - 1].commit.author.date);
+                            }
+                            fileDataArray.push({ name: file.name, date: creationDate });
+                            cache[file.name] = creationDate.toISOString(); 
+                        } catch (e) {
+                            rateLimitHit = true;
+                            warning.style.display = 'block';
+                            fileDataArray.push({ name: file.name, date: new Date() }); // Fallback to current date so UI doesn't break
                         }
-                        
-                        fileDataArray.push({ name: file.name, date: creationDate });
-                        cache[file.name] = creationDate.toISOString(); // Save to cache for next time
+                    } else {
+                        // If rate limit is already hit, don't keep trying, just use fallback
+                        fileDataArray.push({ name: file.name, date: new Date() });
                     }
                 }
 
-                // Save updated cache
                 localStorage.setItem('study_hub_dates', JSON.stringify(cache));
 
-                // 4. Sort the array by date descending (Newest first)
+                // 4. Sort array by date descending
                 fileDataArray.sort((a, b) => b.date - a.date);
 
-                // 5. Render to UI with chronological grouping
+                // 5. Render UI
                 loading.style.display = 'none';
                 
                 let currentGroup = null;
@@ -177,24 +218,20 @@
                 const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
 
                 fileDataArray.forEach(file => {
-                    // Check if we need to start a new group (gap > 2 days)
                     if (!lastDate || Math.abs(lastDate - file.date) > TWO_DAYS_MS) {
                         currentGroup = document.createElement('div');
                         currentGroup.className = 'group-container';
                         list.appendChild(currentGroup);
                     }
 
-                    // Create the button
                     const a = document.createElement('a');
                     a.href = file.name;
                     a.target = '_blank';
                     a.className = 'app-btn';
 
-                    // Clean up filename for the title
                     let displayName = file.name.replace('.html', '').replace(/([A-Z])/g, ' $1').trim();
                     displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
 
-                    // Format date (e.g., "May 26, 2026")
                     const dateStr = file.date.toLocaleDateString(undefined, { 
                         year: 'numeric', 
                         month: 'short', 
@@ -203,7 +240,7 @@
 
                     a.innerHTML = `
                         <span class="app-title">${displayName}</span>
-                        <span class="app-date">${dateStr}</span>
+                        <span class="app-date">${rateLimitHit && !cache[file.name] ? 'Date Unknown' : dateStr}</span>
                     `;
                     
                     currentGroup.appendChild(a);
@@ -211,7 +248,7 @@
                 });
 
             } catch (error) {
-                loading.innerHTML = `<span style="color: var(--error);">Failed to sync with GitHub API. You may have hit the rate limit. Try again in an hour.</span>`;
+                loading.innerHTML = `<span style="color: var(--error);">An unexpected error occurred building the terminal.</span>`;
                 console.error(error);
             }
         }
