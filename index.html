@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
     <title>Study Hub Terminal</title>
     <style>
         :root {
@@ -133,7 +138,7 @@
 <body>
 
     <div class="header-container">
-        <img src="lucadazyyellow.png" alt="Study Hub Logo" class="logo">
+        <img id="dynamic-logo" alt="Study Hub Logo" class="logo">
         <h1>Study Hub Terminal</h1>
     </div>
     <div class="subtitle">Automated Chronological Index</div>
@@ -145,10 +150,18 @@
     </div>
 
     <script>
+        // Force the browser to grab the newest version of the logo every single time
+        document.getElementById('dynamic-logo').src = 'lucadazyyellow.png?v=' + new Date().getTime();
+
         const repoUrl = 'https://api.github.com/repos/LucaDazy/htmls/contents/';
 
+        // Added strict no-store cache busting to the API fetch
         async function fetchJSON(url) {
-            const res = await fetch(url);
+            // Append a random timestamp to the URL so the browser thinks it's a completely new request
+            const separator = url.includes('?') ? '&' : '?';
+            const cacheBustedUrl = `${url}${separator}cb=${new Date().getTime()}`;
+            
+            const res = await fetch(cacheBustedUrl, { cache: 'no-store' });
             if (!res.ok) throw new Error("Network/API error");
             return res.json();
         }
@@ -159,7 +172,7 @@
             const warning = document.getElementById('rate-limit-warning');
 
             try {
-                // 1. Get current files in the repo
+                // 1. Get current files in the repo (Always fresh)
                 let filesData;
                 try {
                     filesData = await fetchJSON(repoUrl);
@@ -176,7 +189,7 @@
                     return;
                 }
 
-                // 2. Load Local Cache
+                // 2. Load Local Cache (Only caching dates to avoid rate limit)
                 let cache = JSON.parse(localStorage.getItem('study_hub_dates')) || {};
                 let fileDataArray = [];
                 let rateLimitHit = false;
@@ -197,10 +210,10 @@
                         } catch (e) {
                             rateLimitHit = true;
                             warning.style.display = 'block';
-                            fileDataArray.push({ name: file.name, date: new Date() }); // Fallback to current date so UI doesn't break
+                            fileDataArray.push({ name: file.name, date: new Date() }); // Fallback to current date
                         }
                     } else {
-                        // If rate limit is already hit, don't keep trying, just use fallback
+                        // If rate limit is already hit, just use fallback
                         fileDataArray.push({ name: file.name, date: new Date() });
                     }
                 }
