@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Hub Terminal</title>
+    <style>
+        :root {
+            --bg-color: #323437;
+            --text-main: #d1d0c5;
+            --text-muted: #646669;
+            --accent: #e2b714;
+            --panel-bg: #2c2e31;
+            --hover-bg: #3a3d40;
+            --error: #ca4754;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        h1 { color: var(--accent); margin-bottom: 0.5rem; text-align: center; }
+        .subtitle { color: var(--text-muted); margin-bottom: 3rem; text-align: center; }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--panel-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .link-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .app-btn {
+            background: transparent;
+            border: 2px solid var(--text-muted);
+            color: var(--text-main);
+            padding: 1.5rem 1rem;
+            font-family: inherit;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+            text-decoration: none;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 80px;
+        }
+
+        .app-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--hover-bg);
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        #loading {
+            text-align: center;
+            color: var(--accent);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Study Hub Terminal</h1>
+    <div class="subtitle">Automated Repository Index</div>
+
+    <div class="container">
+        <div id="loading">Scanning GitHub for study modules...</div>
+        <div class="link-grid" id="link-grid"></div>
+    </div>
+
+    <script>
+        // The public GitHub API URL for your specific repository contents
+        const repoUrl = 'https://api.github.com/repos/LucaDazy/htmls/contents/';
+
+        fetch(repoUrl)
+            .then(response => {
+                if (!response.ok) throw new Error("Network response was not ok");
+                return response.json();
+            })
+            .then(data => {
+                const grid = document.getElementById('link-grid');
+                document.getElementById('loading').style.display = 'none';
+
+                // 1. Filter the repo data to only include .html files
+                // 2. Exclude 'index.html' so the homepage doesn't link to itself
+                const htmlFiles = data.filter(file => 
+                    file.name.endsWith('.html') && file.name.toLowerCase() !== 'index.html'
+                );
+
+                if (htmlFiles.length === 0) {
+                    grid.innerHTML = '<div style="color: var(--error);">No HTML modules found in the repository.</div>';
+                    return;
+                }
+
+                // Create a button for each file
+                htmlFiles.forEach(file => {
+                    const a = document.createElement('a');
+                    a.href = file.name; 
+                    a.target = '_blank'; // Forces it to open in a new tab
+                    a.className = 'app-btn';
+                    
+                    // Cleanup the file name to make it look like a nice title
+                    // e.g., "MitosisMaster.html" -> "Mitosis Master"
+                    let displayName = file.name.replace('.html', '');
+                    displayName = displayName.replace(/([A-Z])/g, ' $1').trim();
+                    
+                    // Capitalize the first letter just in case
+                    displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+
+                    a.innerText = displayName;
+                    grid.appendChild(a);
+                });
+            })
+            .catch(error => {
+                document.getElementById('loading').innerHTML = `<span style="color: var(--error);">Error loading files. GitHub API might be rate-limiting you, or there is a network issue.</span>`;
+                console.error('Fetch Error:', error);
+            });
+    </script>
+</body>
+</html>
