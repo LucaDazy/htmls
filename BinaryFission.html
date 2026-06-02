@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BI112 - Binary Fission Master</title>
+    <style>
+        :root {
+            --bg-color: #323437;
+            --text-main: #d1d0c5;
+            --text-muted: #646669;
+            --accent: #e2b714;
+            --error: #ca4754;
+            --success: #8cc84b;
+            --panel-bg: #2c2e31;
+            --hover-bg: #3a3d40;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        h1 { color: var(--accent); margin-bottom: 0.5rem; text-align: center; }
+        .subtitle { color: var(--text-muted); margin-bottom: 2rem; text-align: center; }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            background: var(--panel-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            box-sizing: border-box;
+            margin-bottom: 2rem;
+        }
+
+        /* Utility Buttons */
+        .action-btn { background: transparent; border: 2px solid var(--accent); color: var(--accent); padding: 0.8rem 1.5rem; font-family: inherit; font-size: 1rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .action-btn:hover { background: var(--accent); color: var(--bg-color); }
+        .hint-btn { background: transparent; border: 2px solid var(--accent); color: var(--accent); padding: 0.4rem 0.8rem; font-family: inherit; font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .hint-btn:hover { background: var(--accent); color: var(--bg-color); }
+
+        /* MCQ Styles */
+        .mcq-arena { margin-top: 3rem; border-top: 2px dashed var(--text-muted); padding-top: 2rem; }
+        .mcq-question { font-size: 1.2rem; margin-bottom: 1.5rem; line-height: 1.5; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .option-btn { background: transparent; border: 2px solid var(--text-main); color: var(--text-main); text-align: left; padding: 1.2rem; font-family: inherit; font-size: 1rem; cursor: pointer; border-radius: 4px; transition: all 0.2s; line-height: 1.4; }
+        .option-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: var(--hover-bg); }
+        .option-btn.correct { border-color: var(--success); color: var(--success); background: rgba(140, 200, 75, 0.1); }
+        .option-btn.wrong { border-color: var(--error); color: var(--error); background: rgba(202, 71, 84, 0.1); }
+        .option-btn.hint-highlight { border-color: var(--accent); background: rgba(226, 183, 20, 0.1); color: var(--accent); }
+        .option-btn:disabled { cursor: default; }
+        
+        .feedback-box { margin-top: 1.5rem; padding: 1.2rem; border-radius: 4px; display: none; line-height: 1.5; font-size: 0.95rem; background: rgba(0,0,0,0.2); border-left: 4px solid var(--accent); }
+        .progress-text { margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted); text-align: right; }
+        .end-screen { text-align: center; display: none; margin-top: 2rem; }
+        .end-screen h2 { color: var(--accent); }
+
+        /* Drag and Drop (DND) Sorter Styles */
+        .dnd-arena { display: flex; flex-direction: column; gap: 1.5rem; }
+        .dnd-card-zone { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 120px; background: rgba(0,0,0,0.2); border: 2px dashed var(--text-muted); border-radius: 8px; padding: 1.5rem; text-align: center; }
+        
+        .draggable-card {
+            background: var(--bg-color); color: var(--accent); border: 2px solid var(--accent); padding: 1rem 1.5rem; font-family: inherit; font-size: 1.05rem; font-weight: bold; border-radius: 4px; cursor: grab; transition: transform 0.1s; max-width: 90%; text-align: center;
+        }
+        .draggable-card:active { cursor: grabbing; transform: scale(1.05); }
+        .draggable-card.hint-mode { background: var(--accent); color: var(--bg-color); }
+
+        .buckets-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; }
+        .drop-bucket {
+            background: var(--bg-color); border: 2px solid var(--text-muted); border-radius: 4px; padding: 0.8rem 0.4rem; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.2s; min-height: 70px;
+        }
+        .drop-bucket.drag-over { border-color: var(--accent); background: var(--hover-bg); transform: scale(1.02); }
+        .drop-bucket-title { font-weight: bold; font-size: 0.85rem; color: var(--text-main); text-align: center; }
+        
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .section-label { font-size: 1.4rem; color: var(--accent); font-weight: bold; text-transform: uppercase; margin-bottom: 0.5rem;}
+        
+        @media (max-width: 900px) {
+            .buckets-grid { grid-template-columns: repeat(2, 1fr); }
+            .options-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Binary Fission</h1>
+    <div class="subtitle">Prokaryotic Cell Division Sorter & Drill</div>
+
+    <div class="container">
+        <div class="section-label">Phase Sorter</div>
+        <div id="binary-dnd-area" class="dnd-arena">
+            <div class="header-row">
+                <div style="color: var(--text-muted);">Drag the specific event into its exact sequential phase.</div>
+                <button class="hint-btn" onclick="useDndHint()">💡 Hint / Recycle</button>
+            </div>
+            <div class="dnd-card-zone" id="binary-dnd-zone"></div>
+            <div id="binary-dnd-fb" class="feedback-box" style="margin-top:0;"></div>
+            <button id="binary-dnd-next" class="action-btn" style="display:none; width:100%; margin-top:0;" onclick="nextDnd()">Next Event ➔</button>
+            
+            <div style="margin-top: 1rem; color: var(--text-muted); font-size: 0.85rem; text-align: center;">THE BINARY FISSION SEQUENCE</div>
+            <div class="buckets-grid" id="binary-buckets"></div>
+            
+            <div class="progress-text" id="binary-dnd-prog"></div>
+        </div>
+        <div id="binary-dnd-end" class="end-screen">
+            <h2>Sorter Conquered!</h2><p id="binary-dnd-score"></p>
+            <button class="action-btn" onclick="initDnd()">Restart Sorter</button>
+        </div>
+
+        <div class="mcq-arena" id="binary-mcq-area">
+            <div class="section-label">Binary Fission: Multiple Choice</div>
+            <div class="header-row">
+                <div class="mcq-question" id="binary-mcq-q">Loading...</div>
+                <button class="hint-btn" onclick="useHint()">💡 Hint / Recycle</button>
+            </div>
+            <div class="options-grid" id="binary-mcq-opts"></div>
+            <div id="binary-mcq-fb" class="feedback-box"></div>
+            <button id="binary-mcq-next" class="action-btn" style="display:none; width:100%; margin-top:1rem;" onclick="nextMCQ()">Next Question ➔</button>
+            <div class="progress-text" id="binary-mcq-prog"></div>
+        </div>
+        <div id="binary-mcq-end" class="end-screen">
+            <h2>Deck Conquered!</h2><p id="binary-mcq-score"></p>
+            <button class="action-btn" onclick="initMCQ()">Restart Deck</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const dndBuckets = [
+            {id: "origin", name: "1. Origin Replication"}, 
+            {id: "elong", name: "2. Cell Elongation"}, 
+            {id: "ftsz", name: "3. FtsZ Ring Assembly"}, 
+            {id: "septum", name: "4. Septum Formation"}, 
+            {id: "cyto", name: "5. Cell Separation"}
+        ];
+
+        const dndEvents = [
+            { text: "DNA replication begins at a specific sequence on the circular chromosome called the Origin.", target: "origin", exp: "Prokaryotes typically have a single circular chromosome[cite: 171, 173]. Replication starts exactly at the Origin." },
+            { text: "The cell grows larger, and the two copied DNA loops are physically pulled toward opposite ends.", target: "elong", exp: "Because there is no mitotic spindle, the elongating cell membrane itself pulls the DNA copies apart[cite: 171, 172]." },
+            { text: "FtsZ proteins migrate to the center of the cell and assemble into a ring structure.", target: "ftsz", exp: "The FtsZ ring directs the division process, acting like a scaffold in the middle[cite: 472]." },
+            { text: "The FtsZ ring begins to contract, forming a cleavage furrow on the exterior of the cell.", target: "ftsz", exp: "As the FtsZ ring tightens, it creates a pinch or 'furrow' on the outside of the cell membrane[cite: 472, 473]." },
+            { text: "A new dividing wall is constructed precisely in the middle of the cell, guided by FtsZ.", target: "septum", exp: "The FtsZ ring acts as a blueprint to build the physical wall that will separate the cells[cite: 472, 474]." },
+            { text: "The internal dividing wall is fully formed and named the Septum.", target: "septum", exp: "The septum is the completed wall dividing the cytoplasm in half[cite: 174, 474]." },
+            { text: "The cell physically splits into two identical, independent prokaryotic clones.", target: "cyto", exp: "Cell separation (cytokinesis) is the final step, resulting in two identical cells[cite: 171, 172]." }
+        ];
+
+        const mcqDeck = [
+            { q: "Binary fission is the cell division process used strictly by:", opts: ["Prokaryotes (Bacteria).", "Animal cells.", "Plant cells.", "Eukaryotes."], ans: 0, exp: "Prokaryotes lack a nucleus and complex organelles, so they divide simply and rapidly via Binary Fission[cite: 171, 172]." },
+            { q: "In binary fission, the ring that forms in the middle to pinch the cell in half is driven by which specific protein?", opts: ["FtsZ", "p53", "Actin", "Histone"], ans: 0, exp: "FtsZ proteins travel to the middle of the cell and assemble into a ring at the future site of the septum[cite: 472]." },
+            { q: "During prokaryotic cell division, the physical dividing wall formed in the middle of the cell is called the:", opts: ["Septum", "Cell Plate", "Cleavage Furrow", "Kinetochore"], ans: 0, exp: "The FtsZ ring directs the formation of a dividing wall called a Septum[cite: 174, 474]." },
+            { q: "According to your notes, what is the 'cleavage furrow' in the context of binary fission?", opts: ["The shape formed on the exterior of the cell as it contracts.", "The exact same thing as the septum.", "The protein ring inside the cell.", "The location where DNA replicates."], ans: 0, exp: "The FtsZ protein travels to the middle and contracts, forming a cleavage furrow on the exterior[cite: 472, 473]." },
+            { q: "Where does DNA replication begin in a prokaryotic chromosome?", opts: ["At a specific location called the Origin.", "At the telomeres.", "At multiple random sites simultaneously.", "Inside the nucleus."], ans: 0, exp: "Prokaryotic replication begins at a specific sequence called the Origin[cite: 173]." },
+            { q: "Which of the following is NOT involved in Binary Fission?", opts: ["Mitotic Spindle Formation", "DNA Replication", "Septum Formation", "FtsZ proteins"], ans: 0, exp: "Prokaryotes do not form a mitotic spindle. Mitosis and spindles are strictly for eukaryotes[cite: 171, 172]." },
+            { q: "Why is Binary Fission generally faster than Mitosis?", opts: ["Prokaryotes have no nucleus to break down and only one circular chromosome to copy.", "Prokaryotes do not replicate their DNA.", "Prokaryotes use meiosis instead.", "FtsZ proteins work faster than actin."], ans: 0, exp: "Without a nuclear envelope to dissolve, a spindle to build, or multiple chromosomes to organize, the process is streamlined[cite: 171, 172]." },
+            { q: "How is the DNA pulled apart to opposite sides of the cell during binary fission?", opts: ["The elongating cell membrane physically pulls the DNA copies apart.", "Spindle fibers reel them in.", "Kinetochores march down microtubules.", "FtsZ proteins push them apart."], ans: 0, exp: "Because there is no spindle, the DNA anchors to the membrane. As the cell elongates, it drags the DNA to opposite poles[cite: 171, 172]." },
+            { q: "What is the end result of Binary Fission?", opts: ["Two genetically identical clone cells.", "Four genetically unique haploid cells.", "One large multinucleated cell.", "Two haploid gametes."], ans: 0, exp: "Like mitosis, binary fission is a form of asexual reproduction that produces perfect clones[cite: 172, 182]." },
+            { q: "Prokaryotes are unicellular organisms that produce ATP. Based on your notes, how do they generate this ATP if they lack mitochondria?", opts: ["They only use fermentation instead of aerobic cellular respiration.", "They use chloroplasts.", "They steal it from host cells.", "They do not use ATP."], ans: 0, exp: "According to your notes, unicellular organisms produce ATP but only use fermentation instead of full aerobic cell respiration[cite: 394]." }
+        ];
+
+        // --- ENGINES ---
+        let dndState = { deck: [], idx: 0, correct: 0, attempts: 0 };
+        let mcqState = { deck: [], idx: 0, correct: 0, attempts: 0 };
+        let currentDrag = null;
+
+        function shuffle(arr) {
+            let a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        // --- DND LOGIC ---
+        function initDnd() {
+            dndState = { deck: shuffle(dndEvents), idx: 0, correct: 0, attempts: 0 };
+            
+            const grid = document.getElementById('binary-buckets');
+            grid.innerHTML = '';
+            dndBuckets.forEach(b => {
+                const div = document.createElement('div');
+                div.className = 'drop-bucket';
+                div.innerHTML = `<div class="drop-bucket-title">${b.name}</div>`;
+                div.ondragover = (e) => { e.preventDefault(); div.classList.add('drag-over'); };
+                div.ondragleave = () => div.classList.remove('drag-over');
+                div.ondrop = (e) => { e.preventDefault(); div.classList.remove('drag-over'); if(currentDrag) handleDndDrop(b.id); };
+                grid.appendChild(div);
+            });
+
+            document.getElementById('binary-dnd-end').style.display = 'none';
+            document.getElementById('binary-dnd-area').style.display = 'flex';
+            renderDnd();
+        }
+
+        function renderDnd() {
+            if (dndState.idx >= dndState.deck.length) { endDnd(); return; }
+            document.getElementById('binary-dnd-fb').style.display = 'none';
+            document.getElementById('binary-dnd-next').style.display = 'none';
+
+            const ev = dndState.deck[dndState.idx];
+            const zone = document.getElementById('binary-dnd-zone');
+            zone.innerHTML = '';
+            
+            const card = document.createElement('div');
+            card.className = 'draggable-card';
+            card.draggable = true;
+            card.innerText = ev.text;
+            card.ondragstart = () => currentDrag = ev;
+            card.ondragend = () => currentDrag = null;
+
+            zone.appendChild(card);
+            document.getElementById('binary-dnd-prog').innerText = `Card ${dndState.idx + 1} of ${dndState.deck.length}`;
+        }
+
+        function handleDndDrop(bucketId) {
+            const ev = dndState.deck[dndState.idx];
+            const fb = document.getElementById('binary-dnd-fb');
+            const nextBtn = document.getElementById('binary-dnd-next');
+            const cardDom = document.querySelector('#binary-dnd-zone .draggable-card');
+            cardDom.draggable = false;
+            dndState.attempts++;
+
+            if (bucketId === ev.target) {
+                dndState.correct++;
+                cardDom.style.background = 'var(--success)';
+                cardDom.style.borderColor = 'var(--success)';
+                cardDom.style.color = 'var(--bg-color)';
+                fb.innerHTML = `<strong style="color:var(--success);">✅ Correct!</strong><br><br>${ev.exp}`;
+                fb.style.borderLeftColor = 'var(--success)';
+            } else {
+                dndState.deck.push(dndState.deck[dndState.idx]); // Recycle
+                cardDom.style.background = 'var(--error)';
+                cardDom.style.borderColor = 'var(--error)';
+                cardDom.style.color = 'var(--bg-color)';
+                
+                let correctName = dndBuckets.find(b => b.id === ev.target)?.name;
+                fb.innerHTML = `<strong style="color:var(--error);">❌ Incorrect. Adding back to deck.</strong><br>Belongs in: <strong>${correctName}</strong><br><br>${ev.exp}`;
+                fb.style.borderLeftColor = 'var(--error)';
+            }
+
+            document.getElementById('binary-dnd-prog').innerText = `Card ${dndState.idx + 1} of ${dndState.deck.length}`;
+            fb.style.display = 'block';
+            nextBtn.style.display = 'block';
+            currentDrag = null;
+        }
+
+        function useDndHint() {
+            const ev = dndState.deck[dndState.idx];
+            const fb = document.getElementById('binary-dnd-fb');
+            const nextBtn = document.getElementById('binary-dnd-next');
+            const cardDom = document.querySelector('#binary-dnd-zone .draggable-card');
+            
+            if(!cardDom || cardDom.draggable === false) return; 
+
+            cardDom.draggable = false;
+            cardDom.classList.add('hint-mode');
+            dndState.attempts++;
+            dndState.deck.push(dndState.deck[dndState.idx]); // Recycle
+
+            let correctName = dndBuckets.find(b => b.id === ev.target)?.name;
+            fb.innerHTML = `<strong style="color:var(--accent);">💡 Hint Used. Recycled to back of deck.</strong><br>Belongs in: <strong>${correctName}</strong><br><br>${ev.exp}`;
+            fb.style.borderLeftColor = 'var(--accent)';
+
+            document.getElementById('binary-dnd-prog').innerText = `Card ${dndState.idx + 1} of ${dndState.deck.length}`;
+            fb.style.display = 'block';
+            nextBtn.style.display = 'block';
+        }
+
+        function nextDnd() { dndState.idx++; renderDnd(); }
+
+        function endDnd() {
+            document.getElementById('binary-dnd-area').style.display = 'none';
+            document.getElementById('binary-dnd-end').style.display = 'block';
+            const pct = Math.round((dndState.correct / dndState.attempts) * 100) || 0;
+            document.getElementById('binary-dnd-score').innerHTML = `You placed <strong>${dndState.correct}</strong> correctly out of <strong>${dndState.attempts}</strong> attempts (${pct}%).`;
+        }
+
+        // --- MCQ LOGIC ---
+        function initMCQ() {
+            mcqState = { deck: shuffle(mcqDeck), idx: 0, correct: 0, attempts: 0 };
+            document.getElementById('binary-mcq-end').style.display = 'none';
+            document.getElementById('binary-mcq-area').style.display = 'block';
+            renderMCQ();
+        }
+
+        function renderMCQ() {
+            if (mcqState.idx >= mcqState.deck.length) { endMCQ(); return; }
+            document.getElementById('binary-mcq-fb').style.display = 'none';
+            document.getElementById('binary-mcq-next').style.display = 'none';
+
+            const qData = mcqState.deck[mcqState.idx];
+            document.getElementById('binary-mcq-q').innerText = qData.q;
+            
+            let opts = qData.opts.map((txt, i) => ({txt, origIdx: i}));
+            opts = shuffle(opts);
+
+            const grid = document.getElementById('binary-mcq-opts');
+            grid.innerHTML = '';
+            
+            opts.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt.txt;
+                btn.onclick = () => handleMCQ(btn, opt.origIdx, qData.ans, opts, qData.exp, false);
+                grid.appendChild(btn);
+            });
+            document.getElementById('binary-mcq-prog').innerText = `Question ${mcqState.idx + 1} of ${mcqState.deck.length}`;
+        }
+
+        function handleMCQ(btn, selectedIdx, correctIdx, shuffledOpts, exp, isHint) {
+            const btns = document.querySelectorAll('#binary-mcq-opts .option-btn');
+            btns.forEach(b => { b.disabled = true; b.onclick = null; }); 
+            const fb = document.getElementById('binary-mcq-fb');
+            const nextBtn = document.getElementById('binary-mcq-next');
+            mcqState.attempts++;
+
+            if (isHint) {
+                const correctBtnIdx = shuffledOpts.findIndex(o => o.origIdx === correctIdx);
+                btns[correctBtnIdx].classList.add('hint-highlight');
+                mcqState.deck.push(mcqState.deck[mcqState.idx]); // Recycle
+                fb.innerHTML = `<strong style="color:var(--accent);">💡 Hint Used. Question recycled.</strong><br><br>${exp}`;
+                fb.style.borderLeftColor = 'var(--accent)';
+            }
+            else if (selectedIdx === correctIdx) {
+                btn.classList.add('correct');
+                mcqState.correct++;
+                fb.innerHTML = `<strong style="color:var(--success);">✅ Correct!</strong><br><br>${exp}`;
+                fb.style.borderLeftColor = 'var(--success)';
+            } else {
+                btn.classList.add('wrong');
+                const correctBtnIdx = shuffledOpts.findIndex(o => o.origIdx === correctIdx);
+                btns[correctBtnIdx].classList.add('correct');
+                mcqState.deck.push(mcqState.deck[mcqState.idx]); // Recycle
+                fb.innerHTML = `<strong style="color:var(--error);">❌ Incorrect. Added back to deck.</strong><br><br>${exp}`;
+                fb.style.borderLeftColor = 'var(--error)';
+            }
+            
+            document.getElementById('binary-mcq-prog').innerText = `Question ${mcqState.idx + 1} of ${mcqState.deck.length}`;
+            fb.style.display = 'block';
+            nextBtn.style.display = 'block';
+        }
+
+        function useHint() {
+            const qData = mcqState.deck[mcqState.idx];
+            const btns = Array.from(document.querySelectorAll('#binary-mcq-opts .option-btn'));
+            if(!btns.length || btns[0].disabled) return; 
+            
+            const correctText = qData.opts[qData.ans];
+            let correctDomIdx = 0;
+            let mockOpts = [];
+            btns.forEach((b, i) => {
+                let isCorrect = b.innerText === correctText;
+                mockOpts.push({origIdx: isCorrect ? qData.ans : -1});
+                if(isCorrect) correctDomIdx = i;
+            });
+            handleMCQ(btns[correctDomIdx], -1, qData.ans, mockOpts, qData.exp, true);
+        }
+
+        function nextMCQ() { mcqState.idx++; renderMCQ(); }
+
+        function endMCQ() {
+            document.getElementById('binary-mcq-area').style.display = 'none';
+            document.getElementById('binary-mcq-end').style.display = 'block';
+            const pct = Math.round((mcqState.correct / mcqState.attempts) * 100) || 0;
+            document.getElementById('binary-mcq-score').innerHTML = `You answered <strong>${mcqState.correct}</strong> correctly out of <strong>${mcqState.attempts}</strong> attempts (${pct}%).`;
+        }
+
+        // Init
+        initDnd();
+        initMCQ();
+    </script>
+</body>
+</html>
