@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BI112 - Meiosis Master</title>
+    <style>
+        :root {
+            --bg-color: #323437;
+            --text-main: #d1d0c5;
+            --text-muted: #646669;
+            --accent: #e2b714;
+            --error: #ca4754;
+            --success: #8cc84b;
+            --panel-bg: #2c2e31;
+            --hover-bg: #3a3d40;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        h1 { color: var(--accent); margin-bottom: 0.5rem; text-align: center; }
+        .subtitle { color: var(--text-muted); margin-bottom: 2rem; text-align: center; }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            background: var(--panel-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            box-sizing: border-box;
+            margin-bottom: 2rem;
+        }
+
+        /* Utility Buttons */
+        .action-btn { background: transparent; border: 2px solid var(--accent); color: var(--accent); padding: 0.8rem 1.5rem; font-family: inherit; font-size: 1rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .action-btn:hover { background: var(--accent); color: var(--bg-color); }
+        .hint-btn { background: transparent; border: 2px solid var(--accent); color: var(--accent); padding: 0.4rem 0.8rem; font-family: inherit; font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .hint-btn:hover { background: var(--accent); color: var(--bg-color); }
+
+        /* MCQ Styles */
+        .mcq-arena { margin-top: 3rem; border-top: 2px dashed var(--text-muted); padding-top: 2rem; }
+        .mcq-question { font-size: 1.2rem; margin-bottom: 1.5rem; line-height: 1.5; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .option-btn { background: transparent; border: 2px solid var(--text-main); color: var(--text-main); text-align: left; padding: 1.2rem; font-family: inherit; font-size: 1rem; cursor: pointer; border-radius: 4px; transition: all 0.2s; line-height: 1.4; }
+        .option-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: var(--hover-bg); }
+        .option-btn.correct { border-color: var(--success); color: var(--success); background: rgba(140, 200, 75, 0.1); }
+        .option-btn.wrong { border-color: var(--error); color: var(--error); background: rgba(202, 71, 84, 0.1); }
+        .option-btn.hint-highlight { border-color: var(--accent); background: rgba(226, 183, 20, 0.1); color: var(--accent); }
+        .option-btn:disabled { cursor: default; }
+        
+        .feedback-box { margin-top: 1.5rem; padding: 1.2rem; border-radius: 4px; display: none; line-height: 1.5; font-size: 0.95rem; background: rgba(0,0,0,0.2); border-left: 4px solid var(--accent); }
+        .progress-text { margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted); text-align: right; }
+        .end-screen { text-align: center; display: none; margin-top: 2rem; }
+        .end-screen h2 { color: var(--accent); }
+
+        /* Drag and Drop (DND) Sorter Styles */
+        .dnd-arena { display: flex; flex-direction: column; gap: 1.5rem; }
+        .dnd-card-zone { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 120px; background: rgba(0,0,0,0.2); border: 2px dashed var(--text-muted); border-radius: 8px; padding: 1.5rem; text-align: center; }
+        
+        .draggable-card {
+            background: var(--bg-color); color: var(--accent); border: 2px solid var(--accent); padding: 1rem 1.5rem; font-family: inherit; font-size: 1.05rem; font-weight: bold; border-radius: 4px; cursor: grab; transition: transform 0.1s; max-width: 90%; text-align: center;
+        }
+        .draggable-card:active { cursor: grabbing; transform: scale(1.05); }
+        .draggable-card.hint-mode { background: var(--accent); color: var(--bg-color); }
+
+        .buckets-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; }
+        .drop-bucket {
+            background: var(--bg-color); border: 2px solid var(--text-muted); border-radius: 4px; padding: 0.8rem 0.4rem; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.2s; min-height: 70px;
+        }
+        .drop-bucket.drag-over { border-color: var(--accent); background: var(--hover-bg); transform: scale(1.02); }
+        .drop-bucket-title { font-weight: bold; font-size: 0.85rem; color: var(--text-main); text-align: center; }
+        
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .section-label { font-size: 1.4rem; color: var(--accent); font-weight: bold; text-transform: uppercase; margin-bottom: 0.5rem;}
+        
+        @media (max-width: 900px) {
+            .buckets-grid { grid-template-columns: repeat(2, 1fr); }
+            .options-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Meiosis & Genetic Variation</h1>
+    <div class="subtitle">Comprehensive Phase Sorter & Drill</div>
+
+    <div class="container">
+        <div class="section-label">Meiosis: Phase Sorter</div>
+        <div id="meiosis-dnd-area" class="dnd-arena">
+            <div class="header-row">
+                <div style="color: var(--text-muted);">Drag the specific event into its exact meiotic phase.</div>
+                <button class="hint-btn" onclick="useDndHint()">💡 Hint / Recycle</button>
+            </div>
+            <div class="dnd-card-zone" id="meiosis-dnd-zone"></div>
+            <div id="meiosis-dnd-fb" class="feedback-box" style="margin-top:0;"></div>
+            <button id="meiosis-dnd-next" class="action-btn" style="display:none; width:100%; margin-top:0;" onclick="nextDnd()">Next Event ➔</button>
+            
+            <div style="margin-top: 1rem; color: var(--text-muted); font-size: 0.85rem; text-align: center;">MEIOSIS I & INTERKINESIS</div>
+            <div class="buckets-grid" id="meiosis-buckets-m1"></div>
+            
+            <div style="margin-top: 1rem; color: var(--text-muted); font-size: 0.85rem; text-align: center;">MEIOSIS II</div>
+            <div class="buckets-grid" id="meiosis-buckets-m2" style="grid-template-columns: repeat(4, 1fr);"></div>
+            
+            <div class="progress-text" id="meiosis-dnd-prog"></div>
+        </div>
+        <div id="meiosis-dnd-end" class="end-screen">
+            <h2>Sorter Conquered!</h2><p id="meiosis-dnd-score"></p>
+            <button class="action-btn" onclick="initDnd()">Restart Sorter</button>
+        </div>
+
+        <div class="mcq-arena" id="meiosis-mcq-area">
+            <div class="section-label">Meiosis & Inheritance: Multiple Choice</div>
+            <div class="header-row">
+                <div class="mcq-question" id="meiosis-mcq-q">Loading...</div>
+                <button class="hint-btn" onclick="useHint()">💡 Hint / Recycle</button>
+            </div>
+            <div class="options-grid" id="meiosis-mcq-opts"></div>
+            <div id="meiosis-mcq-fb" class="feedback-box"></div>
+            <button id="meiosis-mcq-next" class="action-btn" style="display:none; width:100%; margin-top:1rem;" onclick="nextMCQ()">Next Question ➔</button>
+            <div class="progress-text" id="meiosis-mcq-prog"></div>
+        </div>
+        <div id="meiosis-mcq-end" class="end-screen">
+            <h2>Deck Conquered!</h2><p id="meiosis-mcq-score"></p>
+            <button class="action-btn" onclick="initMCQ()">Restart Deck</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const dndBucketsM1 = [
+            {id: "pro1", name: "Prophase I"}, {id: "meta1", name: "Metaphase I"}, 
+            {id: "ana1", name: "Anaphase I"}, {id: "telo1", name: "Telophase I"}, 
+            {id: "inter", name: "Interkinesis"}
+        ];
+        
+        const dndBucketsM2 = [
+            {id: "pro2", name: "Prophase II"}, {id: "meta2", name: "Metaphase II"}, 
+            {id: "ana2", name: "Anaphase II"}, {id: "telo2", name: "Telophase II / Cyto"}
+        ];
+
+        const dndEvents = [
+            // Meiosis I
+            { text: "Homologous chromosomes physically pair together tightly in a process called synapsis.", target: "pro1", exp: "Synapsis uniquely happens in Prophase I, ensuring the correct maternal and paternal chromosomes pair up." },
+            { text: "Four-chromatid structures called Tetrads are formed.", target: "pro1", exp: "A tetrad is formed during Prophase I when the two duplicated homologous chromosomes (4 chromatids total) hug." },
+            { text: "Crossing over exchanges segments of DNA between non-sister chromatids.", target: "pro1", exp: "Crossing over (recombination) is a massive source of genetic variation and occurs strictly in Prophase I." },
+            { text: "Visible X-shaped regions called chiasmata appear where DNA is being exchanged.", target: "pro1", exp: "Chiasmata are the physical crossover points visible under a microscope during Prophase I." },
+            { text: "Homologous chromosome pairs align randomly at the cell equator.", target: "meta1", exp: "This is Independent Assortment. They line up side-by-side in pairs, not single-file like in mitosis." },
+            { text: "Homologous chromosomes are separated and pulled toward opposite poles.", target: "ana1", exp: "This is the Reduction Division step. Whole duplicated chromosomes are pulled away from their partner." },
+            { text: "Sister chromatids remain tightly attached to each other at the centromere as they are pulled to the poles.", target: "ana1", exp: "Unlike Mitosis or Anaphase II, the sister chromatids DO NOT separate in Anaphase I." },
+            { text: "Two haploid cells are formed, but each chromosome still consists of two sister chromatids.", target: "telo1", exp: "Telophase I finishes the first division. The cells are now haploid, but the DNA is still in X-shapes." },
+            { text: "A brief resting period between divisions where centrosomes may duplicate, but DNA does NOT replicate.", target: "inter", exp: "Interkinesis is a pause before Meiosis II. It is critical that the cell does not duplicate its DNA again here." },
+            
+            // Meiosis II
+            { text: "In the two newly formed haploid cells, the nuclear envelope breaks down again and a new spindle forms.", target: "pro2", exp: "Prophase II is the setup phase for the second division." },
+            { text: "Individual chromosomes (sister chromatid pairs) line up perfectly single-file along the equator.", target: "meta2", exp: "In Metaphase II, they align single-file, mechanically identical to how they align in Mitosis." },
+            { text: "Cohesin proteins finally degrade, allowing sister chromatids to separate.", target: "ana2", exp: "Anaphase II is when the X-shaped chromosomes are finally ripped in half." },
+            { text: "Newly separated, individual chromosomes are pulled toward opposite poles in both haploid cells.", target: "ana2", exp: "This ensures each final cell gets exactly one single-strand copy of each chromosome." },
+            { text: "Nuclear envelopes form around four distinct haploid nuclei.", target: "telo2", exp: "Telophase II completes the meiotic process, sealing the genetically unique DNA in four new nuclei." },
+            { text: "The final phase producing four genetically unique sperm or egg cells (gametes).", target: "telo2", exp: "Telophase II and Cytokinesis finalize gametogenesis." }
+        ];
+
+        const mcqDeck = [
+            { q: "What is the primary purpose of Meiosis?", opts: ["To produce four genetically unique haploid gametes.", "To produce two identical diploid somatic cells.", "To repair damaged tissues.", "To ensure all offspring are clones."], ans: 0, exp: "Meiosis is strictly for sexual reproduction. It cuts the chromosome number in half (haploid) and scrambles the genes." },
+            { q: "What is 'Synapsis'?", opts: ["The physical pairing together of homologous chromosomes during Prophase I.", "The random alignment of chromosomes at the equator.", "The separation of sister chromatids in Anaphase II.", "The resting phase between divisions."], ans: 0, exp: "Synapsis is the hugging together of mom and dad's chromosomes to form a Tetrad." },
+            { q: "What does the term 'Tetrad' refer to?", opts: ["A pair of homologous chromosomes containing four total chromatids.", "Four completely separate chromosomes.", "Four cells produced at the end of meiosis.", "A four-ringed nitrogenous base."], ans: 0, exp: "Tetra = 4. A tetrad is the structure formed during synapsis in Prophase I." },
+            { q: "What is the result of 'Crossing Over' (Recombination)?", opts: ["Homologous chromosomes exchange segments of DNA, creating new allele combinations.", "Sister chromatids separate.", "Chromosomes line up randomly.", "A cell skips the S phase."], ans: 0, exp: "Crossing over literally mixes mom's and dad's traits together on a single chromosome." },
+            { q: "What are 'Chiasmata'?", opts: ["The visible physical locations where crossing over occurs between chromosomes.", "The enzyme that cuts the DNA.", "The resting phase between Meiosis I and II.", "The protein rings that pinch the cell in binary fission."], ans: 0, exp: "Chiasmata (plural for chiasma) are the visible 'X' shaped links where the DNA is being swapped." },
+            { q: "What is 'Independent Assortment'?", opts: ["The completely random way homologous pairs line up at the metaphase plate in Meiosis I.", "The specific sequence of DNA replication.", "The sorting of dominant alleles over recessive ones.", "The separation of sister chromatids in Meiosis II."], ans: 0, exp: "Independent assortment ensures that gametes get a random mix of maternal and paternal chromosomes." },
+            { q: "Why is Meiosis I specifically considered a 'Reduction Division'?", opts: ["Because it reduces the chromosome number from diploid (2n) to haploid (n).", "Because it reduces the cell size.", "Because it reduces the number of organelles.", "Because it limits genetic variation."], ans: 0, exp: "Meiosis I pulls the homologous pairs apart, meaning the two resulting cells only have one set of chromosomes (haploid)." },
+            { q: "What is 'Nondisjunction'?", opts: ["The failure of homologous chromosomes or sister chromatids to separate properly during meiosis.", "The failure of a cell to grow during G1.", "The intentional destruction of a damaged cell.", "The process of crossing over."], ans: 0, exp: "If they fail to disconnect (disjoin), it leads to gametes with too many or too few chromosomes." },
+            { q: "If Nondisjunction occurs, it results in a condition known generally as:", opts: ["Aneuploidy (incorrect chromosome number).", "Euploidy.", "Crossing over.", "Polymerization."], ans: 0, exp: "Aneuploidy is the general term for having an incorrect number of chromosomes." },
+            { q: "Turner Syndrome (XO) is an example of what specific chromosome disorder?", opts: ["Monosomy (missing one chromosome).", "Trisomy (one extra chromosome).", "Translocation.", "Inversion."], ans: 0, exp: "Monosomy means missing a chromosome. Turner syndrome patients have only one X chromosome instead of two." },
+            { q: "Down Syndrome is officially known as Trisomy 21. What does this mean?", opts: ["The individual has one extra copy of chromosome 21.", "The individual is missing chromosome 21.", "A segment of chromosome 21 is deleted.", "Chromosome 21 flipped backwards."], ans: 0, exp: "Trisomy means 'three bodies'. They have three copies of chromosome 21 instead of the normal two." },
+            { q: "What does the term 'Euploid' mean?", opts: ["Having the normal, correct number of chromosomes (46 in humans).", "Having an abnormal number of chromosomes.", "Missing exactly one chromosome.", "Having exactly one extra chromosome."], ans: 0, exp: "Euploid means 'true/good ploidy'." },
+            { q: "What is the biological purpose of X-Inactivation in females (XX)?", opts: ["It condenses one X chromosome into a dormant 'Barr body' to prevent double expression of X-linked genes.", "It destroys the Y chromosome.", "It replicates the X chromosome.", "It ensures both X chromosomes are expressed simultaneously."], ans: 0, exp: "Females only need one active X chromosome. The other is permanently crumpled up into a Barr body to prevent a toxic double-dose of proteins." },
+            { q: "What chromosome structural rearrangement causes Cri-du-chat syndrome?", opts: ["Deletion (loss of a chromosome segment).", "Duplication (extra copy of a segment).", "Inversion (segment flips backwards).", "Translocation (segment moves to another chromosome)."], ans: 0, exp: "Cri-du-chat (cry of the cat) is caused by a massive deletion on chromosome 5." },
+            { q: "Which structural rearrangement occurs when a segment of a chromosome breaks off and attaches to a completely different, non-homologous chromosome?", opts: ["Translocation", "Deletion", "Inversion", "Duplication"], ans: 0, exp: "Translocation involves moving a segment to a completely new neighborhood (a different chromosome)." },
+            { q: "Which structural rearrangement describes a chromosome segment flipping and reinserting itself backwards?", opts: ["Inversion", "Translocation", "Crossing Over", "Synapsis"], ans: 0, exp: "Inversion literally means to invert or flip." },
+            { q: "What is the primary difference between Dizygotic and Monozygotic twins?", opts: ["Dizygotic (fraternal) come from two eggs and two sperm; Monozygotic (identical) come from one egg and one sperm that splits.", "Dizygotic are always identical; Monozygotic are always fraternal.", "Dizygotic twins share 100% of their DNA.", "Monozygotic twins can be different sexes."], ans: 0, exp: "Di = Two (two zygotes). Mono = One (one zygote splits). Monozygotic twins are genetically identical." },
+            { q: "In human Oogenesis, one diploid cell ultimately produces:", opts: ["One functional, large egg and smaller, non-functional polar bodies.", "Four functional eggs.", "Two identical eggs.", "Millions of eggs simultaneously."], ans: 0, exp: "Females heavily invest all the cytoplasm into one massive, functional egg. The other structures are discarded polar bodies." },
+            { q: "In human Spermatogenesis, one diploid cell produces:", opts: ["Four functional, haploid sperm cells.", "One functional sperm cell.", "Two diploid sperm cells.", "Four diploid sperm cells."], ans: 0, exp: "Males aim for quantity. Meiosis runs to completion, producing four tiny, functional sperm." },
+            { q: "Random Fertilization is a massive source of genetic diversity because:", opts: ["Any genetically unique sperm can fuse with any genetically unique egg.", "It causes nondisjunction.", "It forces mutations.", "It skips interphase."], ans: 0, exp: "When you combine Independent Assortment, Crossing Over, and Random Fertilization, the genetic combinations are effectively infinite." },
+            { q: "Humans follow a 'Diploid-dominant' life cycle. What does this mean?", opts: ["The multicellular, visible organism is diploid, and only the gametes are haploid.", "The multicellular organism is haploid.", "The organism alternates between multicellular haploid and diploid stages.", "The organism reproduces entirely through binary fission."], ans: 0, exp: "In humans and most animals, the massive body (soma) is diploid. The haploid phase is just the single-celled sperm and egg." },
+            { q: "Fungi and some algae follow a 'Haploid-dominant' life cycle. What does this mean?", opts: ["The multicellular, visible organism is haploid.", "The multicellular organism is diploid.", "They do not have chromosomes.", "They reproduce via seeds."], ans: 0, exp: "In fungi, the 'body' you see is made of haploid cells. They only briefly form a diploid zygote to undergo meiosis." },
+            { q: "Plants utilize a life cycle called 'Alternation of Generations'. This involves:", opts: ["Alternating between a multicellular diploid Sporophyte and a multicellular haploid Gametophyte.", "Alternating between mitosis and binary fission.", "Alternating between single-celled and multi-celled diploid forms.", "Alternating between XX and XY chromosomes."], ans: 0, exp: "Plants have two distinct multicellular bodies in their life cycle: the Sporophyte (2n) and the Gametophyte (n)." },
+            { q: "What is the crucial difference between Metaphase I and Metaphase II?", opts: ["In Metaphase I, homologous pairs line up side-by-side; in Metaphase II, single chromosomes line up in a single file.", "Metaphase I pulls chromatids apart; Metaphase II pulls pairs apart.", "Crossing over happens in Metaphase I but not II.", "Metaphase I occurs in haploid cells."], ans: 0, exp: "Metaphase I aligns the Tetrads (pairs). Metaphase II aligns individual chromosomes, exactly like mitosis." },
+            { q: "During which exact phase does the cell transition from Diploid (2n) to Haploid (n)?", opts: ["Anaphase I / Telophase I", "Prophase I", "Anaphase II", "Interphase"], ans: 0, exp: "The reduction division happens in Meiosis I. Once the homologous pairs are pulled apart, the resulting two cells are strictly haploid." },
+            { q: "How many total divisions occur in Meiosis, and how many daughter cells are produced?", opts: ["2 divisions, producing 4 daughter cells.", "1 division, producing 2 daughter cells.", "2 divisions, producing 2 daughter cells.", "4 divisions, producing 4 daughter cells."], ans: 0, exp: "Meiosis I splits the pairs. Meiosis II splits the chromatids. This results in 4 cells." },
+            { q: "If a somatic cell has 46 chromosomes, how many chromosomes will be present in each cell at the very end of Meiosis II?", opts: ["23", "46", "92", "12"], ans: 0, exp: "Meiosis cuts the chromosome number exactly in half to create gametes." },
+            { q: "Why is 'Interkinesis' (the phase between Meiosis I and II) fundamentally different from Interphase?", opts: ["DNA replication does NOT occur during Interkinesis.", "Crossing over occurs during Interkinesis.", "The cell splits in four during Interkinesis.", "It only happens in mitosis."], ans: 0, exp: "If DNA replicated again during Interkinesis, the cells would remain diploid. The cell must skip the S phase here." },
+            { q: "Which process guarantees that a single chromosome contains a mix of maternal and paternal DNA?", opts: ["Crossing Over (Recombination)", "Independent Assortment", "Nondisjunction", "Synapsis"], ans: 0, exp: "Crossing over physically cuts and glues chunks of mom's DNA onto dad's chromosome and vice versa." },
+            { q: "If a human cell is noted as having 47 chromosomes, this is a specific example of:", opts: ["Aneuploidy", "Euploidy", "Haploidy", "Crossing over"], ans: 0, exp: "46 is normal (euploid). 47 is an abnormal number (aneuploidy)." }
+        ];
+
+        // --- ENGINES ---
+        let dndState = { deck: [], idx: 0, correct: 0, attempts: 0 };
+        let mcqState = { deck: [], idx: 0, correct: 0, attempts: 0 };
+        let currentDrag = null;
+
+        function shuffle(arr) {
+            let a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        // --- DND LOGIC ---
+        function initDnd() {
+            dndState = { deck: shuffle(dndEvents), idx: 0, correct: 0, attempts: 0 };
+            
+            const buildGrid = (buckets, gridId) => {
+                const grid = document.getElementById(gridId);
+                grid.innerHTML = '';
+                buckets.forEach(b => {
+                    const div = document.createElement('div');
+                    div.className = 'drop-bucket';
+                    div.innerHTML = `<div class="drop-bucket-title">${b.name}</div>`;
+                    div.ondragover = (e) => { e.preventDefault(); div.classList.add('drag-over'); };
+                    div.ondragleave = () => div.classList.remove('drag-over');
+                    div.ondrop = (e) => { e.preventDefault(); div.classList.remove('drag-over'); if(currentDrag) handleDndDrop(b.id); };
+                    grid.appendChild(div);
+                });
+            }
+            buildGrid(dndBucketsM1, 'meiosis-buckets-m1');
+            buildGrid(dndBucketsM2, 'meiosis-buckets-m2');
+
+            document.getElementById('meiosis-dnd-end').style.display = 'none';
+            document.getElementById('meiosis-dnd-area').style.display = 'flex';
+            renderDnd();
+        }
+
+        function renderDnd() {
+            if (dndState.idx >= dndState.deck.length) { endDnd(); return; }
+            document.getElementById('meiosis-dnd-fb').style.display = 'none';
+            document.getElementById('meiosis-dnd-next').style.display = 'none';
+
+            const ev = dndState.deck[dndState.idx];
+            const zone = document.getElementById('meiosis-dnd-zone');
+            zone.innerHTML = '';
+            
+            const card = document.createElement('div');
+            card.className = 'draggable-card';
+            card.draggable = true;
+            card.innerText = ev.text;
+            card.ondragstart = () => currentDrag = ev;
+            card.ondragend = () => currentDrag = null;
+
+            zone.appendChild(card);
+            document.getElementById('meiosis-dnd-prog').innerText = `Card ${dndState.idx + 1} of ${dndState.deck.length}`;
+        }
+
+        function handleDndDrop(bucketId) {
+            const ev = dndState.deck[dndState.idx];
+            const fb = document.getElementById('meiosis-dnd-fb');
+            const nextBtn = document.getElementById('meiosis-dnd-next');
+            const cardDom = document.querySelector('#meiosis-dnd-zone .draggable-card');
+            cardDom.draggable = false;
+            dndState.attempts++;
+
+            if (bucketId === ev.target) {
+                dndState.correct++;
+                cardDom.style.background = 'var(--success)';
+                cardDom.style.borderColor = 'var(--success)';
+                cardDom.style.color = 'var(--bg-color)';
+                fb.innerHTML = `<strong style="color:var(--success);">✅ Correct!</strong><br><br>${ev.exp}`;
+                fb.style.borderLeftColor = 'var(--success)';
+            } else {
+                dndState.deck.push(dndState.deck[dndState.idx]); // Recycle
+                cardDom.style.background = 'var(--error)';
+                cardDom.style.borderColor = 'var(--error)';
+                cardDom.style.color = 'var(--bg-color)';
+                
+                let correctName = dndBucketsM1.find(b => b.id === ev.target)?.name || dndBucketsM2.find(b => b.id === ev.target)?.name;
+                fb.innerHTML = `<strong style="color:var(--error);">❌ Incorrect. Adding back to deck.</strong><br>Belongs in: <strong>${correctName}</strong><br><br>${ev.exp}`;
+                fb.style.borderLeftColor = 'var(--error)';
+            }
+
+            document.getElementById('meiosis-dnd-prog').innerText = `Card ${dndState.idx + 1} of ${dndState.deck.length}`;
+            fb.style.display = 'block';
+            nextBtn.style.display = 'block';
+            currentDrag = null;
+        }
+
+        function useDndHint() {
+            const ev = dndState.deck[dndState.idx];
+            const fb = document.getElementById('meiosis-dnd-fb');
+            const nextBtn = document.getElementById('meiosis-dnd-next');
+            const cardDom = document.querySelector('#meiosis-dnd-zone .draggable-card');
+            
+            if(!cardDom || cardDom.draggable === false) return; 
+
+            cardDom.draggable = false;
+            cardDom.classList.add('hint-mode');
+            dndState.attempts++;
+            dndState.deck.push(dndState.deck[dndState.idx]); // Recycle
+
+            let correctName = dndBucketsM1.find(b => b.id === ev.target)?.name || dndBucketsM2.find(b => b.id === ev.target)?.name;
+            fb.innerHTML = `<strong style="color:var(--accent);">💡 Hint Used. Recycled to back of deck.</strong><br>Belongs in: <strong>${correctName}</strong><br><br>${ev.exp}`;
+            fb.style.borderLeftColor = 'var(--accent)';
+
+            document.getElementById('meiosis-dnd-prog').innerText = `Card ${dndState.idx + 1} of ${dndState.deck.length}`;
+            fb.style.display = 'block';
+            nextBtn.style.display = 'block';
+        }
+
+        function nextDnd() { dndState.idx++; renderDnd(); }
+
+        function endDnd() {
+            document.getElementById('meiosis-dnd-area').style.display = 'none';
+            document.getElementById('meiosis-dnd-end').style.display = 'block';
+            const pct = Math.round((dndState.correct / dndState.attempts) * 100) || 0;
+            document.getElementById('meiosis-dnd-score').innerHTML = `You placed <strong>${dndState.correct}</strong> correctly out of <strong>${dndState.attempts}</strong> attempts (${pct}%).`;
+        }
+
+        // --- MCQ LOGIC ---
+        function initMCQ() {
+            mcqState = { deck: shuffle(mcqDeck), idx: 0, correct: 0, attempts: 0 };
+            document.getElementById('meiosis-mcq-end').style.display = 'none';
+            document.getElementById('meiosis-mcq-area').style.display = 'block';
+            renderMCQ();
+        }
+
+        function renderMCQ() {
+            if (mcqState.idx >= mcqState.deck.length) { endMCQ(); return; }
+            document.getElementById('meiosis-mcq-fb').style.display = 'none';
+            document.getElementById('meiosis-mcq-next').style.display = 'none';
+
+            const qData = mcqState.deck[mcqState.idx];
+            document.getElementById('meiosis-mcq-q').innerText = qData.q;
+            
+            let opts = qData.opts.map((txt, i) => ({txt, origIdx: i}));
+            opts = shuffle(opts);
+
+            const grid = document.getElementById('meiosis-mcq-opts');
+            grid.innerHTML = '';
+            
+            opts.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt.txt;
+                btn.onclick = () => handleMCQ(btn, opt.origIdx, qData.ans, opts, qData.exp, false);
+                grid.appendChild(btn);
+            });
+            document.getElementById('meiosis-mcq-prog').innerText = `Question ${mcqState.idx + 1} of ${mcqState.deck.length}`;
+        }
+
+        function handleMCQ(btn, selectedIdx, correctIdx, shuffledOpts, exp, isHint) {
+            const btns = document.querySelectorAll('#meiosis-mcq-opts .option-btn');
+            btns.forEach(b => { b.disabled = true; b.onclick = null; }); 
+            const fb = document.getElementById('meiosis-mcq-fb');
+            const nextBtn = document.getElementById('meiosis-mcq-next');
+            mcqState.attempts++;
+
+            if (isHint) {
+                const correctBtnIdx = shuffledOpts.findIndex(o => o.origIdx === correctIdx);
+                btns[correctBtnIdx].classList.add('hint-highlight');
+                mcqState.deck.push(mcqState.deck[mcqState.idx]); // Recycle
+                fb.innerHTML = `<strong style="color:var(--accent);">💡 Hint Used. Question recycled.</strong><br><br>${exp}`;
+                fb.style.borderLeftColor = 'var(--accent)';
+            }
+            else if (selectedIdx === correctIdx) {
+                btn.classList.add('correct');
+                mcqState.correct++;
+                fb.innerHTML = `<strong style="color:var(--success);">✅ Correct!</strong><br><br>${exp}`;
+                fb.style.borderLeftColor = 'var(--success)';
+            } else {
+                btn.classList.add('wrong');
+                const correctBtnIdx = shuffledOpts.findIndex(o => o.origIdx === correctIdx);
+                btns[correctBtnIdx].classList.add('correct');
+                mcqState.deck.push(mcqState.deck[mcqState.idx]); // Recycle
+                fb.innerHTML = `<strong style="color:var(--error);">❌ Incorrect. Added back to deck.</strong><br><br>${exp}`;
+                fb.style.borderLeftColor = 'var(--error)';
+            }
+            
+            document.getElementById('meiosis-mcq-prog').innerText = `Question ${mcqState.idx + 1} of ${mcqState.deck.length}`;
+            fb.style.display = 'block';
+            nextBtn.style.display = 'block';
+        }
+
+        function useHint() {
+            const qData = mcqState.deck[mcqState.idx];
+            const btns = Array.from(document.querySelectorAll('#meiosis-mcq-opts .option-btn'));
+            if(!btns.length || btns[0].disabled) return; 
+            
+            const correctText = qData.opts[qData.ans];
+            let correctDomIdx = 0;
+            let mockOpts = [];
+            btns.forEach((b, i) => {
+                let isCorrect = b.innerText === correctText;
+                mockOpts.push({origIdx: isCorrect ? qData.ans : -1});
+                if(isCorrect) correctDomIdx = i;
+            });
+            handleMCQ(btns[correctDomIdx], -1, qData.ans, mockOpts, qData.exp, true);
+        }
+
+        function nextMCQ() { mcqState.idx++; renderMCQ(); }
+
+        function endMCQ() {
+            document.getElementById('meiosis-mcq-area').style.display = 'none';
+            document.getElementById('meiosis-mcq-end').style.display = 'block';
+            const pct = Math.round((mcqState.correct / mcqState.attempts) * 100) || 0;
+            document.getElementById('meiosis-mcq-score').innerHTML = `You answered <strong>${mcqState.correct}</strong> correctly out of <strong>${mcqState.attempts}</strong> attempts (${pct}%).`;
+        }
+
+        // Init
+        initDnd();
+        initMCQ();
+    </script>
+</body>
+</html>
