@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BI112 - Central Dogma Parts Master</title>
+    <style>
+        :root {
+            --bg-color: #323437;
+            --text-main: #d1d0c5;
+            --text-muted: #646669;
+            --accent: #e2b714;
+            --error: #ca4754;
+            --success: #8cc84b;
+            --panel-bg: #2c2e31;
+            --hover-bg: #3a3d40;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        h1 { color: var(--accent); margin-bottom: 0.5rem; text-align: center; }
+        .subtitle { color: var(--text-muted); margin-bottom: 2rem; text-align: center; }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: var(--panel-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            box-sizing: border-box;
+            margin-bottom: 2rem;
+        }
+
+        /* Utility Buttons */
+        .action-btn { background: transparent; border: 2px solid var(--accent); color: var(--accent); padding: 0.8rem 1.5rem; font-family: inherit; font-size: 1rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .action-btn:hover { background: var(--accent); color: var(--bg-color); }
+        .hint-btn { background: transparent; border: 2px solid var(--accent); color: var(--accent); padding: 0.4rem 0.8rem; font-family: inherit; font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .hint-btn:hover { background: var(--accent); color: var(--bg-color); }
+
+        /* MCQ Styles */
+        .mcq-arena { margin-top: 1rem; }
+        .mcq-question { font-size: 1.2rem; margin-bottom: 1.5rem; line-height: 1.5; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .option-btn { background: transparent; border: 2px solid var(--text-main); color: var(--text-main); text-align: left; padding: 1.2rem; font-family: inherit; font-size: 1rem; cursor: pointer; border-radius: 4px; transition: all 0.2s; line-height: 1.4; }
+        .option-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: var(--hover-bg); }
+        .option-btn.correct { border-color: var(--success); color: var(--success); background: rgba(140, 200, 75, 0.1); }
+        .option-btn.wrong { border-color: var(--error); color: var(--error); background: rgba(202, 71, 84, 0.1); }
+        .option-btn.hint-highlight { border-color: var(--accent); background: rgba(226, 183, 20, 0.1); color: var(--accent); }
+        .option-btn:disabled { cursor: default; }
+        
+        .feedback-box { margin-top: 1.5rem; padding: 1.2rem; border-radius: 4px; display: none; line-height: 1.5; font-size: 0.95rem; background: rgba(0,0,0,0.2); border-left: 4px solid var(--accent); }
+        .progress-text { margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted); text-align: right; }
+        .end-screen { text-align: center; display: none; margin-top: 2rem; }
+        .end-screen h2 { color: var(--accent); }
+
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .section-label { font-size: 1.4rem; color: var(--accent); font-weight: bold; text-transform: uppercase; margin-bottom: 0.5rem;}
+        
+        @media (max-width: 800px) {
+            .options-grid { grid-template-columns: 1fr; }
+            .header-row { flex-direction: column; gap: 1rem; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Central Dogma Parts Master</h1>
+    <div class="subtitle">Comprehensive Component Function Drill</div>
+
+    <div class="container">
+        <div class="mcq-arena" id="parts-mcq-area">
+            <div class="header-row">
+                <div class="mcq-question" id="parts-mcq-q">Loading...</div>
+                <button class="hint-btn" onclick="useHint()">💡 Hint / Recycle</button>
+            </div>
+            <div class="options-grid" id="parts-mcq-opts"></div>
+            <div id="parts-mcq-fb" class="feedback-box"></div>
+            <button id="parts-mcq-next" class="action-btn" style="display:none; width:100%; margin-top:1rem;" onclick="nextMCQ()">Next Question ➔</button>
+            <div class="progress-text" id="parts-mcq-prog"></div>
+        </div>
+        <div id="parts-mcq-end" class="end-screen">
+            <h2>Deck Conquered!</h2><p id="parts-mcq-score"></p>
+            <button class="action-btn" onclick="initMCQ()">Restart Deck</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const mcqDeck = [
+            // DNA REPLICATION PARTS
+            { q: "What is the primary function of Helicase?", opts: ["It breaks the hydrogen bonds between nitrogenous bases to separate the two parental DNA strands.", "It synthesizes new DNA strands by adding nucleotides.", "It seals the gaps between Okazaki fragments.", "It releases tension upstream from the replication fork."], ans: 0, exp: "Helicase acts like the zipper pull, physically unzipping the double helix so the strands can be copied." },
+            { q: "What is the function of Topoisomerase?", opts: ["It works upstream from the replication fork, breaking and reforming bonds to relieve supercoiling tension.", "It binds to single strands to prevent them from snapping back together.", "It lays down the RNA primer.", "It glues Okazaki fragments together."], ans: 0, exp: "If you pull apart a twisted string, the ends get knotted. Topoisomerase prevents DNA from getting overly twisted and snapping as Helicase forces it open." },
+            { q: "What is the purpose of Single-Strand Binding Proteins (SSBs)?", opts: ["They bind to the newly separated single strands of DNA to keep them from re-annealing (snapping back together).", "They create the replication bubble.", "They transport amino acids to the ribosome.", "They form the mitotic spindle."], ans: 0, exp: "The two sides of DNA naturally want to hydrogen-bond back together. SSBs act as molecular wedges to hold them open while they are copied." },
+            { q: "What is the specific role of Primase in DNA replication?", opts: ["It lays down a short sequence of RNA (a primer) to give DNA Polymerase a starting point.", "It breaks the hydrogen bonds between DNA strands.", "It replaces RNA primers with DNA.", "It extends the telomeres at the ends of chromosomes."], ans: 0, exp: "DNA Polymerase cannot start building from scratch; it needs a free 3' end to attach to, which the RNA primer provides." },
+            { q: "What is the main function of DNA Polymerase during replication?", opts: ["It reads the template strand and adds complementary nucleotides in the 5' to 3' direction.", "It cuts out mutated DNA sequences.", "It glues Okazaki fragments together.", "It unzips the helix."], ans: 0, exp: "DNA Polymerase is the primary builder. It matches A to T, and C to G." },
+            { q: "What is the function of DNA Ligase?", opts: ["It creates covalent bonds between adjacent nucleotides to seal the nicks/gaps between Okazaki fragments.", "It unwinds the DNA helix.", "It lays down the RNA primer.", "It proofreads the DNA for errors."], ans: 0, exp: "Ligase is the biological glue. Without it, the lagging strand's backbone would remain dangerously fragmented." },
+            { q: "What exactly is an Okazaki Fragment?", opts: ["A short segment of DNA synthesized discontinuously on the lagging strand.", "A segment of RNA removed during mRNA processing.", "A protein that unwinds DNA.", "A broken piece of a chromosome caused by radiation."], ans: 0, exp: "Because DNA polymerase can only build 5' to 3', the lagging strand is forced to be built in short, backward chunks away from the fork. These are Okazaki fragments." },
+            { q: "What is the function of Telomerase?", opts: ["It adds repetitive, non-coding nucleotide sequences to the ends of linear chromosomes to prevent the loss of important genes.", "It unwinds the DNA at the origin.", "It builds the lagging strand.", "It removes introns from mRNA."], ans: 0, exp: "Because the very end of the lagging strand cannot be copied, chromosomes shrink slightly each time. Telomerase adds 'junk' DNA caps (telomeres) to protect the ends." },
+
+            // TRANSCRIPTION PARTS
+            { q: "During Transcription, what is the role of the Promoter?", opts: ["It is a specific DNA sequence that acts as a landing pad, signaling RNA polymerase where to bind and start transcription.", "It is the protein that unzips the DNA.", "It is the start codon on the mRNA.", "It is the enzyme that digests lactose."], ans: 0, exp: "The Promoter region tells RNA polymerase exactly where a gene begins." },
+            { q: "What is the function of RNA Polymerase?", opts: ["It pries the two DNA strands apart and joins together RNA nucleotides complementary to the DNA template strand.", "It replicates the entire DNA chromosome.", "It translates mRNA into a polypeptide chain.", "It cuts out introns."], ans: 0, exp: "RNA polymerase does the job of both helicase and DNA polymerase, but for transcription. It opens the DNA and builds the mRNA transcript." },
+            { q: "What is the difference between the DNA Template strand and the Non-Template (Coding) strand?", opts: ["RNA polymerase physically reads the Template strand to build the mRNA; the resulting mRNA will match the sequence of the Non-Template strand (with U instead of T).", "RNA polymerase reads the Non-Template strand.", "The Template strand is made of RNA.", "The Non-Template strand is destroyed after transcription."], ans: 0, exp: "The template strand is the mold. Because RNA is complementary to the template, it ends up being an exact copy of the non-template (coding) strand." },
+            { q: "In eukaryotic RNA processing, what is the function of the 5' Cap and Poly-A Tail?", opts: ["They protect the mRNA from degradation by enzymes in the cytoplasm and help the ribosome attach.", "They are junk sequences that must be removed before translation.", "They carry amino acids to the ribosome.", "They act as start and stop codons."], ans: 0, exp: "The mRNA has to travel through the dangerous cytoplasm to reach a ribosome. The cap and tail act as biological armor." },
+            { q: "What are Introns and Exons?", opts: ["Introns are non-coding 'junk' sequences that are spliced out; Exons are the coding sequences that are glued together to be expressed.", "Exons are spliced out; Introns are glued together.", "Both are translated into proteins.", "Both are added to the ends of the mRNA for protection."], ans: 0, exp: "Introns IN-terfere and are removed. Exons are EX-pressed." },
+
+            // TRANSLATION PARTS
+            { q: "What is the specific function of mRNA (Messenger RNA)?", opts: ["It carries the genetic instructions from the DNA in the nucleus to the ribosomes in the cytoplasm.", "It carries specific amino acids.", "It physically forms the structure of the ribosome.", "It replicates DNA."], ans: 0, exp: "DNA cannot leave the nucleus. mRNA acts as the disposable messenger that carries the blueprint to the factory (ribosome)." },
+            { q: "What is the specific function of tRNA (Transfer RNA)?", opts: ["It acts as an adaptor, carrying specific amino acids to the ribosome and matching its anticodon to the mRNA codon.", "It carries the genetic code from the nucleus.", "It forms the physical structure of the ribosome.", "It unzips the DNA helix."], ans: 0, exp: "tRNA transfers the physical building blocks (amino acids) to the ribosome based on the mRNA's instructions." },
+            { q: "What is an Anticodon?", opts: ["A sequence of three nucleotides on a tRNA molecule that perfectly pairs with a complementary codon on the mRNA.", "A sequence of three nucleotides on the DNA template.", "The stop signal for translation.", "The enzyme that charges tRNA."], ans: 0, exp: "If the mRNA codon is AUG, the tRNA anticodon that plugs into it will be UAC." },
+            { q: "What is the function of Aminoacyl-tRNA synthetase?", opts: ["It 'charges' the tRNA by using ATP to attach the correct amino acid to it before it heads to the ribosome.", "It unwinds the mRNA.", "It builds peptide bonds between amino acids.", "It cuts out introns."], ans: 0, exp: "This specific enzyme acts as the matchmaker, making sure the right amino acid gets superglued to the correct tRNA." },
+            { q: "What is the function of rRNA (Ribosomal RNA)?", opts: ["It combines with proteins to physically form the ribosome and catalyzes the formation of peptide bonds.", "It carries the genetic code.", "It carries amino acids.", "It unwinds DNA."], ans: 0, exp: "rRNA is the structural and functional core of the ribosome machine." },
+            { q: "What occurs at the A Site (Aminoacyl site) of the ribosome?", opts: ["It is where the next incoming charged tRNA molecule carrying an amino acid arrives and binds to the mRNA.", "It holds the tRNA carrying the growing polypeptide chain.", "It is where empty tRNAs exit the ribosome.", "It is where transcription begins."], ans: 0, exp: "A stands for Arrival or Aminoacyl. It's the entry door for new tRNAs." },
+            { q: "What occurs at the P Site (Peptidyl site) of the ribosome?", opts: ["It holds the tRNA that is currently attached to the growing polypeptide chain.", "It is where new tRNAs arrive.", "It is where empty tRNAs exit.", "It is where the mRNA is degraded."], ans: 0, exp: "P stands for Peptidyl or Polypeptide. It holds the chain while the new amino acid in the A site is bonded to it." },
+            { q: "What occurs at the E Site (Exit site) of the ribosome?", opts: ["It is the site where the now-empty tRNA molecule exits the ribosome to go get recharged.", "It holds the growing polypeptide chain.", "It is where the start codon binds.", "It is where the release factor attaches."], ans: 0, exp: "E stands for Exit. Once a tRNA hands off its amino acid, it shifts to the E site and is ejected." },
+            { q: "What is the function of a Release Factor?", opts: ["It is a protein that binds to a STOP codon in the A site, causing the addition of a water molecule instead of an amino acid, terminating translation.", "It is an enzyme that unzips DNA.", "It carries the first amino acid (Methionine).", "It splices out introns."], ans: 0, exp: "Stop codons (UAA, UAG, UGA) do not code for tRNA. Instead, a Release Factor plugs into the A site, breaking the complex apart and releasing the finished protein." },
+            { q: "What kind of bond is formed between amino acids to create the growing Polypeptide Chain?", opts: ["Peptide bonds", "Hydrogen bonds", "Ionic bonds", "Phosphodiester bonds"], ans: 0, exp: "The ribosome catalyzes the formation of strong covalent peptide bonds between the amino acids." },
+            { q: "In prokaryotic gene regulation, what is an 'Operator'?", opts: ["A regulatory DNA sequence positioned within or near the promoter, where a repressor protein can bind to physically block RNA polymerase.", "The enzyme that breaks down lactose.", "The site where translation begins.", "The sequence that codes for a start codon."], ans: 0, exp: "The operator is the physical switch. If a repressor is sitting on it, transcription is turned off." }
+        ];
+
+        // --- ENGINE ---
+        let mcqState = { deck: [], idx: 0, correct: 0, attempts: 0 };
+
+        function shuffle(arr) {
+            let a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function initMCQ() {
+            mcqState = { deck: shuffle([...mcqDeck]), idx: 0, correct: 0, attempts: 0 };
+            document.getElementById('parts-mcq-end').style.display = 'none';
+            document.getElementById('parts-mcq-area').style.display = 'block';
+            renderMCQ();
+        }
+
+        function renderMCQ() {
+            if (mcqState.idx >= mcqState.deck.length) { endMCQ(); return; }
+            document.getElementById('parts-mcq-fb').style.display = 'none';
+            document.getElementById('parts-mcq-next').style.display = 'none';
+
+            const qData = mcqState.deck[mcqState.idx];
+            document.getElementById('parts-mcq-q').innerText = qData.q;
+            
+            let opts = qData.opts.map((txt, i) => ({txt, origIdx: i}));
+            opts = shuffle(opts);
+
+            const grid = document.getElementById('parts-mcq-opts');
+            grid.innerHTML = '';
+            
+            opts.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt.txt;
+                btn.onclick = () => handleMCQ(btn, opt.origIdx, qData.ans, opts, qData.exp, false);
+                grid.appendChild(btn);
+            });
+            document.getElementById('parts-mcq-prog').innerText = `Question ${mcqState.idx + 1} of ${mcqState.deck.length}`;
+        }
+
+        function handleMCQ(btn, selectedIdx, correctIdx, shuffledOpts, exp, isHint) {
+            const btns = document.querySelectorAll('#parts-mcq-opts .option-btn');
+            btns.forEach(b => { b.disabled = true; b.onclick = null; }); 
+            const fb = document.getElementById('parts-mcq-fb');
+            const nextBtn = document.getElementById('parts-mcq-next');
+            mcqState.attempts++;
+
+            if (isHint) {
+                const correctBtnIdx = shuffledOpts.findIndex(o => o.origIdx === correctIdx);
+                btns[correctBtnIdx].classList.add('hint-highlight');
+                mcqState.deck.push(mcqState.deck[mcqState.idx]); // Recycle
+                fb.innerHTML = `<strong style="color:var(--accent);">💡 Hint Used. Question recycled.</strong><br><br>${exp}`;
+                fb.style.borderLeftColor = 'var(--accent)';
+            }
+            else if (selectedIdx === correctIdx) {
+                btn.classList.add('correct');
+                mcqState.correct++;
+                fb.innerHTML = `<strong style="color:var(--success);">✅ Correct!</strong><br><br>${exp}`;
+                fb.style.borderLeftColor = 'var(--success)';
+            } else {
+                btn.classList.add('wrong');
+                const correctBtnIdx = shuffledOpts.findIndex(o => o.origIdx === correctIdx);
+                btns[correctBtnIdx].classList.add('correct');
+                mcqState.deck.push(mcqState.deck[mcqState.idx]); // Recycle
+                fb.innerHTML = `<strong style="color:var(--error);">❌ Incorrect. Added back to deck.</strong><br><br>${exp}`;
+                fb.style.borderLeftColor = 'var(--error)';
+            }
+            
+            document.getElementById('parts-mcq-prog').innerText = `Question ${mcqState.idx + 1} of ${mcqState.deck.length}`;
+            fb.style.display = 'block';
+            nextBtn.style.display = 'block';
+        }
+
+        function useHint() {
+            const qData = mcqState.deck[mcqState.idx];
+            const btns = Array.from(document.querySelectorAll('#parts-mcq-opts .option-btn'));
+            if(!btns.length || btns[0].disabled) return; 
+            
+            const correctText = qData.opts[qData.ans];
+            let correctDomIdx = 0;
+            let mockOpts = [];
+            btns.forEach((b, i) => {
+                let isCorrect = b.innerText === correctText;
+                mockOpts.push({origIdx: isCorrect ? qData.ans : -1});
+                if(isCorrect) correctDomIdx = i;
+            });
+            handleMCQ(btns[correctDomIdx], -1, qData.ans, mockOpts, qData.exp, true);
+        }
+
+        function nextMCQ() { mcqState.idx++; renderMCQ(); }
+
+        function endMCQ() {
+            document.getElementById('parts-mcq-area').style.display = 'none';
+            document.getElementById('parts-mcq-end').style.display = 'block';
+            const pct = Math.round((mcqState.correct / mcqState.attempts) * 100) || 0;
+            document.getElementById('parts-mcq-score').innerHTML = `You answered <strong>${mcqState.correct}</strong> correctly out of <strong>${mcqState.attempts}</strong> attempts (${pct}%).`;
+        }
+
+        // Init
+        initMCQ();
+    </script>
+</body>
+</html>
