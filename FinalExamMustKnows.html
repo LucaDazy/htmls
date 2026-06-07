@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BI112 - Final Exam Must Knows</title>
+    <style>
+        :root {
+            --bg-color: #323437;
+            --text-main: #d1d0c5;
+            --text-muted: #646669;
+            --accent: #e2b714;
+            --error: #ca4754;
+            --success: #8cc84b;
+            --panel-bg: #2c2e31;
+            --hover-bg: #3a3d40;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        h1 { color: var(--accent); margin-bottom: 0.5rem; text-align: center; }
+        .subtitle { color: var(--text-muted); margin-bottom: 2rem; text-align: center; }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: var(--panel-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            box-sizing: border-box;
+            margin-bottom: 2rem;
+        }
+
+        /* Utility Buttons */
+        .action-btn { background: transparent; border: 2px solid var(--accent); color: var(--accent); padding: 0.8rem 1.5rem; font-family: inherit; font-size: 1rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .action-btn:hover { background: var(--accent); color: var(--bg-color); }
+        .hint-btn { background: transparent; border: 2px solid var(--accent); color: var(--accent); padding: 0.4rem 0.8rem; font-family: inherit; font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .hint-btn:hover { background: var(--accent); color: var(--bg-color); }
+
+        /* MCQ Styles */
+        .mcq-arena { margin-top: 1rem; }
+        .mcq-question { font-size: 1.2rem; margin-bottom: 1.5rem; line-height: 1.5; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .option-btn { background: transparent; border: 2px solid var(--text-main); color: var(--text-main); text-align: left; padding: 1.2rem; font-family: inherit; font-size: 1rem; cursor: pointer; border-radius: 4px; transition: all 0.2s; line-height: 1.4; }
+        .option-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: var(--hover-bg); }
+        .option-btn.correct { border-color: var(--success); color: var(--success); background: rgba(140, 200, 75, 0.1); }
+        .option-btn.wrong { border-color: var(--error); color: var(--error); background: rgba(202, 71, 84, 0.1); }
+        .option-btn.hint-highlight { border-color: var(--accent); background: rgba(226, 183, 20, 0.1); color: var(--accent); }
+        .option-btn:disabled { cursor: default; }
+        
+        .feedback-box { margin-top: 1.5rem; padding: 1.2rem; border-radius: 4px; display: none; line-height: 1.5; font-size: 0.95rem; background: rgba(0,0,0,0.2); border-left: 4px solid var(--accent); }
+        .progress-text { margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted); text-align: right; }
+        .end-screen { text-align: center; display: none; margin-top: 2rem; }
+        .end-screen h2 { color: var(--accent); }
+
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .section-label { font-size: 1.4rem; color: var(--accent); font-weight: bold; text-transform: uppercase; margin-bottom: 0.5rem;}
+        
+        @media (max-width: 800px) {
+            .options-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Final Exam Must Knows</h1>
+    <div class="subtitle">Comprehensive MCQ Drill & Spaced Repetition</div>
+
+    <div class="container">
+        <!-- MCQ AREA -->
+        <div class="mcq-arena" id="general-mcq-area">
+            <div class="header-row">
+                <div class="mcq-question" id="general-mcq-q">Loading...</div>
+                <button class="hint-btn" onclick="useHint()">💡 Hint / Recycle</button>
+            </div>
+            <div class="options-grid" id="general-mcq-opts"></div>
+            <div id="general-mcq-fb" class="feedback-box"></div>
+            <button id="general-mcq-next" class="action-btn" style="display:none; width:100%; margin-top:1rem;" onclick="nextMCQ()">Next Question ➔</button>
+            <div class="progress-text" id="general-mcq-prog"></div>
+        </div>
+        <div id="general-mcq-end" class="end-screen">
+            <h2>Deck Conquered!</h2><p id="general-mcq-score"></p>
+            <button class="action-btn" onclick="initMCQ()">Restart Deck</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const mcqDeck = [
+            // Chapter 9: DNA, RNA & Protein Synthesis (Transcription vs Translation)
+            { q: "What is the primary difference between Transcription and Translation?", opts: ["Transcription copies DNA into mRNA in the nucleus; Translation uses mRNA to build proteins at the ribosome.", "Transcription builds proteins; Translation copies DNA.", "Transcription occurs at the ribosome; Translation occurs in the nucleus.", "Transcription copies RNA into DNA; Translation copies DNA into RNA."], ans: 0, exp: "Think of it like languages: Transcribe = rewrite in the same 'nucleotide' language (DNA to RNA). Translate = change to a completely new 'amino acid' language (RNA to Protein)." },
+            { q: "Which of the following is the universal START codon, and what amino acid does it code for?", opts: ["AUG (Methionine)", "UAA (Stop)", "UGA (Valine)", "UAG (Tyrosine)"], ans: 0, exp: "AUG is the start codon. It signals the ribosome to begin translation and codes for Methionine." },
+            { q: "Which of the following sequences are the three universal STOP codons?", opts: ["UAA, UAG, UGA", "AUG, AUC, AUA", "UAC, UCA, UGU", "GAA, GAG, GGA"], ans: 0, exp: "UAA, UAG, and UGA do not code for an amino acid. Instead, they signal a release factor to terminate translation." },
+            { q: "What is the 'Central Dogma' of molecular biology?", opts: ["DNA flows to RNA, which flows to Protein.", "RNA flows to DNA, which flows to Protein.", "Proteins flow to RNA, which flows to DNA.", "DNA is converted directly into Protein."], ans: 0, exp: "The Central Dogma describes the one-way flow of genetic information: DNA -> mRNA -> Protein." },
+            { q: "The Central Dogma involves two main steps. Which one occurs in the nucleus of eukaryotes, and which in the cytoplasm?", opts: ["Transcription in the nucleus, Translation in the cytoplasm.", "Translation in the nucleus, Transcription in the cytoplasm.", "Both occur in the nucleus.", "Both occur in the cytoplasm."], ans: 0, exp: "DNA cannot leave the safety of the nucleus, so Transcription happens there. The mRNA then leaves and finds a ribosome in the cytoplasm for Translation." },
+            { q: "During Eukaryotic RNA processing, what happens to introns and exons?", opts: ["Introns are removed (spliced out) as junk, while Exons are glued together to form the final functional mRNA.", "Exons are removed as junk, while Introns are glued together.", "Both are kept in the final mRNA.", "Both are destroyed."], ans: 0, exp: "Introns IN-terfere and are removed. Exons are EX-pressed and glued together." },
+            { q: "Eukaryotic mRNA undergoes processing before leaving the nucleus. What is added to protect the mRNA from degradation?", opts: ["A 5' cap and a Poly-A tail.", "An extra exon.", "A coat of histones.", "A telomere."], ans: 0, exp: "The 5' cap helps the ribosome attach, and the Poly-A tail protects the genetic message from being destroyed by enzymes in the cytoplasm." },
+            { q: "What does it mean that DNA replication is 'Semiconservative'?", opts: ["Each newly formed DNA double helix consists of one original parent strand and one brand new strand.", "The entire DNA double helix is completely brand new.", "The original DNA helix is broken into scattered fragments.", "DNA only copies half of its genes at a time."], ans: 0, exp: "Semiconservative means it 'conserves' half of the original material. The old strand acts as a template for the new one." },
+            { q: "RNA and DNA synthesis only occur in one specific direction. What is it?", opts: ["5' to 3' direction.", "3' to 5' direction.", "1' to 5' direction.", "Randomly."], ans: 0, exp: "New nucleotides can ONLY be added to an exposed 3' end, so the chain always grows 5' -> 3'." },
+            { q: "What makes up the 'backbone' of the DNA double helix?", opts: ["Alternating deoxyribose sugar and phosphate groups.", "Nitrogenous bases.", "Histones and nucleosomes.", "Purines and pyrimidines."], ans: 0, exp: "The 'rungs' of the ladder are the nitrogenous bases, but the strong sides/backbone are alternating sugar and phosphate molecules." },
+            { q: "What kind of bond holds the two strands of a DNA double helix together between the nitrogenous bases?", opts: ["Hydrogen bonds.", "Covalent bonds.", "Peptide bonds.", "Ionic bonds."], ans: 0, exp: "Hydrogen bonds are relatively weak, which allows the two strands to be easily unzipped by Helicase for replication or transcription." },
+            { q: "Match the enzyme: Which enzyme breaks the hydrogen bonds to 'unzip' the DNA double helix during replication?", opts: ["Helicase", "DNA Polymerase", "Ligase", "Primase"], ans: 0, exp: "Helicase unzips the DNA helix." },
+            { q: "Match the enzyme: Which enzyme seals the gaps between Okazaki fragments on the lagging strand?", opts: ["Ligase", "Helicase", "DNA Polymerase", "Primase"], ans: 0, exp: "Ligase acts like biological glue to bond the fragments together to make a continuous DNA strand." },
+            { q: "Match the enzyme: Which enzyme lays down a short sequence of RNA so DNA polymerase knows where to start building?", opts: ["Primase", "Ligase", "Helicase", "Telomerase"], ans: 0, exp: "DNA Polymerase can't start from scratch. Primase lays down an RNA 'primer' as a starting block." },
+            { q: "What is the function of Telomerase?", opts: ["It adds repetitive, non-coding nucleotide sequences to the ends of chromosomes to prevent gene loss during replication.", "It unzips DNA.", "It builds the lagging strand.", "It removes introns from mRNA."], ans: 0, exp: "Because chromosomes get slightly shorter with every replication, telomerase adds junk 'caps' (telomeres) to the ends to protect the important genes." },
+            { q: "How do prokaryotes and eukaryotes differ in gene expression?", opts: ["Prokaryotes perform transcription and translation simultaneously in the cytoplasm; Eukaryotes perform transcription in the nucleus and translation in the cytoplasm.", "Eukaryotes perform both simultaneously.", "Prokaryotes do not use ribosomes.", "Eukaryotes do not use mRNA."], ans: 0, exp: "Because prokaryotes lack a nucleus, there is no wall separating the DNA from the ribosomes. They happen at the exact same time." },
+            { q: "In prokaryotic gene expression (like the lac operon), what is the function of the Operator?", opts: ["It is the regulatory control region where repressors bind to block transcription.", "It is where RNA polymerase begins transcription.", "It is the start codon.", "It is the enzyme that digests lactose."], ans: 0, exp: "The operator is the physical switch. If a repressor protein is sitting on the operator, RNA polymerase gets physically blocked." },
+            { q: "How does RNA polymerase know where to start transcribing a gene?", opts: ["It binds to a specific DNA sequence called the promoter.", "It binds to a start codon.", "It binds to a primer.", "It binds to the operator."], ans: 0, exp: "The Promoter region acts like a landing pad, signaling the RNA polymerase to attach and begin making mRNA." },
+            { q: "What is the function of tRNA (Transfer RNA)?", opts: ["It carries specific amino acids to the ribosome and matches its anticodon to the mRNA codon.", "It carries the genetic code from the nucleus to the cytoplasm.", "It forms the physical structure of the ribosome.", "It unzips the DNA helix."], ans: 0, exp: "tRNA transfers the building blocks (amino acids) to the ribosome." },
+            { q: "Which RNA molecule actually forms the physical structure of the ribosome and catalyzes peptide bond formation?", opts: ["rRNA (Ribosomal RNA)", "mRNA (Messenger RNA)", "tRNA (Transfer RNA)", "siRNA"], ans: 0, exp: "rRNA combines with proteins to physically form the large and small subunits of the ribosome." },
+            { q: "What is the function of Aminoacyl tRNA synthetase?", opts: ["It 'charges' the tRNA by attaching the correct amino acid to it.", "It unwinds the mRNA.", "It builds peptide bonds.", "It cuts out introns."], ans: 0, exp: "This specific enzyme acts as the matchmaker, making sure the right amino acid gets superglued to the correct tRNA before it heads to the ribosome." },
+            { q: "What occurs at the A, P, and E sites of the ribosome?", opts: ["A: Amino acid arrives. P: Polypeptide bond forms. E: Empty tRNA exits.", "A: RNA is altered. P: Proteins are pulled. E: Enzymes enter.", "A: Anticodons align. P: Primers bind. E: Exons are expressed.", "A: ATP arrives. P: Phosphate pulls. E: Electrons exit."], ans: 0, exp: "A (Arrival/Aminoacyl), P (Peptidyl/Polypeptide chain), E (Exit)." },
+            { q: "What happens exactly at the E site of a ribosome during translation?", opts: ["The empty tRNA exits the ribosome after dropping off its amino acid.", "The start codon binds.", "A peptide bond forms.", "The mRNA is degraded."], ans: 0, exp: "The E site is the 'Exit' door for used tRNA molecules." },
+
+            // Chapter 8: Genetics
+            { q: "What is the difference between a Genotype and a Phenotype?", opts: ["Genotype is the actual genetic allele makeup (e.g., Pp); Phenotype is the physical expression or appearance (e.g., Purple flowers).", "Genotype is the physical appearance; Phenotype is the genetic makeup.", "Genotype refers to dominant traits; Phenotype refers to recessive traits.", "Genotype only applies to homozygous traits."], ans: 0, exp: "Genotype = Genetics (letters). Phenotype = Physical observation." },
+            { q: "What does 'Homozygous' mean?", opts: ["Having two identical alleles for a given gene (e.g., AA or aa).", "Having two different alleles for a given gene (e.g., Aa).", "Having only one allele.", "Having missing chromosomes."], ans: 0, exp: "Homo = same. Both alleles match." },
+            { q: "Mendel's Law of Segregation states that:", opts: ["Each individual has two alleles for a trait, which separate during gamete formation so each gamete gets only one.", "Alleles for different traits sort independently of one another.", "Dominant alleles always mask recessive ones.", "Traits blend together in the offspring."], ans: 0, exp: "Segregation happens during Anaphase I of meiosis when homologous chromosomes are pulled apart, separating the allele pairs." },
+            { q: "Which Mendel's Law states that alleles for different traits sort independently of one another during gamete formation?", opts: ["Law of Independent Assortment.", "Law of Segregation.", "Law of Dominance.", "Law of Linkage."], ans: 0, exp: "Because chromosomes line up randomly during Metaphase I, inheriting the allele for green eyes doesn't mean you automatically inherit the allele for tall height." },
+            { q: "What is a 'Linked' gene in genetics?", opts: ["Genes located close together on the same chromosome that tend to be inherited together, violating independent assortment.", "Genes that code for the same exact trait.", "Genes found on different chromosomes.", "Genes that cancel each other out."], ans: 0, exp: "If genes are right next to each other on the same strand of DNA, they are usually inherited as a package deal (unless crossing over breaks them apart)." },
+            { q: "What is a 'Test Cross' used for in genetics?", opts: ["To determine if an organism with a dominant phenotype is homozygous dominant or heterozygous by crossing it with a homozygous recessive organism.", "To figure out the phenotype of an organism.", "To test for sex-linked traits.", "To determine if crossing over occurred."], ans: 0, exp: "If you have a purple flower, it could be PP or Pp. You cross it with a white flower (pp). If any white flowers result, the parent had to be Pp." },
+            { q: "What is the difference between Incomplete Dominance and Codominance?", opts: ["Incomplete dominance creates a blended phenotype (e.g., pink flowers); Codominance expresses both traits simultaneously (e.g., red and white spots).", "They are exactly the same thing.", "Incomplete dominance only occurs in sex-linked traits.", "Codominance completely masks the recessive trait."], ans: 0, exp: "Incomplete = Blended (red+white=pink). Codominance = Both show up fully (AB blood type, or spotted cows)." },
+            { q: "What is Epistasis?", opts: ["When one gene completely masks or interferes with the expression of another, separate gene.", "When multiple alleles blend together.", "When a trait is tied to the X chromosome.", "When a chromosome fails to separate."], ans: 0, exp: "Example: You could have the genes for black hair, but if the separate gene for Albinism is triggered, it completely overrides and masks the hair color gene." },
+            { q: "Why are X-linked recessive traits more common in males?", opts: ["Males have only one X chromosome, so a single recessive allele will always be expressed because there is no second X to mask it.", "Males have two X chromosomes.", "The Y chromosome mutates the X chromosome.", "Males do not possess dominant alleles."], ans: 0, exp: "Females (XX) need two copies of the mutated gene to be colorblind. Males (XY) only need one." },
+            { q: "In a standard Dihybrid Cross (AaBb x AaBb), what is the classic expected phenotypic ratio?", opts: ["9:3:3:1", "3:1", "1:2:1", "1:1:1:1"], ans: 0, exp: "A dihybrid cross tracks two separate traits. The resulting 16-square punnett square yields a 9:3:3:1 phenotypic ratio." },
+
+            // Chapter 6: Cell Reproduction & Cancer
+            { q: "What is the primary difference between a Proto-oncogene and a Tumor Suppressor Gene?", opts: ["Proto-oncogenes act as the 'gas pedal' pushing the cell cycle forward; Tumor suppressors act as the 'brakes' halting the cycle.", "Tumor suppressors cause cancer; Proto-oncogenes fix it.", "Proto-oncogenes trigger apoptosis; Tumor suppressors replicate DNA.", "There is no difference."], ans: 0, exp: "Cancer occurs when the proto-oncogene mutates into an 'oncogene' (stuck gas pedal) AND the tumor suppressor breaks (no brakes)." },
+            { q: "What is the function of the p53 gene?", opts: ["It is a tumor suppressor that halts the cell cycle to repair damaged DNA, or triggers apoptosis if the damage is irreparable.", "It is a proto-oncogene that speeds up cell division.", "It builds the mitotic spindle.", "It forms the cleavage furrow."], ans: 0, exp: "p53 is the ultimate safety brake at the G1 checkpoint." },
+            { q: "How does Cytokinesis differ between plant and animal cells?", opts: ["Animal cells form a cleavage furrow by pinching inward; Plant cells form a cell plate from the center outward.", "Animal cells build a cell wall; Plant cells pinch in half.", "Plant cells use FtsZ proteins; Animal cells use actin.", "Plant cells do not undergo cytokinesis."], ans: 0, exp: "Because plant cells have a rigid cell wall, they cannot pinch. Golgi vesicles must fuse in the center to build a new wall." },
+            { q: "What occurs during the S phase of Interphase?", opts: ["DNA is replicated, creating identical sister chromatids.", "The cell divides in half.", "The nuclear envelope breaks down.", "Organelles are destroyed."], ans: 0, exp: "S = Synthesis. This is where the DNA duplicates." },
+            { q: "What is the purpose of the M Checkpoint in Mitosis?", opts: ["To ensure all sister chromatids are correctly attached to spindle fibers before Anaphase pulls them apart.", "To check for DNA mutations before S phase.", "To dissolve the nuclear envelope.", "To break down the cell plate."], ans: 0, exp: "The Metaphase checkpoint prevents nondisjunction by making sure the spindle fibers have a firm grip on every chromosome." },
+
+            // Chapter 7: Meiosis & Variation
+            { q: "What is 'Synapsis'?", opts: ["The physical pairing together of homologous chromosomes during Prophase I to form tetrads.", "The separation of sister chromatids.", "The alignment of chromosomes at the equator.", "The creation of mRNA from DNA."], ans: 0, exp: "Synapsis ensures the correct maternal and paternal chromosomes pair up so crossing over can occur." },
+            { q: "What happens during 'Crossing Over' (Recombination)?", opts: ["Homologous chromosomes physically exchange segments of DNA during Prophase I, creating unique allele combinations.", "Sister chromatids separate.", "Chromosomes line up randomly.", "A cell skips the S phase."], ans: 0, exp: "Crossing over mixes mom's and dad's traits together on a single chromosome." },
+            { q: "What is 'Nondisjunction'?", opts: ["The failure of homologous chromosomes or sister chromatids to separate properly during meiosis.", "The failure of a cell to grow during G1.", "The intentional destruction of a damaged cell.", "The process of crossing over."], ans: 0, exp: "If they fail to disconnect, it leads to gametes with too many or too few chromosomes (Aneuploidy)." },
+            { q: "If Nondisjunction occurs, it can directly lead to disorders such as:", opts: ["Trisomy 21 (Down Syndrome) or Monosomy X (Turner Syndrome).", "Bacterial infections.", "Skin cancer.", "Proto-oncogene mutations."], ans: 0, exp: "Nondisjunction is the mechanical error that causes an abnormal chromosome number (aneuploidy)." },
+            { q: "What is 'Independent Assortment'?", opts: ["The completely random way homologous pairs line up at the metaphase plate in Meiosis I.", "The specific sequence of DNA replication.", "The intentional sorting of dominant alleles.", "The separation of sister chromatids."], ans: 0, exp: "Independent assortment ensures that gametes get a random mix of maternal and paternal chromosomes." },
+            { q: "What chromosome structural rearrangement describes a segment flipping and reinserting itself backwards?", opts: ["Inversion", "Translocation", "Deletion", "Duplication"], ans: 0, exp: "Inversion literally means to invert or flip." },
+            { q: "What chromosome structural rearrangement occurs when a segment breaks off and attaches to a completely different, non-homologous chromosome?", opts: ["Translocation", "Deletion", "Inversion", "Duplication"], ans: 0, exp: "Translocation involves moving a segment to a completely new location (a different chromosome)." },
+            { q: "Why is Meiosis I considered a 'Reduction Division'?", opts: ["Because it reduces the chromosome number from diploid (2n) to haploid (n) by separating homologous pairs.", "Because it reduces the cell size.", "Because it reduces the number of organelles.", "Because it limits genetic variation."], ans: 0, exp: "By separating the pairs in Anaphase I, the resulting cells only have one set of chromosomes." },
+            { q: "What is the fundamental difference between Meiosis and Mitosis?", opts: ["Mitosis produces 2 identical diploid cells for growth; Meiosis produces 4 unique haploid cells for sexual reproduction.", "Mitosis produces gametes; Meiosis produces somatic cells.", "Mitosis involves crossing over; Meiosis does not.", "Mitosis has two divisions; Meiosis has one."], ans: 0, exp: "Mitosis = Clones. Meiosis = Unique Gametes." }
+        ];
+
+        // --- ENGINE ---
+        let mcqState = { deck: [], idx: 0, correct: 0, attempts: 0 };
+
+        function shuffle(arr) {
+            let a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function initMCQ() {
+            mcqState = { deck: shuffle(mcqDeck), idx: 0, correct: 0, attempts: 0 };
+            document.getElementById('general-mcq-end').style.display = 'none';
+            document.getElementById('general-mcq-area').style.display = 'block';
+            renderMCQ();
+        }
+
+        function renderMCQ() {
+            if (mcqState.idx >= mcqState.deck.length) { endMCQ(); return; }
+            document.getElementById('general-mcq-fb').style.display = 'none';
+            document.getElementById('general-mcq-next').style.display = 'none';
+
+            const qData = mcqState.deck[mcqState.idx];
+            document.getElementById('general-mcq-q').innerText = qData.q;
+            
+            let opts = qData.opts.map((txt, i) => ({txt, origIdx: i}));
+            opts = shuffle(opts);
+
+            const grid = document.getElementById('general-mcq-opts');
+            grid.innerHTML = '';
+            
+            opts.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt.txt;
+                btn.onclick = () => handleMCQ(btn, opt.origIdx, qData.ans, opts, qData.exp, false);
+                grid.appendChild(btn);
+            });
+            document.getElementById('general-mcq-prog').innerText = `Question ${mcqState.idx + 1} of ${mcqState.deck.length}`;
+        }
+
+        function handleMCQ(btn, selectedIdx, correctIdx, shuffledOpts, exp, isHint) {
+            const btns = document.querySelectorAll('#general-mcq-opts .option-btn');
+            btns.forEach(b => { b.disabled = true; b.onclick = null; }); 
+            const fb = document.getElementById('general-mcq-fb');
+            const nextBtn = document.getElementById('general-mcq-next');
+            mcqState.attempts++;
+
+            if (isHint) {
+                const correctBtnIdx = shuffledOpts.findIndex(o => o.origIdx === correctIdx);
+                btns[correctBtnIdx].classList.add('hint-highlight');
+                mcqState.deck.push(mcqState.deck[mcqState.idx]); // Recycle
+                fb.innerHTML = `<strong style="color:var(--accent);">💡 Hint Used. Question recycled.</strong><br><br>${exp}`;
+                fb.style.borderLeftColor = 'var(--accent)';
+            }
+            else if (selectedIdx === correctIdx) {
+                btn.classList.add('correct');
+                mcqState.correct++;
+                fb.innerHTML = `<strong style="color:var(--success);">✅ Correct!</strong><br><br>${exp}`;
+                fb.style.borderLeftColor = 'var(--success)';
+            } else {
+                btn.classList.add('wrong');
+                const correctBtnIdx = shuffledOpts.findIndex(o => o.origIdx === correctIdx);
+                btns[correctBtnIdx].classList.add('correct');
+                mcqState.deck.push(mcqState.deck[mcqState.idx]); // Recycle
+                fb.innerHTML = `<strong style="color:var(--error);">❌ Incorrect. Added back to deck.</strong><br><br>${exp}`;
+                fb.style.borderLeftColor = 'var(--error)';
+            }
+            
+            document.getElementById('general-mcq-prog').innerText = `Question ${mcqState.idx + 1} of ${mcqState.deck.length}`;
+            fb.style.display = 'block';
+            nextBtn.style.display = 'block';
+        }
+
+        function useHint() {
+            const qData = mcqState.deck[mcqState.idx];
+            const btns = Array.from(document.querySelectorAll('#general-mcq-opts .option-btn'));
+            if(!btns.length || btns[0].disabled) return; 
+            
+            const correctText = qData.opts[qData.ans];
+            let correctDomIdx = 0;
+            let mockOpts = [];
+            btns.forEach((b, i) => {
+                let isCorrect = b.innerText === correctText;
+                mockOpts.push({origIdx: isCorrect ? qData.ans : -1});
+                if(isCorrect) correctDomIdx = i;
+            });
+            handleMCQ(btns[correctDomIdx], -1, qData.ans, mockOpts, qData.exp, true);
+        }
+
+        function nextMCQ() { mcqState.idx++; renderMCQ(); }
+
+        function endMCQ() {
+            document.getElementById('general-mcq-area').style.display = 'none';
+            document.getElementById('general-mcq-end').style.display = 'block';
+            const pct = Math.round((mcqState.correct / mcqState.attempts) * 100) || 0;
+            document.getElementById('general-mcq-score').innerHTML = `You answered <strong>${mcqState.correct}</strong> correctly out of <strong>${mcqState.attempts}</strong> attempts (${pct}%).`;
+        }
+
+        // Init
+        initMCQ();
+    </script>
+</body>
+</html>
