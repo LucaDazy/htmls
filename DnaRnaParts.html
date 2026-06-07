@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BI112 - DNA & RNA Master</title>
+    <style>
+        :root {
+            --bg-color: #323437;
+            --text-main: #d1d0c5;
+            --text-muted: #646669;
+            --accent: #e2b714;
+            --error: #ca4754;
+            --success: #8cc84b;
+            --panel-bg: #2c2e31;
+            --hover-bg: #3a3d40;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        h1 { color: var(--accent); margin-bottom: 0.5rem; text-align: center; }
+        .subtitle { color: var(--text-muted); margin-bottom: 2rem; text-align: center; }
+
+        .nav-buttons { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; justify-content: center; }
+        .tab-btn {
+            background: transparent;
+            border: 2px solid var(--text-muted);
+            color: var(--text-muted);
+            padding: 0.8rem 1.5rem;
+            font-family: inherit;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .tab-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .tab-btn.active { border-color: var(--accent); background: var(--hover-bg); color: var(--accent); }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: var(--panel-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            display: none;
+            box-sizing: border-box;
+            margin-bottom: 2rem;
+        }
+        .container.active { display: block; }
+
+        .action-btn { background: transparent; border: 2px solid var(--accent); color: var(--accent); padding: 0.8rem 1.5rem; font-family: inherit; font-size: 1rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .action-btn:hover { background: var(--accent); color: var(--bg-color); }
+        .hint-btn { background: transparent; border: 2px solid var(--accent); color: var(--accent); padding: 0.4rem 0.8rem; font-family: inherit; font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .hint-btn:hover { background: var(--accent); color: var(--bg-color); }
+
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .section-label { font-size: 1.4rem; color: var(--accent); font-weight: bold; text-transform: uppercase; margin-bottom: 1.5rem; border-bottom: 1px solid var(--text-muted); padding-bottom: 0.5rem;}
+
+        .mcq-question { font-size: 1.2rem; margin-bottom: 1.5rem; line-height: 1.5; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .option-btn { background: transparent; border: 2px solid var(--text-main); color: var(--text-main); text-align: left; padding: 1.2rem; font-family: inherit; font-size: 1rem; cursor: pointer; border-radius: 4px; transition: all 0.2s; line-height: 1.4; }
+        .option-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: var(--hover-bg); }
+        .option-btn.correct { border-color: var(--success); color: var(--success); background: rgba(140, 200, 75, 0.1); }
+        .option-btn.wrong { border-color: var(--error); color: var(--error); background: rgba(202, 71, 84, 0.1); }
+        .option-btn.hint-highlight { border-color: var(--accent); background: rgba(226, 183, 20, 0.1); color: var(--accent); }
+        .option-btn:disabled { cursor: default; }
+
+        .feedback-box { margin-top: 1.5rem; padding: 1.2rem; border-radius: 4px; display: none; line-height: 1.5; font-size: 0.95rem; background: rgba(0,0,0,0.2); border-left: 4px solid var(--accent); }
+        .progress-text { margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted); text-align: right; }
+        .end-screen { text-align: center; display: none; margin-top: 2rem; }
+        .end-screen h2 { color: var(--accent); }
+        
+        @media (max-width: 800px) {
+            .options-grid { grid-template-columns: 1fr; }
+            .header-row { flex-direction: column; align-items: flex-start; gap: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>DNA & RNA Master</h1>
+    <div class="subtitle">Replication, Transcription & Translation Drill</div>
+
+    <div class="nav-buttons">
+        <button id="btn-replication" class="tab-btn active" onclick="switchTab('replication')">DNA Replication</button>
+        <button id="btn-transcription" class="tab-btn" onclick="switchTab('transcription')">RNA Transcription & Translation</button>
+    </div>
+
+    <div id="replication-sec" class="container active">
+        <div class="section-label">DNA Structure & Replication</div>
+        <div id="replication-quiz">
+            <div class="header-row">
+                <div class="mcq-question" id="replication-q">Loading...</div>
+                <button class="hint-btn" onclick="useHint('replication')">💡 Hint / Recycle</button>
+            </div>
+            <div class="options-grid" id="replication-opts"></div>
+            <div id="replication-fb" class="feedback-box"></div>
+            <button id="replication-next" class="action-btn" style="display:none; width:100%; margin-top:1rem;" onclick="nextMCQ('replication')">Next Question ➔</button>
+            <div class="progress-text" id="replication-prog"></div>
+        </div>
+        <div id="replication-end" class="end-screen">
+            <h2>Replication Deck Conquered!</h2><p id="replication-score"></p>
+            <button class="action-btn" onclick="initDeck('replication')">Restart Deck</button>
+        </div>
+    </div>
+
+    <div id="transcription-sec" class="container">
+        <div class="section-label">Transcription & Translation</div>
+        <div id="transcription-quiz">
+            <div class="header-row">
+                <div class="mcq-question" id="transcription-q">Loading...</div>
+                <button class="hint-btn" onclick="useHint('transcription')">💡 Hint / Recycle</button>
+            </div>
+            <div class="options-grid" id="transcription-opts"></div>
+            <div id="transcription-fb" class="feedback-box"></div>
+            <button id="transcription-next" class="action-btn" style="display:none; width:100%; margin-top:1rem;" onclick="nextMCQ('transcription')">Next Question ➔</button>
+            <div class="progress-text" id="transcription-prog"></div>
+        </div>
+        <div id="transcription-end" class="end-screen">
+            <h2>Transcription Deck Conquered!</h2><p id="transcription-score"></p>
+            <button class="action-btn" onclick="initDeck('transcription')">Restart Deck</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const db = {
+            replication: [
+                { q: "What are the three main components of a DNA nucleotide?", opts: ["A phosphate group, a deoxyribose sugar, and a nitrogenous base.", "A phosphate group, a ribose sugar, and an amino acid.", "A sulfate group, a lipid, and a nitrogenous base.", "A nitrogenous base, a telomere, and a histone."], ans: 0, exp: "These three parts make up the basic building block of DNA. The sugar and phosphate form the backbone, while the base forms the 'rungs' of the ladder." },
+                { q: "What does it mean when we say the two strands of a DNA double helix are 'antiparallel'?", opts: ["They run parallel to each other but in opposite directions (one is 5' to 3', the other is 3' to 5').", "They repel each other magnetically.", "They contain completely different genes.", "They cannot be replicated at the same time."], ans: 0, exp: "Antiparallel means they run alongside each other but upside down relative to one another. This is crucial because DNA polymerase can only build in one direction." },
+                { q: "In a DNA molecule, what type of bond holds the complementary nitrogenous bases together across the middle?", opts: ["Hydrogen bonds", "Covalent bonds", "Peptide bonds", "Ionic bonds"], ans: 0, exp: "Hydrogen bonds are weak, which is important because Helicase needs to be able to easily 'unzip' them during replication." },
+                { q: "Which statement accurately describes 'Semiconservative' DNA replication?", opts: ["Each newly formed DNA double helix consists of one original parent strand and one brand new copied strand.", "The entire DNA double helix is completely brand new.", "The original DNA helix is broken into scattered fragments and reassembled.", "DNA only copies half of its genes at a time."], ans: 0, exp: "Semiconservative means the process 'conserves' half of the original material. The old strand acts as a template to build the new one." },
+                { q: "Match the enzyme: Which enzyme breaks the hydrogen bonds to 'unzip' the DNA double helix, creating the replication fork?", opts: ["Helicase", "DNA Polymerase", "Ligase", "Primase"], ans: 0, exp: "Helicase acts like a zipper, pulling the two strands apart so they can be copied." },
+                { q: "Match the enzyme: Which enzyme works 'upstream' from the replication fork to break and reform bonds, releasing the tension as DNA unwinds?", opts: ["Topoisomerase", "Helicase", "Ligase", "DNA Polymerase"], ans: 0, exp: "Topoisomerase prevents the DNA from getting overly twisted and knotted as Helicase forces it open." },
+                { q: "Match the enzyme: Which enzyme lays down a short sequence of RNA so DNA polymerase knows where to start building?", opts: ["Primase", "Ligase", "Helicase", "Telomerase"], ans: 0, exp: "DNA Polymerase cannot start a new strand from scratch; it needs Primase to lay down an RNA 'primer' as a starting block." },
+                { q: "What is the primary limitation of DNA Polymerase?", opts: ["It can only add new nucleotides to an exposed 3' end, meaning it only builds in the 5' to 3' direction.", "It can only build in the 3' to 5' direction.", "It can only copy RNA.", "It requires a start codon to begin."], ans: 0, exp: "Because DNA polymerase can only attach new bases to a 3' OH group, replication must proceed in opposite directions on the antiparallel strands." },
+                { q: "Because of the limitations of DNA Polymerase, the 'Lagging Strand' must be built discontinuously in short segments. What are these segments called?", opts: ["Okazaki fragments", "Telomeres", "Primers", "Introns"], ans: 0, exp: "As the replication fork opens up, the lagging strand has to be built in short, backward chunks called Okazaki fragments." },
+                { q: "Match the enzyme: Which enzyme is responsible for making new covalent bonds between adjacent nucleotides, sealing the gaps between Okazaki fragments?", opts: ["Ligase", "Helicase", "DNA Polymerase", "Primase"], ans: 0, exp: "Ligase acts like biological glue to bond the Okazaki fragments together into one continuous DNA backbone." },
+                { q: "What is the function of Telomeres and Telomerase?", opts: ["Telomeres are non-coding protective caps on the ends of chromosomes; Telomerase rebuilds them because chromosomes get shorter with each replication.", "Telomeres unzip DNA; Telomerase glues it together.", "Telomerase removes introns from mRNA.", "Telomeres are the starting point for binary fission."], ans: 0, exp: "Because the very end of the lagging strand cannot be copied, chromosomes shrink. Telomerase adds 'junk' DNA to the ends so important genes aren't lost." },
+                { q: "How does DNA replication in Prokaryotes differ from Eukaryotes?", opts: ["Prokaryotes typically have a single circular chromosome and replication begins at a single specific location called the Origin.", "Prokaryotes replicate DNA inside the nucleus.", "Prokaryotes use RNA polymerase to replicate DNA.", "Prokaryotes do not use helicase."], ans: 0, exp: "Eukaryotes have multiple linear chromosomes with many replication bubbles. Bacteria have one circular chromosome with one Origin of replication." },
+                { q: "What is the difference between Purines and Pyrimidines?", opts: ["Purines (Adenine, Guanine) are double-ring structures; Pyrimidines (Cytosine, Thymine, Uracil) are single-ring structures.", "Purines are found in RNA; Pyrimidines are found in DNA.", "Purines form the backbone; Pyrimidines form the bases.", "Purines are enzymes; Pyrimidines are proteins."], ans: 0, exp: "A double-ring Purine always pairs with a single-ring Pyrimidine to keep the width of the DNA ladder constant." }
+            ],
+            transcription: [
+                { q: "What is the 'Central Dogma' of molecular biology?", opts: ["DNA flows to RNA, which flows to Protein.", "RNA flows to DNA, which flows to Protein.", "Proteins flow to RNA, which flows to DNA.", "DNA is converted directly into Protein."], ans: 0, exp: "The Central Dogma describes the one-way flow of genetic information: DNA -> Transcription -> mRNA -> Translation -> Protein." },
+                { q: "What are the three structural differences between RNA and DNA?", opts: ["RNA is single-stranded, contains a Ribose sugar, and uses Uracil (U) instead of Thymine (T).", "RNA is double-stranded, contains Deoxyribose, and uses Thymine (T).", "RNA has no phosphate group, uses Uracil, and is found only in prokaryotes.", "RNA is made of amino acids, while DNA is made of nucleotides."], ans: 0, exp: "Because RNA uses Uracil, an Adenine (A) on the DNA template strand will pair with a Uracil (U) on the newly forming RNA strand." },
+                { q: "What is the primary difference between Transcription and Translation?", opts: ["Transcription copies DNA into mRNA in the nucleus; Translation uses mRNA to build proteins at the ribosome.", "Transcription builds proteins; Translation copies DNA.", "Transcription occurs at the ribosome; Translation occurs in the nucleus.", "Transcription copies RNA into DNA; Translation copies DNA into RNA."], ans: 0, exp: "Transcribe = rewrite in the same 'nucleotide' language (DNA to RNA). Translate = change to a completely new 'amino acid' language (RNA to Protein)." },
+                { q: "During Initiation of Transcription, how does RNA polymerase know where to start copying the gene?", opts: ["It binds to a specific DNA sequence called the Promoter.", "It binds to the Start Codon.", "It is guided by a DNA primer.", "It binds to the Operator."], ans: 0, exp: "The Promoter region acts like a landing pad, signaling the RNA polymerase to attach and begin making mRNA." },
+                { q: "During Eukaryotic RNA processing, what happens to introns and exons?", opts: ["Introns are removed (spliced out) as junk, while Exons are glued together to form the final functional mRNA.", "Exons are removed as junk, while Introns are glued together.", "Both are kept in the final mRNA.", "Both are destroyed."], ans: 0, exp: "Introns IN-terfere and are removed. Exons are EX-pressed and glued together." },
+                { q: "Eukaryotic mRNA undergoes processing before leaving the nucleus. What is added to the ends of the mRNA to protect it from degradation?", opts: ["A 5' cap and a Poly-A tail.", "An extra exon.", "A coat of histones.", "A telomere."], ans: 0, exp: "The 5' cap helps the ribosome attach, and the Poly-A tail protects the genetic message from being destroyed by enzymes in the cytoplasm." },
+                { q: "Which of the following is the universal START codon, and what amino acid does it code for?", opts: ["AUG (Methionine)", "UAA (Stop)", "UGA (Valine)", "UAG (Tyrosine)"], ans: 0, exp: "AUG is the start codon. It signals the ribosome to begin translation and codes for Methionine." },
+                { q: "Which of the following sequences are the three universal STOP codons?", opts: ["UAA, UAG, UGA", "AUG, AUC, AUA", "UAC, UCA, UGU", "GAA, GAG, GGA"], ans: 0, exp: "UAA, UAG, and UGA do not code for an amino acid. Instead, they signal a release factor to terminate translation." },
+                { q: "What is the specific function of tRNA (Transfer RNA)?", opts: ["It acts as an adaptor, carrying specific amino acids to the ribosome and matching its anticodon to the mRNA codon.", "It carries the genetic code from the nucleus to the cytoplasm.", "It forms the physical structure of the ribosome.", "It unzips the DNA helix."], ans: 0, exp: "tRNA transfers the building blocks (amino acids) to the ribosome based on the instructions (codons) on the mRNA." },
+                { q: "What is the function of the enzyme Aminoacyl-tRNA synthetase?", opts: ["It 'charges' the tRNA by attaching the correct amino acid to it before it heads to the ribosome.", "It unwinds the mRNA.", "It builds peptide bonds.", "It cuts out introns."], ans: 0, exp: "This specific enzyme acts as the matchmaker, making sure the right amino acid gets superglued to the correct tRNA." },
+                { q: "Which RNA molecule actually forms the physical structure of the ribosome and catalyzes peptide bond formation?", opts: ["rRNA (Ribosomal RNA)", "mRNA (Messenger RNA)", "tRNA (Transfer RNA)", "siRNA"], ans: 0, exp: "rRNA combines with proteins to physically form the large and small subunits of the ribosome." },
+                { q: "What occurs at the A, P, and E sites of the ribosome during Translation?", opts: ["A: New tRNA arrives. P: Polypeptide chain is held/bonded. E: Empty tRNA exits.", "A: RNA is altered. P: Proteins are pulled. E: Enzymes enter.", "A: Anticodons align. P: Primers bind. E: Exons are expressed.", "A: ATP arrives. P: Phosphate pulls. E: Electrons exit."], ans: 0, exp: "A (Arrival/Aminoacyl), P (Peptidyl/Polypeptide chain), E (Exit)." },
+                { q: "How do prokaryotes and eukaryotes differ in gene expression?", opts: ["Prokaryotes perform transcription and translation simultaneously in the cytoplasm; Eukaryotes perform transcription in the nucleus and translation in the cytoplasm.", "Eukaryotes perform both simultaneously.", "Prokaryotes do not use ribosomes.", "Eukaryotes do not use mRNA."], ans: 0, exp: "Because prokaryotes lack a nucleus, there is no wall separating the DNA from the ribosomes. Ribosomes can start translating the mRNA while it is still being transcribed." },
+                { q: "In prokaryotic gene expression (like the lac operon), what is the function of the Operator?", opts: ["It is the regulatory control region where repressors bind to physically block RNA polymerase.", "It is where RNA polymerase begins transcription.", "It is the start codon.", "It is the enzyme that digests lactose."], ans: 0, exp: "The operator is the physical switch. If a repressor protein is sitting on the operator, RNA polymerase gets blocked and transcription stops." }
+            ]
+        };
+
+        // --- ENGINES ---
+        let state = {
+            replication: { deck: [], idx: 0, correct: 0, attempts: 0 },
+            transcription: { deck: [], idx: 0, correct: 0, attempts: 0 }
+        };
+
+        function shuffle(arr) {
+            let a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(`${tabId}-sec`).classList.add('active');
+            
+            if (state[tabId].deck.length === 0) initDeck(tabId);
+        }
+
+        function initDeck(topic) {
+            state[topic] = { deck: shuffle(db[topic]), idx: 0, correct: 0, attempts: 0 };
+            document.getElementById(`${topic}-end`).style.display = 'none';
+            document.getElementById(`${topic}-quiz`).style.display = 'block';
+            renderMCQ(topic);
+        }
+
+        function renderMCQ(topic) {
+            const st = state[topic];
+            if (st.idx >= st.deck.length) { endMCQ(topic); return; }
+            
+            document.getElementById(`${topic}-fb`).style.display = 'none';
+            document.getElementById(`${topic}-next`).style.display = 'none';
+
+            const qData = st.deck[st.idx];
+            document.getElementById(`${topic}-q`).innerText = qData.q;
+            
+            let opts = qData.opts.map((txt, i) => ({txt, origIdx: i}));
+            opts = shuffle(opts);
+
+            const grid = document.getElementById(`${topic}-opts`);
+            grid.innerHTML = '';
+            
+            opts.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt.txt;
+                btn.onclick = () => handleMCQ(topic, btn, opt.origIdx, qData.ans, opts, qData.exp, false);
+                grid.appendChild(btn);
+            });
+            document.getElementById(`${topic}-prog`).innerText = `Question ${st.idx + 1} of ${st.deck.length}`;
+        }
+
+        function handleMCQ(topic, btn, selectedIdx, correctIdx, shuffledOpts, exp, isHint) {
+            const st = state[topic];
+            const btns = document.querySelectorAll(`#${topic}-opts .option-btn`);
+            btns.forEach(b => { b.disabled = true; b.onclick = null; }); 
+            
+            const fb = document.getElementById(`${topic}-fb`);
+            const nextBtn = document.getElementById(`${topic}-next`);
+            st.attempts++;
+
+            if (isHint) {
+                const correctBtnIdx = shuffledOpts.findIndex(o => o.origIdx === correctIdx);
+                btns[correctBtnIdx].classList.add('hint-highlight');
+                st.deck.push(st.deck[st.idx]); // Recycle
+                fb.innerHTML = `<strong style="color:var(--accent);">💡 Hint Used. Question recycled.</strong><br><br>${exp}`;
+                fb.style.borderLeftColor = 'var(--accent)';
+            }
+            else if (selectedIdx === correctIdx) {
+                btn.classList.add('correct');
+                st.correct++;
+                fb.innerHTML = `<strong style="color:var(--success);">✅ Correct!</strong><br><br>${exp}`;
+                fb.style.borderLeftColor = 'var(--success)';
+            } else {
+                btn.classList.add('wrong');
+                const correctBtnIdx = shuffledOpts.findIndex(o => o.origIdx === correctIdx);
+                btns[correctBtnIdx].classList.add('correct');
+                st.deck.push(st.deck[st.idx]); // Recycle
+                fb.innerHTML = `<strong style="color:var(--error);">❌ Incorrect. Added back to deck.</strong><br><br>${exp}`;
+                fb.style.borderLeftColor = 'var(--error)';
+            }
+            
+            document.getElementById(`${topic}-prog`).innerText = `Question ${st.idx + 1} of ${st.deck.length}`;
+            fb.style.display = 'block';
+            nextBtn.style.display = 'block';
+        }
+
+        function useHint(topic) {
+            const st = state[topic];
+            const qData = st.deck[st.idx];
+            const btns = Array.from(document.querySelectorAll(`#${topic}-opts .option-btn`));
+            if(!btns.length || btns[0].disabled) return; 
+            
+            const correctText = qData.opts[qData.ans];
+            let correctDomIdx = 0;
+            let mockOpts = [];
+            btns.forEach((b, i) => {
+                let isCorrect = b.innerText === correctText;
+                mockOpts.push({origIdx: isCorrect ? qData.ans : -1});
+                if(isCorrect) correctDomIdx = i;
+            });
+            handleMCQ(topic, btns[correctDomIdx], -1, qData.ans, mockOpts, qData.exp, true);
+        }
+
+        function nextMCQ(topic) {
+            state[topic].idx++;
+            renderMCQ(topic);
+        }
+
+        function endMCQ(topic) {
+            document.getElementById(`${topic}-quiz`).style.display = 'none';
+            document.getElementById(`${topic}-end`).style.display = 'block';
+            const pct = Math.round((state[topic].correct / state[topic].attempts) * 100) || 0;
+            document.getElementById(`${topic}-score`).innerHTML = `You answered <strong>${state[topic].correct}</strong> correctly out of <strong>${state[topic].attempts}</strong> attempts (${pct}%).`;
+        }
+
+        // Init
+        initDeck('replication');
+    </script>
+</body>
+</html>
