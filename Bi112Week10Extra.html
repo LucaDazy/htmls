@@ -79,7 +79,8 @@
             border-radius: 4px;
             transition: 0.2s;
         }
-        .hint-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(226, 183, 20, 0.1); }
+        .hint-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: rgba(226, 183, 20, 0.1); }
+        .hint-btn:disabled { opacity: 0.5; cursor: default; }
 
         .target-clue {
             font-size: 1.3rem;
@@ -206,6 +207,7 @@
 
     <div class="container">
         
+        <!-- TARGET AREA -->
         <div class="target-box" id="target-area">
             <div class="header-row">
                 <div class="progress-text" id="prog-text">Loading...</div>
@@ -222,13 +224,17 @@
             <button class="action-btn" style="display:block;" onclick="init()">Restart Drill</button>
         </div>
 
+        <!-- SOUNDBOARD AREA -->
         <div class="term-board" id="board">
-            </div>
+            <!-- Buttons injected by JS -->
+        </div>
 
+        <!-- GLOSSARY HELPER TOOL -->
         <div class="glossary-box">
             <div class="glossary-header">📚 Week 10 Exam Cheat Sheet</div>
             <div class="glossary-grid" id="glossary-grid">
-                </div>
+                <!-- Glossary items injected by JS -->
+            </div>
         </div>
 
     </div>
@@ -278,7 +284,7 @@
             document.getElementById('target-area').style.display = 'flex';
             document.getElementById('board').style.display = 'grid';
 
-            // Build the Soundboard (Positions randomize once per session)
+            // Build the Soundboard
             const board = document.getElementById('board');
             board.innerHTML = '';
             
@@ -292,7 +298,7 @@
                 board.appendChild(btn);
             });
 
-            // Build Glossary (Alphabetical)
+            // Build Glossary
             const glossaryGrid = document.getElementById('glossary-grid');
             glossaryGrid.innerHTML = '';
             const sortedData = [...data].sort((a,b) => a.term.localeCompare(b.term));
@@ -340,27 +346,24 @@
             const allBtns = document.querySelectorAll('.term-btn');
             
             mcqState.attempts++;
+            
+            const isCorrect = (guessedTerm === currentCard.term);
 
-            if (hintUsed) {
-                // If hint was used, automatically recycle the card to ensure retention
+            if (isCorrect) {
                 btn.classList.add('correct');
-                mcqState.deck.push(mcqState.deck[mcqState.idx]);
                 
-                fb.innerHTML = `<strong style="color:var(--accent);">💡 Hint Used.</strong><br><br><strong>${currentCard.term}</strong>: ${currentCard.clue}<br><br><em style="color:var(--accent);">Card recycled to the back of the deck.</em>`;
-                fb.style.borderLeftColor = 'var(--accent)';
-
-            } else if (guessedTerm === currentCard.term) {
-                // Correct!
-                btn.classList.add('correct');
-                mcqState.correct++;
-                
-                fb.innerHTML = `<strong style="color:var(--success);">✅ Correct!</strong><br><br><strong>${currentCard.term}</strong>: ${currentCard.clue}`;
-                fb.style.borderLeftColor = 'var(--success)';
-
+                if (hintUsed) {
+                    mcqState.deck.push(mcqState.deck[mcqState.idx]); // Recycle because of hint
+                    fb.innerHTML = `<strong style="color:var(--success);">✅ Correct (Hint Used).</strong><br><br><strong>${currentCard.term}</strong>: ${currentCard.clue}<br><br><em style="color:var(--accent);">Card recycled to the back of the deck.</em>`;
+                    fb.style.borderLeftColor = 'var(--success)';
+                } else {
+                    mcqState.correct++;
+                    fb.innerHTML = `<strong style="color:var(--success);">✅ Correct!</strong><br><br><strong>${currentCard.term}</strong>: ${currentCard.clue}`;
+                    fb.style.borderLeftColor = 'var(--success)';
+                }
             } else {
-                // Wrong!
                 btn.classList.add('wrong');
-                mcqState.deck.push(mcqState.deck[mcqState.idx]); // Recycle
+                mcqState.deck.push(mcqState.deck[mcqState.idx]); // Recycle because wrong
                 
                 // Highlight the actual correct button so they learn it
                 allBtns.forEach(b => {
@@ -369,7 +372,8 @@
                     }
                 });
 
-                fb.innerHTML = `<strong style="color:var(--error);">❌ Incorrect.</strong><br><br>The correct answer was <strong>${currentCard.term}</strong>.<br><br><em style="color:var(--accent);">Card recycled to the back of the deck.</em>`;
+                let prefix = hintUsed ? `<strong style="color:var(--error);">❌ Incorrect (Hint Used).</strong>` : `<strong style="color:var(--error);">❌ Incorrect.</strong>`;
+                fb.innerHTML = `${prefix}<br><br>The correct answer was <strong>${currentCard.term}</strong>.<br><br><em style="color:var(--accent);">Card recycled to the back of the deck.</em>`;
                 fb.style.borderLeftColor = 'var(--error)';
             }
             
@@ -418,7 +422,7 @@
             document.getElementById('end-screen').style.display = 'block';
             
             const pct = Math.round((mcqState.correct / mcqState.attempts) * 100) || 0;
-            document.getElementById('final-score').innerHTML = `You hit <strong>${mcqState.correct}</strong> correct on the first try out of <strong>${mcqState.attempts}</strong> total attempts (${pct}% accuracy).`;
+            document.getElementById('final-score').innerHTML = `You hit <strong>${mcqState.correct}</strong> correct without hints on the first try out of <strong>${mcqState.attempts}</strong> total attempts (${pct}% accuracy).`;
         }
 
         // Start
