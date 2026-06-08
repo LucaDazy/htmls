@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STAT 243Z - Interpretation Sentence Builder</title>
+    <style>
+        :root {
+            --bg-color: #323437;
+            --text-main: #d1d0c5;
+            --text-muted: #646669;
+            --accent: #e2b714;
+            --error: #ca4754;
+            --success: #8cc84b;
+            --panel-bg: #2c2e31;
+            --hover-bg: #3a3d40;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        h1 { color: var(--accent); margin-bottom: 0.5rem; text-align: center; }
+        .subtitle { color: var(--text-muted); margin-bottom: 2rem; text-align: center; }
+
+        .nav-buttons { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; justify-content: center; }
+        .tab-btn {
+            background: transparent;
+            border: 2px solid var(--text-muted);
+            color: var(--text-muted);
+            padding: 0.8rem 1.5rem;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .tab-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .tab-btn.active { border-color: var(--accent); background: var(--hover-bg); color: var(--accent); }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--panel-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            box-sizing: border-box;
+            margin-bottom: 2rem;
+        }
+
+        .header-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 1.5rem; }
+        .chapter-tag { background: rgba(226, 183, 20, 0.2); color: var(--accent); padding: 0.3rem 0.8rem; border-radius: 16px; font-size: 0.85rem; font-weight: bold; }
+        .refresh-btn { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 0.4rem 0.8rem; font-family: inherit; font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .refresh-btn:hover { background: var(--accent); color: var(--bg-color); }
+
+        .scenario-box {
+            background: rgba(0,0,0,0.2);
+            border: 1px dashed var(--text-muted);
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        /* The Sentence Builder UI */
+        .sentence-builder {
+            font-size: 1.2rem;
+            line-height: 2.2;
+            color: var(--text-main);
+            background: var(--bg-color);
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid var(--text-muted);
+        }
+
+        .inline-select {
+            appearance: none;
+            background: var(--hover-bg);
+            color: var(--accent);
+            border: 2px solid var(--text-muted);
+            padding: 0.2rem 1.5rem 0.2rem 0.5rem;
+            font-family: inherit;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            outline: none;
+            margin: 0 0.4rem;
+            transition: all 0.2s;
+            /* Custom dropdown arrow */
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e2b714' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.2rem center;
+            background-size: 1.2em;
+        }
+
+        .inline-select:focus, .inline-select:hover { border-color: var(--accent); }
+        .inline-select.correct { border-color: var(--success); color: var(--success); background-image: none; padding-right: 0.5rem; }
+        .inline-select.wrong { border-color: var(--error); color: var(--error); }
+
+        .action-btn { background: transparent; border: 2px solid var(--accent); color: var(--accent); padding: 1rem 1.5rem; font-family: inherit; font-size: 1rem; cursor: pointer; border-radius: 4px; transition: 0.2s; width: 100%; margin-top: 2rem; font-weight: bold;}
+        .action-btn:hover { background: var(--accent); color: var(--bg-color); }
+
+        .feedback-box { margin-top: 1.5rem; padding: 1.2rem; border-radius: 4px; display: none; line-height: 1.6; font-size: 1rem; background: rgba(0,0,0,0.2); border-left: 4px solid var(--accent); width: 100%; box-sizing: border-box;}
+        
+        .hint-text { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem; display: block; border-top: 1px dashed var(--text-muted); padding-top: 0.5rem;}
+
+        @media (max-width: 800px) {
+            .sentence-builder { font-size: 1rem; padding: 1rem; }
+            .inline-select { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Interpretation Builder</h1>
+    <div class="subtitle">Construct Final Exam Answers exactly how she grades them.</div>
+
+    <div class="nav-buttons">
+        <button id="btn-ci" class="tab-btn active" onclick="switchMode('ci')">Confidence Intervals (Ch 9)</button>
+        <button id="btn-hypo" class="tab-btn" onclick="switchMode('hypo')">Hypothesis Tests (Ch 10)</button>
+    </div>
+
+    <div class="container">
+        <div class="header-row">
+            <div id="chapter-badge" class="chapter-tag">Ch 9</div>
+            <button class="refresh-btn" onclick="generateScenario()">🔄 Generate New Scenario</button>
+        </div>
+        
+        <div class="scenario-box" id="scenario-text">Loading...</div>
+
+        <div class="sentence-builder" id="builder-area">
+            </div>
+
+        <div id="feedback" class="feedback-box"></div>
+        <button id="check-btn" class="action-btn" onclick="checkAnswers()">Check Interpretation</button>
+    </div>
+
+    <script>
+        // --- DATA & STATE ---
+        let currentMode = 'ci';
+        let currentSolution = []; // Holds the correct index for each dropdown
+
+        const subjects = [
+            { name: "weight of fish in the reservoir", unit: " lbs" },
+            { name: "height of local pine trees", unit: " feet" },
+            { name: "score of statistics students", unit: "%" },
+            { name: "cost of used cars", unit: " dollars" }
+        ];
+
+        const proportionSubjects = [
+            "registered voters who support the bill",
+            "college students who drink coffee",
+            "patients who experienced side effects",
+            "defective manufactured computer chips"
+        ];
+
+        // --- UTILITIES ---
+        function switchMode(mode) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${mode}`).classList.add('active');
+            currentMode = mode;
+            generateScenario();
+        }
+
+        function createDropdown(options, correctIdx, errorHint) {
+            let html = `<select class="inline-select" data-ans="${correctIdx}" data-hint="${errorHint}">
+                            <option value="-1" disabled selected>...</option>`;
+            options.forEach((opt, i) => {
+                html += `<option value="${i}">${opt}</option>`;
+            });
+            html += `</select>`;
+            return html;
+        }
+
+        // --- GENERATORS ---
+
+        function generateScenario() {
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('check-btn').innerText = "Check Interpretation";
+            document.getElementById('check-btn').onclick = checkAnswers;
+
+            if (currentMode === 'ci') generateCI();
+            else generateHypo();
+        }
+
+        function generateCI() {
+            document.getElementById('chapter-badge').innerText = "Ch 9";
+            const isMean = Math.random() > 0.5;
+            const confLvl = [90, 95, 99][Math.floor(Math.random() * 3)];
+            
+            let scenario = "";
+            let builderHTML = "";
+
+            if (isMean) {
+                const sub = subjects[Math.floor(Math.random() * subjects.length)];
+                const lower = (Math.random() * 20 + 10).toFixed(2);
+                const upper = (parseFloat(lower) + Math.random() * 10 + 2).toFixed(2);
+                
+                scenario = `<strong>Scenario:</strong> You ran a TInterval on your calculator to estimate the average ${sub.name}.<br>
+                            <strong>Confidence Level:</strong> ${confLvl}%<br>
+                            <strong>Interval Result:</strong> (${lower}, ${upper})`;
+
+                builderHTML = `
+                    We 
+                    ${createDropdown([`are ${confLvl}% confident`, `have a ${confLvl}% probability`, `are ${confLvl}% sure the sample is`], 0, "Teacher's Rule: NEVER use 'probability' or 'chance' for intervals. The population parameter is a fixed number, so we use 'confident' in our sampling method.")} 
+                    that the 
+                    ${createDropdown(["true population mean (μ)", "sample mean (x̄)", "true population proportion (p)"], 0, "We already know the sample mean. Intervals are strictly used to estimate the TRUE POPULATION parameter.")} 
+                    of the ${sub.name} is between 
+                    <strong>${lower}</strong> and <strong>${upper}</strong>${sub.unit}.
+                `;
+            } else {
+                const sub = proportionSubjects[Math.floor(Math.random() * proportionSubjects.length)];
+                const lower = (Math.random() * 0.3 + 0.2).toFixed(3);
+                const upper = (parseFloat(lower) + Math.random() * 0.2 + 0.05).toFixed(3);
+                
+                scenario = `<strong>Scenario:</strong> You ran a 1-PropZInt on your calculator to estimate the percentage of ${sub}.<br>
+                            <strong>Confidence Level:</strong> ${confLvl}%<br>
+                            <strong>Interval Result:</strong> (${lower}, ${upper})`;
+
+                builderHTML = `
+                    We 
+                    ${createDropdown([`have a ${confLvl}% chance`, `are ${confLvl}% confident`, `believe the sample is ${confLvl}%`], 1, "Teacher's Rule: NEVER use 'chance' for intervals. Use 'confident'.")} 
+                    that the 
+                    ${createDropdown(["sample proportion (p̂)", "true population mean (μ)", "true population proportion (p)"], 2, "Intervals estimate the TRUE POPULATION parameter, and since this is a percentage/count, it is a proportion (p).")} 
+                    of ${sub} is between 
+                    <strong>${lower}</strong> and <strong>${upper}</strong>.
+                `;
+            }
+
+            document.getElementById('scenario-text').innerHTML = scenario;
+            document.getElementById('builder-area').innerHTML = builderHTML;
+        }
+
+        function generateHypo() {
+            document.getElementById('chapter-badge').innerText = "Ch 10";
+            
+            const isMean = Math.random() > 0.5;
+            const alphas = [0.01, 0.05, 0.10];
+            const alpha = alphas[Math.floor(Math.random() * alphas.length)];
+            
+            const isReject = Math.random() > 0.5;
+            let pValNum = isReject ? (alpha * Math.random() * 0.8) : (alpha + (Math.random() * 0.1) + 0.01);
+            let pValue = pValNum.toFixed(4);
+
+            let claim = "";
+            let claimType = "";
+            
+            if (isMean) {
+                const sub = subjects[Math.floor(Math.random() * subjects.length)];
+                const val = Math.floor(Math.random() * 50 + 20);
+                const dirs = ["greater than", "less than", "different than"];
+                claimType = dirs[Math.floor(Math.random() * dirs.length)];
+                claim = `the population mean (μ) of the ${sub.name} is ${claimType} ${val}${sub.unit}`;
+            } else {
+                const sub = proportionSubjects[Math.floor(Math.random() * proportionSubjects.length)];
+                const val = (Math.random() * 0.4 + 0.3).toFixed(2);
+                const dirs = ["greater than", "less than", "not equal to"];
+                claimType = dirs[Math.floor(Math.random() * dirs.length)];
+                claim = `the population proportion (p) of ${sub} is ${claimType} ${val}`;
+            }
+
+            let scenario = `<strong>Scenario:</strong> You are running a hypothesis test.<br>
+                            <strong>Claim (H₁):</strong> ${claim}.<br>
+                            <strong>Significance Level (α):</strong> ${alpha}<br>
+                            <strong>Calculated P-Value:</strong> ${pValue}`;
+
+            // Logic for correct dropdowns based on HW phrasing
+            const rejectAns = isReject ? 0 : 1; 
+            const lessThanAns = isReject ? 0 : 1;
+            const evidenceAns = isReject ? 0 : 1;
+            const paramAns = isMean ? 0 : 2;
+
+            let builderHTML = `
+                We 
+                ${createDropdown(["reject", "fail to reject", "accept"], rejectAns, "Rule: If P-value < Alpha, Reject H₀. If P-value > Alpha, Fail to Reject H₀. (Never say 'Accept').")} 
+                the null hypothesis, since the p-value is 
+                ${createDropdown(["less than", "not less than"], lessThanAns, "Compare the p-value to alpha. If you rejected, it was 'less than'. If you failed to reject, it was 'not less than'.")} 
+                the significance level. <br><br>
+                Therefore, there 
+                ${createDropdown(["IS sufficient sample evidence", "IS NOT sufficient sample evidence"], evidenceAns, "Rule: If you Rejected the Null, you DO have sufficient evidence to support your claim. If you Failed to Reject, you DO NOT have evidence.")} 
+                to support the claim that the 
+                ${createDropdown(["population mean (μ)", "sample mean (x̄)", "population proportion (p)", "sample proportion (p̂)"], paramAns, "Hypothesis tests ALWAYS test claims about the POPULATION parameter (μ or p), never the sample statistic.")} 
+                is ${claimType} the stated value.
+            `;
+
+            document.getElementById('scenario-text').innerHTML = scenario;
+            document.getElementById('builder-area').innerHTML = builderHTML;
+        }
+
+        // --- CHECKING ENGINE ---
+        function checkAnswers() {
+            const selects = document.querySelectorAll('.inline-select');
+            let allCorrect = true;
+            let hints = "";
+
+            selects.forEach((sel) => {
+                const userVal = sel.value;
+                const correctVal = sel.dataset.ans;
+
+                if (userVal === "-1") {
+                    allCorrect = false;
+                    sel.style.borderColor = "var(--error)";
+                } else if (userVal === correctVal) {
+                    sel.classList.add('correct');
+                    sel.classList.remove('wrong');
+                    sel.disabled = true; // Lock it in
+                } else {
+                    allCorrect = false;
+                    sel.classList.add('wrong');
+                    sel.classList.remove('correct');
+                    hints += `• ${sel.dataset.hint}<br>`;
+                }
+            });
+
+            const fb = document.getElementById('feedback');
+            fb.style.display = 'block';
+
+            if (allCorrect) {
+                fb.innerHTML = `<strong style="color:var(--success);">✅ Perfect Interpretation!</strong><br>You have perfectly constructed the sentence according to the teacher's grading rubric.`;
+                fb.style.borderLeftColor = 'var(--success)';
+                
+                const btn = document.getElementById('check-btn');
+                btn.innerText = "Generate Next Scenario ➔";
+                btn.onclick = generateScenario;
+            } else {
+                let errorMsg = `<strong style="color:var(--error);">❌ Incorrect or Incomplete.</strong><br>Review the teacher's rules below and adjust your dropdowns:`;
+                if(hints) errorMsg += `<span class="hint-text">${hints}</span>`;
+                
+                fb.innerHTML = errorMsg;
+                fb.style.borderLeftColor = 'var(--error)';
+            }
+        }
+
+        // Init
+        generateScenario();
+    </script>
+</body>
+</html>
