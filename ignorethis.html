@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quantum Steam Game Picker (x30)</title>
+    <title>Quantum Steam Game Picker (x30) + Debug</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -72,6 +72,38 @@
             letter-spacing: 1px;
         }
         
+        /* Debug Terminal Style */
+        .debug-panel {
+            width: 100%;
+            max-width: 800px;
+            background-color: #000000;
+            font-family: 'Courier New', Courier, monospace;
+            border: 2px solid #ff5555;
+            border-radius: 6px;
+            margin-top: 30px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        .debug-title {
+            color: #ff5555;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 14px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+        .debug-log {
+            max-height: 200px;
+            overflow-y: auto;
+            text-align: left;
+            font-size: 12px;
+            white-space: pre-wrap;
+            color: #55ff55;
+        }
+        .debug-err {
+            color: #ff5555 !important;
+        }
+
         /* Grid Layout for 30 Games */
         .grid-container {
             display: grid;
@@ -81,7 +113,6 @@
             max-width: 1400px;
             margin-top: 40px;
         }
-        
         .game-card {
             padding: 20px;
             background-color: #171a21;
@@ -90,14 +121,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            animation: fadeIn 0.5s ease-in;
         }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
         .game-title {
             font-size: 20px;
             font-weight: bold;
@@ -128,10 +152,6 @@
             text-align: center;
             display: block;
             margin-top: auto;
-            transition: background-color 0.2s;
-        }
-        a:hover {
-            background-color: #4a8739;
         }
     </style>
 </head>
@@ -146,46 +166,79 @@
     <div id="loadingText" class="loading"></div>
 </div>
 
+<div class="debug-panel">
+    <div class="debug-title">LIVE APPLICATION DEBUG LOG</div>
+    <div id="debugLog" class="debug-log">System initialized. Ready to pull data...</div>
+</div>
+
 <div id="gridContainer" class="grid-container"></div>
 
 <script>
     let steamGames = [];
+    const debugElement = document.getElementById("debugLog");
 
-    // The new Proxy Waterfall system
-    async function fetchWithFallback(targetUrl) {
+    function logDebug(msg, isError = false) {
+        const timestamp = new Date().toLocaleTimeString();
+        const line = isError 
+            ? `<div class="debug-err">[${timestamp}] ❌ ${msg}</div>`
+            : `<div>[${timestamp}] ⚙️ ${msg}</div>`;
+        debugElement.innerHTML += line;
+        debugElement.scrollTop = debugElement.scrollHeight;
+    }
+
+    // Proxy Waterfall with detailed logging
+    async function fetchWithFallback(targetUrl, identifier = "Data") {
         const proxies = [
-            "https://api.codetabs.com/v1/proxy?quest=",
-            "https://api.allorigins.win/raw?url=",
-            "https://corsproxy.io/?"
+            { name: "CodeTabs", url: "https://api.codetabs.com/v1/proxy?quest=" },
+            { name: "AllOrigins", url: "https://api.allorigins.win/raw?url=" },
+            { name: "CorsProxy.io", url: "https://corsproxy.io/?" }
         ];
 
         for (let proxy of proxies) {
+            logDebug(`Attempting to fetch ${identifier} via ${proxy.name}...`);
             try {
-                const response = await fetch(proxy + encodeURIComponent(targetUrl));
+                // Add a 12-second timeout so it doesn't hang infinitely on a dead proxy
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+                const response = await fetch(proxy.url + encodeURIComponent(targetUrl), { signal: controller.signal });
+                clearTimeout(timeoutId);
+
                 if (response.ok) {
+                    logDebug(`Success! ${proxy.name} successfully delivered payload.`);
                     return await response.json();
+                } else {
+                    logDebug(`${proxy.name} returned status: ${response.status} ${response.statusText}`, true);
                 }
             } catch (e) {
-                console.log(`Proxy ${proxy} failed, falling back to next available...`);
+                if (e.name === 'AbortError') {
+                    logDebug(`${proxy.name} timed out after 12 seconds.`, true);
+                } else {
+                    logDebug(`${proxy.name} error: ${e.message}`, true);
+                }
             }
         }
-        throw new Error("All proxies in the waterfall failed.");
+        throw new Error("All proxy destinations in the waterfall completely failed.");
     }
 
     // Fetch the list of all Steam games on initial load
     async function loadGameList() {
+        logDebug("Starting loading process for Steam App List...");
         try {
             const url = "https://api.steampowered.com/ISteamApps/GetAppList/v2/";
+            const data = await fetchWithFallback(url, "Steam Catalog List");
             
-            // Route the Steam URL through our waterfall
-            const data = await fetchWithFallback(url);
-            
-            steamGames = data.applist.apps;
-            document.getElementById("status").innerText = `Successfully loaded ${steamGames.length.toLocaleString()} items from Steam.`;
-            document.getElementById("randomBtn").disabled = false;
+            if (data && data.applist && data.applist.apps) {
+                steamGames = data.applist.apps;
+                document.getElementById("status").innerText = `Successfully loaded ${steamGames.length.toLocaleString()} items from Steam.`;
+                logDebug(`Database loaded. Found ${steamGames.length} indexed items.`);
+                document.getElementById("randomBtn").disabled = false;
+            } else {
+                throw new Error("JSON structure parsed, but applist array was missing.");
+            }
         } catch (error) {
-            document.getElementById("status").innerText = "Error: All 3 proxies blocked the request. Wait a moment and refresh.";
-            console.error(error);
+            document.getElementById("status").innerText = "Error: All proxies blocked or failed the request.";
+            logDebug(`Critical Failure: ${error.message}`, true);
         }
     }
 
@@ -196,29 +249,30 @@
         
         btn.disabled = true;
         grid.innerHTML = ""; 
+        logDebug("Beginning Quantum search generation for 30 unique titles...");
         
         let validGamesFound = 0;
         const TARGET_GAMES = 30;
-        
         let qrngData = [];
         let qrngIndex = 0;
 
         async function fetchQuantumEntropy() {
             loadingText.innerText = `Consulting the quantum vacuum... Found: ${validGamesFound}/30`;
+            logDebug("Requesting fresh high-entropy dataset from ANU Quantum API...");
             try {
                 const qrngResponse = await fetch("https://qrng.anu.edu.au/API/jsonI.php?length=200&type=uint16");
                 const json = await qrngResponse.json();
                 qrngData = json.data;
                 qrngIndex = 0;
+                logDebug(`Received ${qrngData.length} unique quantum states.`);
             } catch (e) {
-                console.error("Quantum API failed, retrying...");
+                logDebug(`Quantum vacuum query failed: ${e.message}`, true);
             }
         }
 
         await fetchQuantumEntropy();
 
         while (validGamesFound < TARGET_GAMES) {
-            
             if (qrngIndex >= qrngData.length - 1) {
                 await fetchQuantumEntropy();
             }
@@ -232,13 +286,13 @@
             const appId = randomApp.appid;
             
             try {
-                // Route SteamSpy through the proxy waterfall as well
                 const spyUrl = `https://steamspy.com/api.php?request=appdetails&appid=${appId}`;
-                const spyData = await fetchWithFallback(spyUrl);
+                const spyData = await fetchWithFallback(spyUrl, `SteamSpy Data (AppID: ${appId})`);
                 
                 if (spyData && spyData.name && spyData.developer) {
                     validGamesFound++;
                     loadingText.innerText = `Consulting the quantum vacuum... Found: ${validGamesFound}/30`;
+                    logDebug(`Validated title [${validGamesFound}/${TARGET_GAMES}]: "${spyData.name}"`);
                     
                     const avgMinutes = spyData.average_forever || 0;
                     const avgHours = (avgMinutes / 60).toFixed(1);
@@ -247,4 +301,28 @@
                         <div class="game-card">
                             <div>
                                 <div class="game-title">${spyData.name}</div>
-                                <div class="dev-info">By
+                                <div class="dev-info">By: ${spyData.developer}</div>
+                                <div class="playtime">Avg Playtime: ${avgHours} hours</div>
+                            </div>
+                            <a href="https://store.steampowered.com/app/${appId}" target="_blank">View on Steam</a>
+                        </div>
+                    `;
+                    grid.insertAdjacentHTML('beforeend', cardHTML);
+                } else {
+                    logDebug(`AppID ${appId} was parsed but missing standard gaming classification data. Skipping...`);
+                }
+            } catch(e) {
+                logDebug(`Skipping AppID ${appId} due to network resolution failure.`);
+            }
+        }
+        
+        loadingText.innerText = "All 30 games found!";
+        logDebug("Successfully outputted 30 quantum-sourced records to UI layout.");
+        btn.disabled = false;
+    }
+
+    loadGameList();
+</script>
+
+</body>
+</html>
