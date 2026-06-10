@@ -152,6 +152,10 @@
             text-align: center;
             display: block;
             margin-top: auto;
+            transition: background-color 0.2s;
+        }
+        a:hover {
+            background-color: #4a8739;
         }
     </style>
 </head>
@@ -186,20 +190,19 @@
         debugElement.scrollTop = debugElement.scrollHeight;
     }
 
-    // Proxy Waterfall with detailed logging
-    async function fetchWithFallback(targetUrl, identifier = "Data") {
+    // Proxy Waterfall with dynamic timeouts and fixed syntax
+    async function fetchWithFallback(targetUrl, identifier = "Data", timeoutMs = 12000) {
         const proxies = [
-            { name: "CodeTabs", url: "https://api.codetabs.com/v1/proxy?quest=" },
-            { name: "AllOrigins", url: "https://api.allorigins.win/raw?url=" },
-            { name: "CorsProxy.io", url: "https://corsproxy.io/?" }
+            { name: "CorsProxy.io", url: "https://corsproxy.io/?url=" },
+            { name: "AllOrigins", url: "https://api.allorigins.win/raw?url=" }
         ];
 
         for (let proxy of proxies) {
             logDebug(`Attempting to fetch ${identifier} via ${proxy.name}...`);
             try {
-                // Add a 12-second timeout so it doesn't hang infinitely on a dead proxy
+                // The AbortController enforces the timeout limit
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 12000);
+                const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
                 const response = await fetch(proxy.url + encodeURIComponent(targetUrl), { signal: controller.signal });
                 clearTimeout(timeoutId);
@@ -212,7 +215,7 @@
                 }
             } catch (e) {
                 if (e.name === 'AbortError') {
-                    logDebug(`${proxy.name} timed out after 12 seconds.`, true);
+                    logDebug(`${proxy.name} timed out after ${timeoutMs / 1000} seconds.`, true);
                 } else {
                     logDebug(`${proxy.name} error: ${e.message}`, true);
                 }
@@ -226,7 +229,8 @@
         logDebug("Starting loading process for Steam App List...");
         try {
             const url = "https://api.steampowered.com/ISteamApps/GetAppList/v2/";
-            const data = await fetchWithFallback(url, "Steam Catalog List");
+            // Give the master list a generous 35-second limit because of its massive size
+            const data = await fetchWithFallback(url, "Steam Catalog List", 35000);
             
             if (data && data.applist && data.applist.apps) {
                 steamGames = data.applist.apps;
@@ -287,6 +291,7 @@
             
             try {
                 const spyUrl = `https://steamspy.com/api.php?request=appdetails&appid=${appId}`;
+                // Keep the default snappy 12-second timeout for these smaller background checks
                 const spyData = await fetchWithFallback(spyUrl, `SteamSpy Data (AppID: ${appId})`);
                 
                 if (spyData && spyData.name && spyData.developer) {
