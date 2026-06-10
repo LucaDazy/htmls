@@ -140,33 +140,51 @@
 <div class="header-container">
     <div class="quantum-badge">QUANTUM POWERED</div>
     <h1>🎲 30 True Random Steam Games</h1>
-    <p id="status">Fetching the entire Steam catalog... Please wait.</p>
+    <p id="status">Routing through proxies to fetch the Steam catalog... Please wait.</p>
     
     <button id="randomBtn" disabled onclick="getThirtyGames()">Find 30 Random Games</button>
     <div id="loadingText" class="loading"></div>
 </div>
 
-<div id="gridContainer" class="grid-container">
-    </div>
+<div id="gridContainer" class="grid-container"></div>
 
 <script>
     let steamGames = [];
+
+    // The new Proxy Waterfall system
+    async function fetchWithFallback(targetUrl) {
+        const proxies = [
+            "https://api.codetabs.com/v1/proxy?quest=",
+            "https://api.allorigins.win/raw?url=",
+            "https://corsproxy.io/?"
+        ];
+
+        for (let proxy of proxies) {
+            try {
+                const response = await fetch(proxy + encodeURIComponent(targetUrl));
+                if (response.ok) {
+                    return await response.json();
+                }
+            } catch (e) {
+                console.log(`Proxy ${proxy} failed, falling back to next available...`);
+            }
+        }
+        throw new Error("All proxies in the waterfall failed.");
+    }
 
     // Fetch the list of all Steam games on initial load
     async function loadGameList() {
         try {
             const url = "https://api.steampowered.com/ISteamApps/GetAppList/v2/";
-            const response = await fetch("https://corsproxy.io/?" + encodeURIComponent(url));
             
-            if (!response.ok) throw new Error("Proxy failed to respond correctly.");
-            
-            const data = await response.json();
+            // Route the Steam URL through our waterfall
+            const data = await fetchWithFallback(url);
             
             steamGames = data.applist.apps;
             document.getElementById("status").innerText = `Successfully loaded ${steamGames.length.toLocaleString()} items from Steam.`;
             document.getElementById("randomBtn").disabled = false;
         } catch (error) {
-            document.getElementById("status").innerText = "Error connecting to Steam. Hosting on GitHub Pages should fix this.";
+            document.getElementById("status").innerText = "Error: All 3 proxies blocked the request. Wait a moment and refresh.";
             console.error(error);
         }
     }
@@ -177,7 +195,7 @@
         const grid = document.getElementById("gridContainer");
         
         btn.disabled = true;
-        grid.innerHTML = ""; // Clear the grid from any previous rolls
+        grid.innerHTML = ""; 
         
         let validGamesFound = 0;
         const TARGET_GAMES = 30;
@@ -185,11 +203,9 @@
         let qrngData = [];
         let qrngIndex = 0;
 
-        // Helper function to ask the quantum vacuum for a massive block of entropy at once
         async function fetchQuantumEntropy() {
             loadingText.innerText = `Consulting the quantum vacuum... Found: ${validGamesFound}/30`;
             try {
-                // Request 200 numbers at a time to reduce API calls
                 const qrngResponse = await fetch("https://qrng.anu.edu.au/API/jsonI.php?length=200&type=uint16");
                 const json = await qrngResponse.json();
                 qrngData = json.data;
@@ -201,15 +217,12 @@
 
         await fetchQuantumEntropy();
 
-        // Keep rolling until we find exactly 30 valid games
         while (validGamesFound < TARGET_GAMES) {
             
-            // If we run out of quantum numbers in our current batch, go fetch more
             if (qrngIndex >= qrngData.length - 1) {
                 await fetchQuantumEntropy();
             }
 
-            // Combine two 16-bit numbers to handle the massive 150,000+ game catalog
             const num1 = qrngData[qrngIndex++];
             const num2 = qrngData[qrngIndex++];
             const trueRandomNumber = (num1 * 65536) + num2;
@@ -219,10 +232,9 @@
             const appId = randomApp.appid;
             
             try {
-                // Validate with SteamSpy
+                // Route SteamSpy through the proxy waterfall as well
                 const spyUrl = `https://steamspy.com/api.php?request=appdetails&appid=${appId}`;
-                const spyRes = await fetch("https://corsproxy.io/?" + encodeURIComponent(spyUrl));
-                const spyData = await spyRes.json();
+                const spyData = await fetchWithFallback(spyUrl);
                 
                 if (spyData && spyData.name && spyData.developer) {
                     validGamesFound++;
@@ -231,30 +243,8 @@
                     const avgMinutes = spyData.average_forever || 0;
                     const avgHours = (avgMinutes / 60).toFixed(1);
                     
-                    // Create the HTML card and inject it into the grid dynamically
                     const cardHTML = `
                         <div class="game-card">
                             <div>
                                 <div class="game-title">${spyData.name}</div>
-                                <div class="dev-info">By: ${spyData.developer}</div>
-                                <div class="playtime">Avg Playtime: ${avgHours} hours</div>
-                            </div>
-                            <a href="https://store.steampowered.com/app/${appId}" target="_blank">View on Steam</a>
-                        </div>
-                    `;
-                    grid.insertAdjacentHTML('beforeend', cardHTML);
-                }
-            } catch(e) {
-                // Skip timeouts, 404s, and invalid DLCs gracefully
-            }
-        }
-        
-        loadingText.innerText = "All 30 games found!";
-        btn.disabled = false;
-    }
-
-    loadGameList();
-</script>
-
-</body>
-</html>
+                                <div class="dev-info">By
