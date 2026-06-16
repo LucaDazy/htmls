@@ -1,23 +1,21 @@
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('background-canvas');
-    const preloader = document.getElementById('background-asset-preloader');
-
-    if (!canvas || !preloader) {
-        console.error('Missing canvas or SVG preloader element.');
+    if (!canvas) {
+        console.error('Background canvas element not found.');
         return;
     }
     const ctx = canvas.getContext('2d');
 
     // --- Configuration ---
-    const DOODLE_COLOR = '#403143'; // A subtle, but more visible, lighter version of --bg-color
+    const DOODLE_COLOR = '#403143';
     const NUM_STARS = 100;
     const NUM_DOODLES = 20;
 
     let particles = [];
-    let loadedImageElements = {}; // Will store references to the <image> elements in the hidden SVG
+    let loadedImageObjects = {}; // Will store preloaded JS Image objects
 
     const assets = {
-        stars: [ 'Global/SVGs/doodles/star-1.svg' ],
+        stars: ['Global/SVGs/doodles/star-1.svg'],
         doodles: [
             'Global/SVGs/doodles/apple.svg',
             'Global/SVGs/doodles/book.svg',
@@ -33,8 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function loadAndColorSVG(url) {
         return new Promise((resolve, reject) => {
-            const img = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-
+            const img = new Image();
             fetch(url)
                 .then(response => {
                     if (!response.ok) throw new Error(`Network request for ${url} failed: ${response.status}`);
@@ -43,22 +40,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(svgText => {
                     const coloredSvg = svgText.replace(/currentColor/g, DOODLE_COLOR);
                     const blob = new Blob([coloredSvg], { type: 'image/svg+xml' });
-                    const blobUrl = URL.createObjectURL(blob); // Note: We do NOT revoke this URL
-
-                    img.setAttributeNS('http://www.w3.org/1999/xlink', 'href', blobUrl);
+                    const blobUrl = URL.createObjectURL(blob);
                     
-                    // Set a placeholder size; actual size is determined by viewBox
-                    img.setAttribute('width', '24');
-                    img.setAttribute('height', '24');
-
-                    // Wait for the href to be loaded and ready to draw
                     img.onload = () => {
-                        loadedImageElements[url] = img;
+                        loadedImageObjects[url] = img;
                         resolve(img);
+                        // We don't revoke the blob URL because the images need it.
                     };
-                    img.onerror = () => reject(new Error(`SVGImageElement failed to load for ${url}`));
-
-                    preloader.appendChild(img);
+                    img.onerror = () => reject(new Error(`Image object failed to load for ${url}`));
+                    img.src = blobUrl;
                 })
                 .catch(reject);
         });
@@ -69,9 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.addEventListener('resize', resizeCanvas);
 
         const allAssetUrls = [...assets.stars, ...assets.doodles];
-        const uniqueUrls = [...new Set(allAssetUrls)];
-
-        Promise.all(uniqueUrls.map(loadAndColorSVG))
+        Promise.all(allAssetUrls.map(loadAndColorSVG))
             .then(() => {
                 createParticles();
                 animate();
@@ -89,19 +77,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 type: 'star',
                 scale: 0.5 + Math.random() * 0.5,
                 opacity: 0.2 + Math.random() * 0.5,
-                imgElement: loadedImageElements[assets.stars[0]]
+                imgObject: loadedImageObjects[assets.stars[0]]
             });
         }
         // Create Doodles
         for (let i = 0; i < NUM_DOODLES; i++) {
             const doodleUrl = assets.doodles[Math.floor(Math.random() * assets.doodles.length)];
+            const imgObject = loadedImageObjects[doodleUrl];
+            
+            // New, intermediate size. The base SVG is 24px. This gives a range of ~29px to ~48px.
+            const scale = 1.2 + Math.random() * 0.8; 
+            const width = imgObject.width * scale;
+            const height = imgObject.height * scale;
+
+            // Create a dedicated off-screen canvas for this particle
+            const offscreenCanvas = document.createElement('canvas');
+            offscreenCanvas.width = width;
+            offscreenCanvas.height = height;
+            const offscreenCtx = offscreenCanvas.getContext('2d');
+
             particles.push({
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
                 type: 'doodle',
-                scale: 0.6 + Math.random() * 0.6, // New, smaller scale
                 opacity: 0.8,
-                imgElement: loadedImageElements[doodleUrl]
+                width: width,
+                height: height,
+                imgObject: imgObject,
+                offscreenCanvas: offscreenCanvas,
+                offscreenCtx: offscreenCtx
             });
         }
     }
@@ -110,15 +114,23 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         particles.forEach(p => {
-            if (p.imgElement) {
-                // The base size of our doodles is 24x24 (from their viewBox)
-                const w = 24 * p.scale;
-                const h = 24 * p.scale;
-                ctx.globalAlpha = p.opacity;
-                
-                // Draw the current frame of the animated <image> element from the hidden SVG
-                ctx.drawImage(p.imgElement, p.x - w / 2, p.y - h / 2, w, h);
+            let imageToDraw = p.imgObject;
+            let w = p.width;
+            let h = p.height;
+            
+            if (p.type === 'doodle') {
+                // Step 1: Render the animated SVG onto the particle's hidden canvas
+                p.offscreenCtx.clearRect(0, 0, p.width, p.height);
+                p.offscreenCtx.drawImage(p.imgObject, 0, 0, p.width, p.height);
+                // Step 2: Use the hidden canvas as the source for the main draw operation
+                imageToDraw = p.offscreenCanvas;
+            } else { // 'star'
+                w = p.imgObject.width * p.scale;
+                h = p.imgObject.height * p.scale;
             }
+            
+            ctx.globalAlpha = p.opacity;
+            ctx.drawImage(imageToDraw, p.x - w / 2, p.y - h / 2, w, h);
         });
 
         requestAnimationFrame(animate);
