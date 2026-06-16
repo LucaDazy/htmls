@@ -75,18 +75,15 @@
 /* Fade + slide for switching between category view and tool view */
 #category-view,
 #tool-view {
+    grid-area: view-content;
     transition: opacity 0.35s ease, transform 0.35s ease;
 }
 
 #category-view.hidden,
 #tool-view.hidden {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(20px);
     pointer-events: none;
-    
-    /* Take the hidden view out of the document flow */
-    position: absolute;
-    width: calc(100% - 4rem); /* Match parent container's padding */
 }
 
 /* ---------- Loading Animation ---------- */

@@ -76,6 +76,10 @@
         .app-btn { animation: none; } /* reset, will be overridden by animations.css */
         .link-list { display: flex; flex-direction: column; }
         
+        .views-wrapper {
+            display: grid;
+            grid-template-areas: "view-content";
+        }
         #tool-view { /* display: none; */ }
         .view-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--hover-bg); padding-bottom: 1rem;}
         .centered-header {
@@ -136,19 +140,21 @@
         <div id="loading">Initializing Hub Interface...</div>
         <div id="rate-limit-warning">GitHub API rate limit reached. Displaying tools with cached or approximate dates.</div>
         
-        <div id="category-view" class="">
-            <div class="view-header centered-header">
-                <h2 class="view-title">Hello (つ ͡ꈍ ͜ʖ̫ ͡ꈍ )</h2>
+        <div class="views-wrapper">
+            <div id="category-view" class="">
+                <div class="view-header centered-header">
+                    <h2 class="view-title">Hello (つ ͡ꈍ ͜ʖ̫ ͡ꈍ )</h2>
+                </div>
+                <div class="link-list" id="category-list"></div>
             </div>
-            <div class="link-list" id="category-list"></div>
-        </div>
 
-        <div id="tool-view" class="hidden">
-            <div class="view-header">
-                <h2 id="view-title" class="view-title">Category</h2>
-                <button class="back-btn" id="back-btn">← Back</button>
+            <div id="tool-view" class="hidden">
+                <div class="view-header">
+                    <h2 id="view-title" class="view-title">Category</h2>
+                    <button class="back-btn" id="back-btn">← Back</button>
+                </div>
+                <div class="link-list" id="tool-list"></div>
             </div>
-            <div class="link-list" id="tool-list"></div>
         </div>
 
         <div class="container-footer">
