@@ -9,7 +9,6 @@
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
-            font-family: var(--font-family-mono);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -27,7 +26,7 @@
             border: 2px solid var(--text-muted);
             color: var(--text-muted);
             padding: 0.8rem 1.5rem;
-            font-family: inherit;
+            font-family: var(--font-family-mono);
             font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
@@ -49,7 +48,7 @@
 
         .header-row { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 1.5rem; }
         .chapter-tag { background: rgba(226, 183, 20, 0.2); color: var(--accent); padding: 0.3rem 0.8rem; border-radius: 16px; font-size: 0.85rem; font-weight: bold; }
-        .refresh-btn { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 0.4rem 0.8rem; font-family: inherit; font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .refresh-btn { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 0.4rem 0.8rem; font-family: var(--font-family-mono); font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
         .refresh-btn:hover { background: var(--accent); color: var(--bg-color); }
 
         .scenario-box {
@@ -98,7 +97,7 @@
         .inline-select.correct { border-color: var(--success); color: var(--success); background-image: none; padding-right: 0.5rem; }
         .inline-select.wrong { border-color: var(--error); color: var(--error); }
 
-        .action-btn { background: transparent; border: 2px solid var(--accent); color: var(--accent); padding: 1rem 1.5rem; font-family: inherit; font-size: 1rem; cursor: pointer; border-radius: 4px; transition: 0.2s; width: 100%; margin-top: 2rem; font-weight: bold;}
+        .action-btn { background: transparent; border: 2px solid var(--accent); color: var(--accent); padding: 1rem 1.5rem; font-family: var(--font-family-mono); font-size: 1rem; cursor: pointer; border-radius: 4px; transition: 0.2s; width: 100%; margin-top: 2rem; font-weight: bold;}
         .action-btn:hover { background: var(--accent); color: var(--bg-color); }
 
         .feedback-box { margin-top: 1.5rem; padding: 1.2rem; border-radius: 4px; display: none; line-height: 1.6; font-size: 1rem; background: rgba(0,0,0,0.2); border-left: 4px solid var(--accent); width: 100%; box-sizing: border-box;}

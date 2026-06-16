@@ -9,7 +9,6 @@
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
-            font-family: var(--font-family-mono);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -27,7 +26,7 @@
             border: 2px solid var(--text-muted);
             color: var(--text-muted);
             padding: 0.8rem 1.5rem;
-            font-family: inherit;
+            font-family: var(--font-family-mono);
             font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
@@ -56,7 +55,7 @@
         .chapter-tag { background: rgba(226, 183, 20, 0.2); color: var(--accent); padding: 0.3rem 0.8rem; border-radius: 16px; font-size: 0.85rem; font-weight: bold; }
         .btn-group { display: flex; gap: 0.5rem; }
         
-        .hint-btn { background: transparent; border: 1px solid var(--text-muted); color: var(--text-main); padding: 0.4rem 0.8rem; font-family: inherit; font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .hint-btn { background: transparent; border: 1px solid var(--text-muted); color: var(--text-main); padding: 0.4rem 0.8rem; font-family: var(--font-family-mono); font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
         .hint-btn:hover { border-color: var(--accent); color: var(--accent); }
 
         .sim-svg-container { width: 100%; max-width: 450px; margin-bottom: 1.5rem; }
@@ -72,7 +71,7 @@
         .calc-input-group input:focus, .calc-input-group select:focus { border-color: var(--accent); }
 
         .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; width: 100%; }
-        .option-btn { background: transparent; border: 2px solid var(--text-main); color: var(--text-main); text-align: left; padding: 1.2rem; font-family: inherit; font-size: 1rem; cursor: pointer; border-radius: 4px; transition: all 0.2s; line-height: 1.4; }
+        .option-btn { background: transparent; border: 2px solid var(--text-main); color: var(--text-main); text-align: left; padding: 1.2rem; font-family: var(--font-family-mono); font-size: 1rem; cursor: pointer; border-radius: 4px; transition: all 0.2s; line-height: 1.4; }
         .option-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: var(--hover-bg); }
         .option-btn.correct { border-color: var(--success); color: var(--success); background: rgba(140, 200, 75, 0.1); }
         .option-btn.wrong { border-color: var(--error); color: var(--error); background: rgba(202, 71, 84, 0.1); }
@@ -81,7 +80,7 @@
 
         .feedback-box { margin-top: 1.5rem; padding: 1.2rem; border-radius: 4px; display: none; line-height: 1.6; font-size: 1rem; background: rgba(0,0,0,0.2); border-left: 4px solid var(--accent); width: 100%; box-sizing: border-box;}
         
-        .action-btn { background: transparent; border: 2px solid var(--accent); color: var(--accent); padding: 1rem 1.5rem; font-family: inherit; font-size: 1rem; cursor: pointer; border-radius: 4px; transition: 0.2s; width: 100%; margin-top: 1.5rem; font-weight: bold;}
+        .action-btn { background: transparent; border: 2px solid var(--accent); color: var(--accent); padding: 1rem 1.5rem; font-family: var(--font-family-mono); font-size: 1rem; cursor: pointer; border-radius: 4px; transition: 0.2s; width: 100%; margin-top: 1.5rem; font-weight: bold;}
         .action-btn:hover { background: var(--accent); color: var(--bg-color); }
         
         .progress-text { margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted); text-align: center; width: 100%; }
