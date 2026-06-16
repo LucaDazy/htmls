@@ -252,60 +252,6 @@
                 }
             });
 
-            function animateSVGs() {
-                const logoImg = document.querySelector('.container-header .logo');
-                const avatarImg = document.querySelector('.container-footer .avatar');
-
-                if (!logoImg || !avatarImg) {
-                    console.error("Animation failed: Could not find logo or avatar image element.");
-                    return;
-                }
-
-                const logoFrames = [ 'Global/SVGs/logo.svg', 'Global/SVGs/logo-alt1.svg', 'Global/SVGs/logo-alt2.svg' ];
-                const avatarFrames = [ 'Global/SVGs/avatar.svg', 'Global/SVGs/avatar-alt1.svg', 'Global/SVGs/avatar-alt2.svg' ];
-                let logoIndex = 0;
-                let avatarIndex = 0;
-
-                // Preload images into Image objects so they are cached by the browser
-                const preloadedLogos = logoFrames.map(src => {
-                    const img = new Image();
-                    img.src = src;
-                    return img;
-                });
-                const preloadedAvatars = avatarFrames.map(src => {
-                    const img = new Image();
-                    img.src = src;
-                    return img;
-                });
-
-                // Use requestAnimationFrame for smoother animation
-                let lastTime = 0;
-                const frameInterval = 120; // ms between frames
-
-                function animate(timestamp) {
-                    // Pause animation when the page is hidden (e.g., background tab)
-                    if (document.hidden) {
-                        requestAnimationFrame(animate);
-                        return;
-                    }
-
-                    if (timestamp - lastTime >= frameInterval) {
-                        lastTime = timestamp;
-                        logoIndex = (logoIndex + 1) % logoFrames.length;
-                        avatarIndex = (avatarIndex + 1) % avatarFrames.length;
-
-                        // Use the preloaded Image object's src (original URL without cache-busting)
-                        // The browser will use its in-memory cache, and the service worker cache
-                        // will match the original URL, ensuring offline support.
-                        logoImg.src = preloadedLogos[logoIndex].src;
-                        avatarImg.src = preloadedAvatars[avatarIndex].src;
-                    }
-                    requestAnimationFrame(animate);
-                }
-                requestAnimationFrame(animate);
-            }
-
-            animateSVGs();
 
             backBtn.addEventListener('click', showCategoryView);
             buildHub();

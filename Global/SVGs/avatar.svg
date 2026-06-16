@@ -2,8 +2,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 530">
     <defs>
         <filter id="jittery-edges" x="-5%" y="-5%" width="110%" height="110%">
-            <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="3" result="noise" seed="0" />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G" />
+            <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="3" result="noise">
+                <animate attributeName="seed" values="0;10;20;5;15;25" dur="0.8s" repeatCount="indefinite" calcMode="discrete" />
+            </feTurbulence>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="8.0" xChannelSelector="R" yChannelSelector="G" />
         </filter>
     </defs>
 
