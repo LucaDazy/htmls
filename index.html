@@ -202,6 +202,7 @@
 
         let hubData = [];
         let dateCache = {};
+        let renderTimeout = null;
 
         function sanitizeForId(path) {
             return `date-${path.replace(/[^a-zA-Z0-9]/g, '-')}`;
@@ -302,10 +303,14 @@
             categoryView.classList.add('hidden');
             toolView.classList.remove('hidden');
             
+            // Cancel any pending render from a previous navigation
+            if (renderTimeout) clearTimeout(renderTimeout);
+            
             // Delay rendering slightly. This gives the view time to start its
             // transition, ensuring the list item animations are visible.
-            setTimeout(() => {
+            renderTimeout = setTimeout(() => {
                 renderList(category.tools, toolList, false);
+                renderTimeout = null;
             }, 50); // A small 50ms delay is enough.
         }
 
@@ -313,6 +318,11 @@
             mainContainer.scrollIntoView({ behavior: 'smooth' });
             toolView.classList.add('hidden');
             categoryView.classList.remove('hidden');
+            // Cancel any pending tool render
+            if (renderTimeout) {
+                clearTimeout(renderTimeout);
+                renderTimeout = null;
+            }
         }
 
         async function buildHub() {
@@ -370,6 +380,12 @@
             const frameInterval = 120; // ms between frames
 
             function animate(timestamp) {
+                // Pause animation when the page is hidden (e.g., background tab)
+                if (document.hidden) {
+                    requestAnimationFrame(animate);
+                    return;
+                }
+
                 if (timestamp - lastTime >= frameInterval) {
                     lastTime = timestamp;
                     logoIndex = (logoIndex + 1) % logoFrames.length;
