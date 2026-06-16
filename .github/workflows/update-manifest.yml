@@ -6,6 +6,8 @@ on:
       - main
 
 jobs:
+  permissions:
+    contents: write
   build-manifest:
     runs-on: ubuntu-latest
     steps:
