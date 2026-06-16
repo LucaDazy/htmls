@@ -12,453 +12,337 @@
     <link rel="icon" href="Global/SVGs/avatar.svg" type="image/svg+xml">
     <link rel="stylesheet" href="Global/Css/main.css">
     <link rel="stylesheet" href="Global/Css/animations.css">
-    <style>
-        body {
-            font-family: var(--font-family-main); /* USE ATKINSON FOR MAIN TEXT */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 2rem;
-            margin: 0;
-            min-height: 100vh;
-        }
-
-        .container-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .container-header .logo {
-            max-width: 896px; /* 1.6x bigger */
-            height: auto;
-        }
-
-        .container-footer {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem; /* Precise spacing */
-            margin-top: 2rem; /* Moved up */
-            padding: 2rem;
-            background: var(--hover-bg); /* Use a distinct purple from the palette */
-            border-radius: 0 0 8px 8px;
-            /* Negative margins to absorb parent padding */
-            margin-left: -2rem;
-            margin-right: -2rem;
-            margin-bottom: -2rem;
-        }
-
-        .container-footer .avatar {
-            max-width: 240px; /* Bigger avatar */
-            height: auto;
-            margin-bottom: 0;
-        }
-
-        .contact-info {
-            color: var(--text-muted);
-            font-size: 1rem; /* Larger text */
-            margin-top: 0;
-            margin-bottom: 0;
-        }
-
-        .contact-info a {
-            color: var(--text-main);
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .contact-info a:hover {
-            color: var(--accent);
-        }
-
-        .container { width: 100%; max-width: 700px; background: var(--panel-bg); padding: 2rem; border-radius: 8px; box-sizing: border-box; position: relative; }
-        /* Ensure animations don't break layout on older browsers */
-        .app-btn { animation: none; } /* reset, will be overridden by animations.css */
-        .link-list { display: flex; flex-direction: column; }
-        
-        .views-wrapper {
-            display: grid;
-            grid-template-areas: "view-content";
-        }
-        #tool-view { /* display: none; */ }
-        .view-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--hover-bg); padding-bottom: 1rem;}
-        .centered-header {
-            justify-content: center;
-        }
-        .view-title { color: var(--minimal-white); font-family: var(--font-family-main); font-size: 1.5rem; margin: 0; }
-        .back-btn { background: transparent; border: 2px solid var(--text-muted); color: var(--text-muted); padding: 0.4rem 0.8rem; font-family: var(--font-family-mono); font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
-        .back-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-        .group-container { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 2.5rem; }
-        .group-container:last-child { margin-bottom: 0; }
-
-        .app-btn {
-            background: transparent; border: 2px solid var(--text-muted); color: var(--text-main);
-            padding: 1.2rem 1.5rem; font-family: var(--font-family-mono); cursor: pointer; border-radius: 4px;
-            transition: all 0.2s; text-decoration: none; display: flex; justify-content: space-between; align-items: center;
-        }
-        .app-btn:hover {
-            border-color: var(--accent);
-            background: var(--hover-bg);
-            padding-left: 1.75rem; /* 1.5rem base + 0.25rem shift */
-            padding-right: 1.25rem; /* 1.5rem base - 0.25rem shift */
-        }
-        .app-title { font-size: 1.1rem; font-weight: bold; color: var(--text-main); transition: color 0.2s; }
-        .app-btn:hover .app-title { color: var(--accent); }
-        .app-date { font-size: 0.85rem; color: var(--text-muted); }
-
-        #loading { text-align: center; color: var(--accent); font-size: 1.1rem; margin-bottom: 1rem; }
-        #rate-limit-warning { color: var(--error); font-size: 0.9rem; text-align: center; margin-bottom: 1.5rem; display: none; }
-    
-        #debug-console {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 200px;
-            background: rgba(0,0,0,0.85);
-            border-top: 2px solid var(--text-muted);
-            color: var(--text-main);
-            font-family: var(--font-family-mono);
-            font-size: 0.85rem;
-            padding: 0.5rem;
-            overflow-y: auto;
-            z-index: 9999;
-            display: none; /* Hide by default */
-        }
-        .log-msg { white-space: pre-wrap; margin-bottom: 0.3rem; border-bottom: 1px solid #444; padding-bottom: 0.3rem; }
-        .log-msg.error { color: var(--error); }
-        .log-msg.warn { color: var(--accent); }
-    </style>
 </head>
 <body>
     <canvas id="background-canvas"></canvas>
 
-    <div class="container-header">
-        <img src="Global/SVGs/logo.svg" alt="Study Hub Logo" class="logo">
-    </div>
-
-    <div class="container">
-        <div id="loading">Initializing Hub Interface...</div>
-        <div id="rate-limit-warning">GitHub API rate limit reached. Displaying tools with cached or approximate dates.</div>
-        
-        <div class="views-wrapper">
-            <div id="category-view" class="">
-                <div class="view-header centered-header">
-                    <h2 class="view-title">Hello (つ ͡ꈍ ͜ʖ̫ ͡ꈍ )</h2>
-                </div>
-                <div class="link-list" id="category-list"></div>
-            </div>
-
-            <div id="tool-view" class="hidden">
-                <div class="view-header">
-                    <h2 id="view-title" class="view-title">Category</h2>
-                    <button class="back-btn" id="back-btn">← Back</button>
-                </div>
-                <div class="link-list" id="tool-list"></div>
-            </div>
+    <div class="content-wrapper">
+        <div class="container-header">
+            <img src="Global/SVGs/logo.svg" alt="Study Hub Logo" class="logo">
         </div>
 
-        <div class="container-footer">
-            <img src="Global/SVGs/avatar.svg" alt="Avatar" class="avatar">
-            <p class="contact-info">Contact: <a href="mailto:alex.erden@gmail.com">alex.erden@gmail.com</a></p>
-        </div>
-    </div>
-
-    <div id="debug-console"></div>
-
-    <script>
-        const debugConsole = document.getElementById('debug-console');
-        if (debugConsole) {
-            const createLog = (type) => (...args) => {
-                const msg = document.createElement('div');
-                msg.className = `log-msg ${type}`;
-                msg.textContent = args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : a).join(' ');
-                debugConsole.prepend(msg);
-            };
-            const originalError = console.error;
-            console.log = createLog('log');
-            console.warn = createLog('warn');
-            console.error = (...args) => {
-                originalError.apply(console, args);
-                createLog('error')(...args);
-            };
-            window.addEventListener('error', (event) => console.error('Uncaught Exception:', event.error));
-            window.addEventListener('unhandledrejection', (event) => console.error('Unhandled Promise Rejection:', event.reason));
-            console.log('Debug console initialized.');
-        }
-
-        const repoApiUrl = 'https://api.github.com/repos/LucaDazy/htmls/';
-        const manifestUrl = 'Global/tool-manifest.json';
-        const cacheKey = 'study_hub_dates_v3';
-
-        const loadingEl = document.getElementById('loading');
-        const warningEl = document.getElementById('rate-limit-warning');
-        const categoryView = document.getElementById('category-view');
-        const toolView = document.getElementById('tool-view');
-        const categoryList = document.getElementById('category-list');
-        const toolList = document.getElementById('tool-list');
-        const backBtn = document.getElementById('back-btn');
-        const viewTitle = document.getElementById('view-title');
-        const mainContainer = document.querySelector('.container');
-        const viewsWrapper = document.querySelector('.views-wrapper');
-
-        let hubData = [];
-        let dateCache = {};
-        let renderTimeout = null;
-
-        function sanitizeForId(path) {
-            return `date-${path.replace(/[^a-zA-Z0-9]/g, '-')}`;
-        }
-
-        async function fetchJSON(url) {
-            const res = await fetch(`${url}?cb=${new Date().getTime()}`, { cache: 'no-store' });
-            if (!res.ok) throw new Error(`Network error for ${url}, status: ${res.status}`);
-            return res.json();
-        }
-
-        function renderList(items, container, isCategory) {
-            container.innerHTML = '';
+        <div class="container">
+            <div id="loading">Initializing Hub Interface...</div>
+            <div id="rate-limit-warning">GitHub API rate limit reached. Displaying tools with cached or approximate dates.</div>
             
-            const groups = items.reduce((acc, item) => {
-                const key = item.sort1; // Both categories and tools are grouped by their first sort number
-                if (!acc[key]) acc[key] = [];
-                acc[key].push(item);
-                return acc;
-            }, {});
+            <div class="views-wrapper">
+                <div id="category-view" class="">
+                    <div class="view-header centered-header">
+                        <h2 class="view-title">Hello (つ ͡ꈍ ͜ʖ̫ ͡ꈍ )</h2>
+                    </div>
+                    <div class="link-list" id="category-list"></div>
+                </div>
 
-            const sortedGroupKeys = Object.keys(groups).sort((a, b) => b - a);
+                <div id="tool-view" class="hidden">
+                    <div class="view-header">
+                        <h2 id="view-title" class="view-title">Category</h2>
+                        <button class="back-btn" id="back-btn">← Back</button>
+                    </div>
+                    <div class="link-list" id="tool-list"></div>
+                </div>
+            </div>
 
-            for (const key of sortedGroupKeys) {
-                const groupContainer = document.createElement('div');
-                groupContainer.className = 'group-container';
-                
-                const sortedItems = groups[key].sort((a, b) => b.sort2 - a.sort2);
+            <div class="container-footer">
+                <img src="Global/SVGs/avatar.svg" alt="Avatar" class="avatar">
+                <p class="contact-info">Contact: <a href="mailto:alex.erden@gmail.com">alex.erden@gmail.com</a></p>
+            </div>
+        </div>
 
-                for (const item of sortedItems) {
-                    const a = document.createElement('a');
-                    a.className = 'app-btn';
-                    
-                    let titleHTML = `<span class="app-title">${item.name || item.categoryName}</span>`;
-                    
-                    if (isCategory) {
-                        a.onclick = () => showToolView(item.categoryName);
-                        a.style.cursor = 'pointer';
-                    } else {
-                        a.href = item.path;
-                        a.target = '_blank';
-                        const dateId = sanitizeForId(item.path);
-                        titleHTML += `<span class="app-date" id="${dateId}"></span>`;
-                    }
-                    a.innerHTML = titleHTML;
-                    groupContainer.appendChild(a);
-                }
-                container.appendChild(groupContainer);
+        <div id="debug-console"></div>
+
+        <script>
+            const debugConsole = document.getElementById('debug-console');
+            if (debugConsole) {
+                const createLog = (type) => (...args) => {
+                    const msg = document.createElement('div');
+                    msg.className = `log-msg ${type}`;
+                    msg.textContent = args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : a).join(' ');
+                    debugConsole.prepend(msg);
+                };
+                const originalError = console.error;
+                console.log = createLog('log');
+                console.warn = createLog('warn');
+                console.error = (...args) => {
+                    originalError.apply(console, args);
+                    createLog('error')(...args);
+                };
+                window.addEventListener('error', (event) => console.error('Uncaught Exception:', event.error));
+                window.addEventListener('unhandledrejection', (event) => console.error('Unhandled Promise Rejection:', event.reason));
+                console.log('Debug console initialized.');
             }
-        }
 
-        async function populateDates() {
-            console.log("Starting progressive date population...");
-            let rateLimitHit = false;
+            const repoApiUrl = 'https://api.github.com/repos/LucaDazy/htmls/';
+            const manifestUrl = 'Global/tool-manifest.json';
+            const cacheKey = 'study_hub_dates_v3';
 
-            for (const category of hubData) {
-                for (const tool of category.tools) {
-                    if (rateLimitHit) {
-                        const el = document.getElementById(sanitizeForId(tool.path));
-                        if (el) el.innerText = 'Date Unknown';
-                        continue;
-                    }
+            const loadingEl = document.getElementById('loading');
+            const warningEl = document.getElementById('rate-limit-warning');
+            const categoryView = document.getElementById('category-view');
+            const toolView = document.getElementById('tool-view');
+            const categoryList = document.getElementById('category-list');
+            const toolList = document.getElementById('tool-list');
+            const backBtn = document.getElementById('back-btn');
+            const viewTitle = document.getElementById('view-title');
+            const mainContainer = document.querySelector('.container');
+            const viewsWrapper = document.querySelector('.views-wrapper');
 
-                    const dateSpan = document.getElementById(sanitizeForId(tool.path));
-                    if (!dateSpan) continue;
+            let hubData = [];
+            let dateCache = {};
+            let renderTimeout = null;
 
-                    if (dateCache[tool.path]) {
-                        dateSpan.innerText = new Date(dateCache[tool.path]).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-                        continue;
-                    }
+            function sanitizeForId(path) {
+                return `date-${path.replace(/[^a-zA-Z0-9]/g, '-')}`;
+            }
 
-                    try {
-                        const commits = await fetchJSON(`${repoApiUrl}commits?path=${tool.path}&per_page=100`);
-                        let creationDate = new Date();
-                        if (commits && commits.length > 0) {
-                            creationDate = new Date(commits[commits.length - 1].commit.author.date);
+            async function fetchJSON(url) {
+                const res = await fetch(`${url}?cb=${new Date().getTime()}`, { cache: 'no-store' });
+                if (!res.ok) throw new Error(`Network error for ${url}, status: ${res.status}`);
+                return res.json();
+            }
+
+            function renderList(items, container, isCategory) {
+                container.innerHTML = '';
+                
+                const groups = items.reduce((acc, item) => {
+                    const key = item.sort1; // Both categories and tools are grouped by their first sort number
+                    if (!acc[key]) acc[key] = [];
+                    acc[key].push(item);
+                    return acc;
+                }, {});
+
+                const sortedGroupKeys = Object.keys(groups).sort((a, b) => b - a);
+
+                for (const key of sortedGroupKeys) {
+                    const groupContainer = document.createElement('div');
+                    groupContainer.className = 'group-container';
+                    
+                    const sortedItems = groups[key].sort((a, b) => b.sort2 - a.sort2);
+
+                    for (const item of sortedItems) {
+                        const a = document.createElement('a');
+                        a.className = 'app-btn';
+                        
+                        let titleHTML = `<span class="app-title">${item.name || item.categoryName}</span>`;
+                        
+                        if (isCategory) {
+                            a.onclick = () => showToolView(item.categoryName);
+                            a.style.cursor = 'pointer';
+                        } else {
+                            a.href = item.path;
+                            a.target = '_blank';
+                            const dateId = sanitizeForId(item.path);
+                            titleHTML += `<span class="app-date" id="${dateId}"></span>`;
                         }
-                        dateCache[tool.path] = creationDate.toISOString();
-                        dateSpan.innerText = creationDate.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-                    } catch (e) {
-                        rateLimitHit = true;
-                        warningEl.style.display = 'block';
-                        dateSpan.innerText = 'Date Unknown';
-                        console.warn(`Rate limit likely hit. Halting further date requests. Error on: ${tool.path}`);
+                        a.innerHTML = titleHTML;
+                        groupContainer.appendChild(a);
                     }
+                    container.appendChild(groupContainer);
                 }
             }
-            localStorage.setItem(cacheKey, JSON.stringify(dateCache));
-            console.log("Date population complete.");
-        }
 
-        function showToolView(categoryName) {
-            // Lock wrapper height to its current size to prevent page jump
-            viewsWrapper.style.minHeight = `${viewsWrapper.offsetHeight}px`;
+            async function populateDates() {
+                console.log("Starting progressive date population...");
+                let rateLimitHit = false;
 
-            const category = hubData.find(c => c.categoryName === categoryName);
-            if (!category) return;
-            viewTitle.innerText = category.categoryName;
+                for (const category of hubData) {
+                    for (const tool of category.tools) {
+                        if (rateLimitHit) {
+                            const el = document.getElementById(sanitizeForId(tool.path));
+                            if (el) el.innerText = 'Date Unknown';
+                            continue;
+                        }
 
-            categoryView.classList.add('hidden');
-            toolView.classList.remove('hidden');
+                        const dateSpan = document.getElementById(sanitizeForId(tool.path));
+                        if (!dateSpan) continue;
 
-            if (renderTimeout) clearTimeout(renderTimeout);
+                        if (dateCache[tool.path]) {
+                            dateSpan.innerText = new Date(dateCache[tool.path]).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+                            continue;
+                        }
 
-            renderTimeout = setTimeout(() => {
-                renderList(category.tools, toolList, false);
-                renderTimeout = null;
-            }, 50);
-
-            // After transition, release the fixed height
-            setTimeout(() => {
-                viewsWrapper.style.minHeight = '';
-            }, 350); // Must match the CSS transition duration
-        }
-
-        function showCategoryView() {
-            // Lock wrapper height to its current size to prevent page jump
-            viewsWrapper.style.minHeight = `${viewsWrapper.offsetHeight}px`;
-
-            toolView.classList.add('hidden');
-            categoryView.classList.remove('hidden');
-
-            if (renderTimeout) {
-                clearTimeout(renderTimeout);
-                renderTimeout = null;
+                        try {
+                            const commits = await fetchJSON(`${repoApiUrl}commits?path=${tool.path}&per_page=100`);
+                            let creationDate = new Date();
+                            if (commits && commits.length > 0) {
+                                creationDate = new Date(commits[commits.length - 1].commit.author.date);
+                            }
+                            dateCache[tool.path] = creationDate.toISOString();
+                            dateSpan.innerText = creationDate.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+                        } catch (e) {
+                            rateLimitHit = true;
+                            warningEl.style.display = 'block';
+                            dateSpan.innerText = 'Date Unknown';
+                            console.warn(`Rate limit likely hit. Halting further date requests. Error on: ${tool.path}`);
+                        }
+                    }
+                }
+                localStorage.setItem(cacheKey, JSON.stringify(dateCache));
+                console.log("Date population complete.");
             }
 
-            // After transition, release the fixed height
-            setTimeout(() => {
-                viewsWrapper.style.minHeight = '';
-            }, 350); // Must match the CSS transition duration
-        }
+            function showToolView(categoryName) {
+                // Lock wrapper height to its current size to prevent page jump
+                viewsWrapper.style.minHeight = `${viewsWrapper.offsetHeight}px`;
 
-        async function buildHub() {
-            try {
-                loadingEl.innerText = "Loading tool manifest...";
-                hubData = await fetchJSON(manifestUrl);
-                dateCache = JSON.parse(localStorage.getItem(cacheKey)) || {};
+                const category = hubData.find(c => c.categoryName === categoryName);
+                if (!category) return;
+                viewTitle.innerText = category.categoryName;
 
-                loadingEl.style.display = 'none';
-                renderList(hubData, categoryList, true);
-                // The view is already visible by default.
-                // We just need to remove the 'hidden' class from category-view
-                // in case the user navigates back and forth quickly on load.
-                showCategoryView();
-                
-                // Asynchronously populate dates without blocking UI
-                setTimeout(populateDates, 50);
+                categoryView.classList.add('hidden');
+                toolView.classList.remove('hidden');
 
-            } catch (error) {
-                loadingEl.innerHTML = `<span style="color: var(--error);">Failed to load 'Global/tool-manifest.json'. The hub cannot be built.</span>`;
-                console.error("FATAL ERROR in buildHub:", error);
-            }
-        }
+                if (renderTimeout) clearTimeout(renderTimeout);
 
-        window.addEventListener('keydown', (e) => {
-            if (e.key === '`') {
-                const consoleEl = document.getElementById('debug-console');
-                const isVisible = consoleEl.style.display === 'block';
-                consoleEl.style.display = isVisible ? 'none' : 'block';
-            }
-        });
+                renderTimeout = setTimeout(() => {
+                    renderList(category.tools, toolList, false);
+                    renderTimeout = null;
+                }, 50);
 
-        function animateSVGs() {
-            const logoImg = document.querySelector('.container-header .logo');
-            const avatarImg = document.querySelector('.container-footer .avatar');
-
-            if (!logoImg || !avatarImg) {
-                console.error("Animation failed: Could not find logo or avatar image element.");
-                return;
+                // After transition, release the fixed height
+                setTimeout(() => {
+                    viewsWrapper.style.minHeight = '';
+                }, 350); // Must match the CSS transition duration
             }
 
-            const logoFrames = [ 'Global/SVGs/logo.svg', 'Global/SVGs/logo-alt1.svg', 'Global/SVGs/logo-alt2.svg' ];
-            const avatarFrames = [ 'Global/SVGs/avatar.svg', 'Global/SVGs/avatar-alt1.svg', 'Global/SVGs/avatar-alt2.svg' ];
-            let logoIndex = 0;
-            let avatarIndex = 0;
+            function showCategoryView() {
+                // Lock wrapper height to its current size to prevent page jump
+                viewsWrapper.style.minHeight = `${viewsWrapper.offsetHeight}px`;
 
-            // Preload images into Image objects so they are cached by the browser
-            const preloadedLogos = logoFrames.map(src => {
-                const img = new Image();
-                img.src = src;
-                return img;
+                toolView.classList.add('hidden');
+                categoryView.classList.remove('hidden');
+
+                if (renderTimeout) {
+                    clearTimeout(renderTimeout);
+                    renderTimeout = null;
+                }
+
+                // After transition, release the fixed height
+                setTimeout(() => {
+                    viewsWrapper.style.minHeight = '';
+                }, 350); // Must match the CSS transition duration
+            }
+
+            async function buildHub() {
+                try {
+                    loadingEl.innerText = "Loading tool manifest...";
+                    hubData = await fetchJSON(manifestUrl);
+                    dateCache = JSON.parse(localStorage.getItem(cacheKey)) || {};
+
+                    loadingEl.style.display = 'none';
+                    renderList(hubData, categoryList, true);
+                    // The view is already visible by default.
+                    // We just need to remove the 'hidden' class from category-view
+                    // in case the user navigates back and forth quickly on load.
+                    showCategoryView();
+                    
+                    // Asynchronously populate dates without blocking UI
+                    setTimeout(populateDates, 50);
+
+                } catch (error) {
+                    loadingEl.innerHTML = `<span style="color: var(--error);">Failed to load 'Global/tool-manifest.json'. The hub cannot be built.</span>`;
+                    console.error("FATAL ERROR in buildHub:", error);
+                }
+            }
+
+            window.addEventListener('keydown', (e) => {
+                if (e.key === '`') {
+                    const consoleEl = document.getElementById('debug-console');
+                    const isVisible = consoleEl.style.display === 'block';
+                    consoleEl.style.display = isVisible ? 'none' : 'block';
+                }
             });
-            const preloadedAvatars = avatarFrames.map(src => {
-                const img = new Image();
-                img.src = src;
-                return img;
-            });
 
-            // Use requestAnimationFrame for smoother animation
-            let lastTime = 0;
-            const frameInterval = 120; // ms between frames
+            function animateSVGs() {
+                const logoImg = document.querySelector('.container-header .logo');
+                const avatarImg = document.querySelector('.container-footer .avatar');
 
-            function animate(timestamp) {
-                // Pause animation when the page is hidden (e.g., background tab)
-                if (document.hidden) {
-                    requestAnimationFrame(animate);
+                if (!logoImg || !avatarImg) {
+                    console.error("Animation failed: Could not find logo or avatar image element.");
                     return;
                 }
 
-                if (timestamp - lastTime >= frameInterval) {
-                    lastTime = timestamp;
-                    logoIndex = (logoIndex + 1) % logoFrames.length;
-                    avatarIndex = (avatarIndex + 1) % avatarFrames.length;
+                const logoFrames = [ 'Global/SVGs/logo.svg', 'Global/SVGs/logo-alt1.svg', 'Global/SVGs/logo-alt2.svg' ];
+                const avatarFrames = [ 'Global/SVGs/avatar.svg', 'Global/SVGs/avatar-alt1.svg', 'Global/SVGs/avatar-alt2.svg' ];
+                let logoIndex = 0;
+                let avatarIndex = 0;
 
-                    // Use the preloaded Image object's src (original URL without cache-busting)
-                    // The browser will use its in-memory cache, and the service worker cache
-                    // will match the original URL, ensuring offline support.
-                    logoImg.src = preloadedLogos[logoIndex].src;
-                    avatarImg.src = preloadedAvatars[avatarIndex].src;
+                // Preload images into Image objects so they are cached by the browser
+                const preloadedLogos = logoFrames.map(src => {
+                    const img = new Image();
+                    img.src = src;
+                    return img;
+                });
+                const preloadedAvatars = avatarFrames.map(src => {
+                    const img = new Image();
+                    img.src = src;
+                    return img;
+                });
+
+                // Use requestAnimationFrame for smoother animation
+                let lastTime = 0;
+                const frameInterval = 120; // ms between frames
+
+                function animate(timestamp) {
+                    // Pause animation when the page is hidden (e.g., background tab)
+                    if (document.hidden) {
+                        requestAnimationFrame(animate);
+                        return;
+                    }
+
+                    if (timestamp - lastTime >= frameInterval) {
+                        lastTime = timestamp;
+                        logoIndex = (logoIndex + 1) % logoFrames.length;
+                        avatarIndex = (avatarIndex + 1) % avatarFrames.length;
+
+                        // Use the preloaded Image object's src (original URL without cache-busting)
+                        // The browser will use its in-memory cache, and the service worker cache
+                        // will match the original URL, ensuring offline support.
+                        logoImg.src = preloadedLogos[logoIndex].src;
+                        avatarImg.src = preloadedAvatars[avatarIndex].src;
+                    }
+                    requestAnimationFrame(animate);
                 }
                 requestAnimationFrame(animate);
             }
-            requestAnimationFrame(animate);
-        }
 
-        animateSVGs();
+            animateSVGs();
 
-        backBtn.addEventListener('click', showCategoryView);
-        buildHub();
-    </script>
+            backBtn.addEventListener('click', showCategoryView);
+            buildHub();
+        </script>
 
-    <script src="Global/Scripts/background-animation.js" defer></script>
+        <script src="Global/Scripts/background-animation.js" defer></script>
 
-    <script>
-      // Register the service worker to enable offline access and asset caching with enhanced logging
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('service-worker.js')
-            .then(registration => {
-              console.log('[SW Registration] ServiceWorker registration successful with scope: ', registration.scope);
+        <script>
+          // Register the service worker to enable offline access and asset caching with enhanced logging
+          if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+              navigator.serviceWorker.register('service-worker.js')
+                .then(registration => {
+                  console.log('[SW Registration] ServiceWorker registration successful with scope: ', registration.scope);
 
-              // This logic helps debug service worker updates.
-              registration.addEventListener('updatefound', () => {
-                const newWorker = registration.installing;
-                console.log('[SW Registration] New service worker found. State:', newWorker.state);
-                newWorker.addEventListener('statechange', () => {
-                  console.log('[SW Registration] Service worker state changed:', newWorker.state);
+                  // This logic helps debug service worker updates.
+                  registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    console.log('[SW Registration] New service worker found. State:', newWorker.state);
+                    newWorker.addEventListener('statechange', () => {
+                      console.log('[SW Registration] Service worker state changed:', newWorker.state);
+                    });
+                  });
+                })
+                .catch(error => {
+                  console.error('[SW Registration] ServiceWorker registration failed: ', error);
                 });
-              });
-            })
-            .catch(error => {
-              console.error('[SW Registration] ServiceWorker registration failed: ', error);
             });
-        });
-        
-        // Log if a service worker is already controlling the page on load.
-        if (navigator.serviceWorker.controller) {
-            console.log('[SW Registration] This page is currently controlled by:', navigator.serviceWorker.controller);
-        }
-      } else {
-        console.warn('[SW Registration] Service workers are not supported in this browser.');
-      }
-    </script>
+            
+            // Log if a service worker is already controlling the page on load.
+            if (navigator.serviceWorker.controller) {
+                console.log('[SW Registration] This page is currently controlled by:', navigator.serviceWorker.controller);
+            }
+          } else {
+            console.warn('[SW Registration] Service workers are not supported in this browser.');
+          }
+        </script>
+    </div>
 </body>
 </html>

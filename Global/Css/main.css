@@ -46,6 +46,17 @@ body {
     min-height: 100vh;
 }
 
+.content-wrapper {
+    font-family: var(--font-family-main); /* USE ATKINSON FOR MAIN TEXT */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    margin: 0;
+    min-height: 100vh;
+    width: 100%;
+}
+
 /* === Background Canvas === */
 #background-canvas {
     position: fixed;
@@ -53,7 +64,116 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: var(--bg-color);
-    z-index: -1; /* Places the canvas behind all other content */
-    pointer-events: none; /* Ensures the canvas doesn't intercept mouse clicks */
+    /* --- TEMPORARY DEBUGGING STYLES --- */
+    z-index: 1000; /* Bring it to the very front */
+    border: 10px solid limegreen; /* Add a bright, obvious border */
+    background-color: rgba(255, 0, 255, 0.2); /* Pink semi-transparent overlay */
+    /* pointer-events is intentionally not 'none' for this test */
 }
+
+.container-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.container-header .logo {
+    max-width: 896px; /* 1.6x bigger */
+    height: auto;
+}
+
+.container-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem; /* Precise spacing */
+    margin-top: 2rem; /* Moved up */
+    padding: 2rem;
+    background: var(--hover-bg); /* Use a distinct purple from the palette */
+    border-radius: 0 0 8px 8px;
+    /* Negative margins to absorb parent padding */
+    margin-left: -2rem;
+    margin-right: -2rem;
+    margin-bottom: -2rem;
+}
+
+.container-footer .avatar {
+    max-width: 240px; /* Bigger avatar */
+    height: auto;
+    margin-bottom: 0;
+}
+
+.contact-info {
+    color: var(--text-muted);
+    font-size: 1rem; /* Larger text */
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.contact-info a {
+    color: var(--text-main);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.contact-info a:hover {
+    color: var(--accent);
+}
+
+.container { width: 100%; max-width: 700px; background: var(--panel-bg); padding: 2rem; border-radius: 8px; box-sizing: border-box; position: relative; }
+/* Ensure animations don't break layout on older browsers */
+.app-btn { animation: none; } /* reset, will be overridden by animations.css */
+.link-list { display: flex; flex-direction: column; }
+
+.views-wrapper {
+    display: grid;
+    grid-template-areas: "view-content";
+}
+
+.view-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--hover-bg); padding-bottom: 1rem;}
+.centered-header {
+    justify-content: center;
+}
+.view-title { color: var(--minimal-white); font-family: var(--font-family-main); font-size: 1.5rem; margin: 0; }
+.back-btn { background: transparent; border: 2px solid var(--text-muted); color: var(--text-muted); padding: 0.4rem 0.8rem; font-family: var(--font-family-mono); font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+.back-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.group-container { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 2.5rem; }
+.group-container:last-child { margin-bottom: 0; }
+
+.app-btn {
+    background: transparent; border: 2px solid var(--text-muted); color: var(--text-main);
+    padding: 1.2rem 1.5rem; font-family: var(--font-family-mono); cursor: pointer; border-radius: 4px;
+    transition: all 0.2s; text-decoration: none; display: flex; justify-content: space-between; align-items: center;
+}
+.app-btn:hover {
+    border-color: var(--accent);
+    background: var(--hover-bg);
+    padding-left: 1.75rem; /* 1.5rem base + 0.25rem shift */
+    padding-right: 1.25rem; /* 1.5rem base - 0.25rem shift */
+}
+.app-title { font-size: 1.1rem; font-weight: bold; color: var(--text-main); transition: color 0.2s; }
+.app-btn:hover .app-title { color: var(--accent); }
+.app-date { font-size: 0.85rem; color: var(--text-muted); }
+
+#loading { text-align: center; color: var(--accent); font-size: 1.1rem; margin-bottom: 1rem; }
+#rate-limit-warning { color: var(--error); font-size: 0.9rem; text-align: center; margin-bottom: 1.5rem; display: none; }
+
+#debug-console {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    background: rgba(0,0,0,0.85);
+    border-top: 2px solid var(--text-muted);
+    color: var(--text-main);
+    font-family: var(--font-family-mono);
+    font-size: 0.85rem;
+    padding: 0.5rem;
+    overflow-y: auto;
+    z-index: 9999;
+    display: none; /* Hide by default */
+}
+.log-msg { white-space: pre-wrap; margin-bottom: 0.3rem; border-bottom: 1px solid #444; padding-bottom: 0.3rem; }
+.log-msg.error { color: var(--error); }
+.log-msg.warn { color: var(--accent); }
