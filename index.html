@@ -34,8 +34,8 @@
         .header .logo { max-width: 180px; height: auto; flex-shrink: 0; }
         .header .avatar { max-width: 60px; height: auto; flex-shrink: 0; }
 
-        h1 { color: var(--minimal-white); margin: 0; text-align: center; font-family: var(--font-family-main); font-size: 2.5rem; width: 100%;}
-        .subtitle { color: var(--text-muted); margin-bottom: 2rem; text-align: center; font-family: var(--font-family-main); width: 100%;}
+        h1 { color: var(--minimal-white); margin: 0; text-align: center; font-family: var(--font-family-main); font-size: 2.5rem;}
+        .subtitle { color: var(--text-muted); margin-bottom: 2rem; text-align: center; font-family: var(--font-family-main);}
 
         .container { width: 100%; max-width: 700px; background: var(--panel-bg); padding: 2rem; border-radius: 8px; box-sizing: border-box; }
         .link-list { display: flex; flex-direction: column; }
@@ -116,13 +116,7 @@
             const createLog = (type) => (...args) => {
                 const msg = document.createElement('div');
                 msg.className = `log-msg ${type}`;
-                msg.textContent = args.map(a => {
-                    try {
-                        return typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a);
-                    } catch (e) {
-                        return '[Unserializable Object]';
-                    }
-                }).join(' ');
+                msg.textContent = args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : a).join(' ');
                 debugConsole.prepend(msg);
             };
             const originalError = console.error;
@@ -132,15 +126,14 @@
                 originalError.apply(console, args);
                 createLog('error')(...args);
             };
-            window.addEventListener('error', (event) => console.error('Uncaught Exception:', event.error ? event.error.stack : event.message));
-            window.addEventListener('unhandledrejection', (event) => console.error('Unhandled Promise Rejection:', event.reason ? event.reason.stack : event.reason));
-            console.log('--- Debug console initialized (v2) ---');
+            window.addEventListener('error', (event) => console.error('Uncaught Exception:', event.error));
+            window.addEventListener('unhandledrejection', (event) => console.error('Unhandled Promise Rejection:', event.reason));
+            console.log('Debug console initialized.');
         }
 
-        const repoUrl = 'https://api.github.com/repos/LucaDazy/htmls/contents/';
         const repoApiUrl = 'https://api.github.com/repos/LucaDazy/htmls/';
-        const repoTreeUrl = 'https://api.github.com/repos/LucaDazy/htmls/git/trees/main?recursive=1';
-        const cacheKey = 'study_hub_dates_v2';
+        const manifestUrl = 'Global/tool-manifest.json';
+        const cacheKey = 'study_hub_dates_v3';
 
         const loadingEl = document.getElementById('loading');
         const warningEl = document.getElementById('rate-limit-warning');
@@ -154,62 +147,21 @@
         let hubData = [];
         let dateCache = {};
 
+        function sanitizeForId(path) {
+            return `date-${path.replace(/[^a-zA-Z0-9]/g, '-')}`;
+        }
+
         async function fetchJSON(url) {
-            console.log(`Fetching: ${url}`);
-            const res = await fetch(url, { cache: 'no-store' });
-            if (!res.ok) {
-                console.error(`Network/API error for ${url}. Status: ${res.status}`);
-                throw new Error(`Network/API error for ${url}`);
-            }
-            console.log(`Fetch successful for: ${url}`);
+            const res = await fetch(`${url}?cb=${new Date().getTime()}`, { cache: 'no-store' });
+            if (!res.ok) throw new Error(`Network error for ${url}, status: ${res.status}`);
             return res.json();
         }
 
-        function parseName(name) {
-            const parts = name.split('_');
-            if (parts.length < 3) return null;
-            const sort1 = parseInt(parts[parts.length - 2], 10);
-            const sort2 = parseInt(parts[parts.length - 1], 10);
-            const displayName = parts.slice(0, -2).join(' ');
-            return { displayName, sort1, sort2 };
-        }
-
-        async function getCreationDate(path, rateLimit) {
-            if (dateCache[path]) {
-                console.log(`Cache hit for date: ${path}`);
-                return { date: new Date(dateCache[path]), hit: rateLimit.hit };
-            }
-            if (rateLimit.hit) {
-                console.warn(`Rate limit active. Using fallback date for: ${path}`);
-                return { date: new Date(), hit: rateLimit.hit };
-            }
-
-            try {
-                console.log(`Fetching commit history for: ${path}`);
-                const commits = await fetchJSON(`${repoApiUrl}commits?path=${path}&per_page=100`);
-                let creationDate = new Date(); // Default to now
-                if (commits && commits.length > 0) {
-                    creationDate = new Date(commits[commits.length - 1].commit.author.date);
-                    console.log(`Date found for ${path}: ${creationDate.toISOString()}`);
-                } else {
-                    console.warn(`No commits found for ${path}, using current date.`);
-                }
-                dateCache[path] = creationDate.toISOString();
-                return { date: creationDate, hit: rateLimit.hit };
-            } catch (e) {
-                rateLimit.hit = true;
-                warningEl.style.display = 'block';
-                console.error(`Could not fetch date for ${path}, using fallback. Error:`, e);
-                return { date: new Date(), hit: rateLimit.hit };
-            }
-        }
-
         function renderList(items, container, isCategory) {
-            console.log(`Rendering list. Is category: ${isCategory}. Items count: ${items.length}`);
             container.innerHTML = '';
             
             const groups = items.reduce((acc, item) => {
-                const key = item.sort1;
+                const key = item.sort1; // Both categories and tools are grouped by their first sort number
                 if (!acc[key]) acc[key] = [];
                 acc[key].push(item);
                 return acc;
@@ -225,117 +177,96 @@
 
                 for (const item of sortedItems) {
                     const a = document.createElement('a');
-a.className = 'app-btn';
+                    a.className = 'app-btn';
                     
-                    let titleHTML = `<span class="app-title">${item.displayName}</span>`;
+                    let titleHTML = `<span class="app-title">${item.name || item.categoryName}</span>`;
                     
                     if (isCategory) {
-                        a.onclick = () => showToolView(item.displayName);
+                        a.onclick = () => showToolView(item.categoryName);
                         a.style.cursor = 'pointer';
                     } else {
                         a.href = item.path;
                         a.target = '_blank';
-                        const dateStr = item.date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-                        const dateClass = (item.rateLimitHit && !dateCache[item.path]) ? 'Date Unknown' : dateStr;
-                        titleHTML += `<span class="app-date">${dateClass}</span>`;
+                        const dateId = sanitizeForId(item.path);
+                        titleHTML += `<span class="app-date" id="${dateId}"></span>`;
                     }
                     a.innerHTML = titleHTML;
                     groupContainer.appendChild(a);
                 }
                 container.appendChild(groupContainer);
             }
-            console.log("Render complete.");
+        }
+
+        async function populateDates() {
+            console.log("Starting progressive date population...");
+            let rateLimitHit = false;
+
+            for (const category of hubData) {
+                for (const tool of category.tools) {
+                    if (rateLimitHit) {
+                        const el = document.getElementById(sanitizeForId(tool.path));
+                        if (el) el.innerText = 'Date Unknown';
+                        continue;
+                    }
+
+                    const dateSpan = document.getElementById(sanitizeForId(tool.path));
+                    if (!dateSpan) continue;
+
+                    if (dateCache[tool.path]) {
+                        dateSpan.innerText = new Date(dateCache[tool.path]).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+                        continue;
+                    }
+
+                    try {
+                        const commits = await fetchJSON(`${repoApiUrl}commits?path=${tool.path}&per_page=100`);
+                        let creationDate = new Date();
+                        if (commits && commits.length > 0) {
+                            creationDate = new Date(commits[commits.length - 1].commit.author.date);
+                        }
+                        dateCache[tool.path] = creationDate.toISOString();
+                        dateSpan.innerText = creationDate.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+                    } catch (e) {
+                        rateLimitHit = true;
+                        warningEl.style.display = 'block';
+                        dateSpan.innerText = 'Date Unknown';
+                        console.warn(`Rate limit likely hit. Halting further date requests. Error on: ${tool.path}`);
+                    }
+                }
+            }
+            localStorage.setItem(cacheKey, JSON.stringify(dateCache));
+            console.log("Date population complete.");
         }
 
         function showToolView(categoryName) {
-            console.log(`Switching to tool view for category: ${categoryName}`);
-            const category = hubData.find(c => c.displayName === categoryName);
-            if (!category) {
-                console.error(`Category '${categoryName}' not found in hubData.`);
-                return;
-            }
-            
-            viewTitle.innerText = category.displayName;
+            const category = hubData.find(c => c.categoryName === categoryName);
+            if (!category) return;
+            viewTitle.innerText = category.categoryName;
             renderList(category.tools, toolList, false);
-            
             categoryView.style.display = 'none';
             toolView.style.display = 'block';
         }
 
         function showCategoryView() {
-            console.log("Switching to category view.");
             toolView.style.display = 'none';
             categoryView.style.display = 'block';
         }
 
         async function buildHub() {
             try {
-                console.log("--- Starting hub build process ---");
+                loadingEl.innerText = "Loading tool manifest...";
+                hubData = await fetchJSON(manifestUrl);
                 dateCache = JSON.parse(localStorage.getItem(cacheKey)) || {};
-                console.log(`Loaded ${Object.keys(dateCache).length} items from localStorage cache.`);
-                let rateLimit = { hit: false };
-
-                console.log("Fetching recursive repo file tree...");
-                const treeData = await fetchJSON(repoTreeUrl);
-                const allFiles = treeData.tree;
-                if (!allFiles || !Array.isArray(allFiles)) throw new Error("GitHub API response did not contain a 'tree' array.");
-                console.log(`Received ${allFiles.length} total file entries from GitHub.`);
-
-                const htmlFiles = allFiles.filter(file => file.type === 'blob' && file.path.startsWith('Tools/') && file.path.endsWith('.html'));
-                console.log(`Filtered down to ${htmlFiles.length} HTML tool files.`);
-                
-                const categoryMap = new Map();
-
-                for (const file of htmlFiles) {
-                    console.log(`Processing file: ${file.path}`);
-                    const pathParts = file.path.split('/');
-                    if (pathParts.length < 4) {
-                        console.warn(`Skipping malformed path (not enough parts): ${file.path}`);
-                        continue;
-                    }
-
-                    const categoryDir = pathParts[1];
-                    const toolDir = pathParts[2];
-                    
-                    const catInfo = parseName(categoryDir);
-                    const toolInfo = parseName(toolDir);
-
-                    if (!catInfo || !toolInfo) {
-                        console.warn(`Could not parse category/tool info from path: ${file.path}`);
-                        continue;
-                    }
-                    
-                    if (!categoryMap.has(catInfo.displayName)) {
-                        console.log(`New category found: ${catInfo.displayName}`);
-                        categoryMap.set(catInfo.displayName, { ...catInfo, tools: [] });
-                    }
-
-                    const { date, hit } = await getCreationDate(file.path, rateLimit);
-                    rateLimit.hit = hit;
-
-                    categoryMap.get(catInfo.displayName).tools.push({
-                        ...toolInfo,
-                        displayName: toolInfo.displayName,
-                        path: file.path,
-                        date: date,
-                        rateLimitHit: rateLimit.hit
-                    });
-                }
-                
-                hubData = Array.from(categoryMap.values());
-                console.log("Final processed hub data:", JSON.parse(JSON.stringify(hubData)));
-                
-                localStorage.setItem(cacheKey, JSON.stringify(dateCache));
-                console.log("Saved updated date cache to localStorage.");
 
                 loadingEl.style.display = 'none';
                 renderList(hubData, categoryList, true);
                 showCategoryView();
-                console.log("--- Hub rendered successfully ---");
+                
+                // Asynchronously populate dates without blocking UI
+                setTimeout(populateDates, 50);
 
             } catch (error) {
-                loadingEl.innerHTML = `<span style="color: var(--error);">Failed to build hub. Check on-screen console for details.</span>`;
-                console.error("FATAL ERROR in buildHub:", error.stack);
+                loadingEl.innerHTML = `<span style="color: var(--error);">Failed to load 'Global/tool-manifest.json'. The hub cannot be built.</span>`;
+                console.error("FATAL ERROR in buildHub:", error);
             }
         }
 
@@ -346,21 +277,6 @@ a.className = 'app-btn';
                 consoleEl.style.display = isVisible ? 'none' : 'block';
             }
         });
-        
-        window.onload = () => {
-            console.log("--- window.onload event fired ---");
-            try {
-                const bodyStyles = window.getComputedStyle(document.body);
-                console.log(`Computed body display: ${bodyStyles.getPropertyValue('display')}`);
-                console.log(`Computed body align-items: ${bodyStyles.getPropertyValue('align-items')}`);
-
-                const headerStyles = window.getComputedStyle(document.querySelector('.header'));
-                console.log(`Computed header display: ${headerStyles.getPropertyValue('display')}`);
-                console.log(`Computed header justify-content: ${headerStyles.getPropertyValue('justify-content')}`);
-            } catch (e) {
-                console.error("Could not get computed styles.", e);
-            }
-        };
 
         backBtn.addEventListener('click', showCategoryView);
         buildHub();

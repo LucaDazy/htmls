@@ -6,6 +6,7 @@ The objective is to build a centralized, interactive, client-side Study Hub host
 **Architectural Philosophy:**  
 * **Optimized & Modular:** Prioritize best practices for code organization, efficiency, and performance. Employ a modular structure with shared global assets (CSS, JS) to ensure maintainability and reduce code duplication.  
 * **Creative & Performant Solutions:** Implement functionality using the most effective methods available in modern Vanilla JS, avoiding unnecessary dependencies. Seek creative solutions to optimize performance and minimize AI development token consumption.  
+* **Manifest-Driven Hub:** The main `index.html` page is built from a static `Global/tool-manifest.json` file. This file is **automatically generated** by a GitHub Action every time code is pushed to the `main` branch. This provides a fully automated hub that is also fast and reliable.
 * **Game-Dev Inspired Mechanics:** Utilizing interactive logic such as drag-and-drop snap-back penalties, procedural word-problem generation, scalable mathematical SVG drawing, and timed spaced-repetition algorithms.  
 * **Local Persistence:** User progress, settings, and spaced-repetition data are strictly saved to the browser's `localStorage` to ensure privacy and persistence without a backend database.
 
@@ -26,3 +27,7 @@ The visual theme is a strict, minimalist, dark-mode aesthetic heavily inspired b
     --success: #4db6ac;       /* Bioluminescent teal/green */
 }
 ```
+
+# 3. Asset Guidelines
+* **SVG Preference:** Use Scalable Vector Graphics (SVGs) for all icons, logos, and illustrative diagrams to ensure scalability and performance.
+* **Fallback SVG:** If a required SVG asset has not yet been created, use `Global/SVGs/wip.svg` as a placeholder to maintain layout integrity.
