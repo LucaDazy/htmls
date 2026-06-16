@@ -41,7 +41,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const img = new Image();
             // Create a version of the SVG with the correct color
             fetch(url)
-                .then(response => response.text())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Network request failed for ${url} - Status: ${response.status}`);
+                    }
+                    return response.text();
+                })
                 .then(svgText => {
                     const coloredSvg = svgText.replace(/currentColor/g, DOODLE_COLOR);
                     const blob = new Blob([coloredSvg], { type: 'image/svg+xml' });
@@ -51,10 +56,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         URL.revokeObjectURL(blobUrl);
                         resolve(img);
                     };
-                    img.onerror = reject;
+                    img.onerror = () => reject(new Error(`Image failed to load from blob created for: ${url}`));
                     img.src = blobUrl;
                 })
-                .catch(reject);
+                .catch(error => reject(error));
         });
     }
 
