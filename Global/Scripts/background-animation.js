@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctx = canvas.getContext('2d');
 
     // --- Configuration ---
-    const DOODLE_COLOR = '#332936'; // A slightly lighter version of --bg-color
+    const DOODLE_COLOR = '#403143'; // A subtle, but more visible, lighter version of --bg-color
     const NUM_STARS = 100;
     const NUM_DOODLES = 15;
     const DOODLE_BOIL_SPEED = 15; // Higher is slower
