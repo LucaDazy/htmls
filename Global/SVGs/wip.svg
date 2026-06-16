@@ -1,0 +1,57 @@
+<svg viewBox="0 0 350 150" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <filter id="crayon" x="-10%" y="-10%" width="120%" height="120%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="3" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.5" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+
+        <pattern id="scribble-dark" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+            <path d="M 0,2.5 L 5,2.5" stroke="#2b1247" stroke-width="1.5" opacity="0.6"/>
+        </pattern>
+
+        <pattern id="scribble-pink" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(50)">
+            <path d="M 0,2.5 L 5,2.5" stroke="#8c4774" stroke-width="1.5" opacity="0.6"/>
+        </pattern>
+    </defs>
+
+    <g filter="url(#crayon)">
+        
+        <g stroke="#a66897" stroke-width="5" stroke-linecap="round">
+            <line x1="12" y1="18" x2="28" y2="34"/>
+            <line x1="28" y1="18" x2="12" y2="34"/>
+        </g>
+
+        <circle cx="95" cy="22" r="6" fill="#a66897" />
+
+        <circle cx="205" cy="15" r="7.5" fill="#4a2574" />
+
+        <g stroke="#4a2574" stroke-width="4.5" stroke-linecap="round">
+            <line x1="230" y1="120" x2="242" y2="132"/>
+            <line x1="242" y1="120" x2="230" y2="132"/>
+        </g>
+
+        <circle cx="330" cy="115" r="6" fill="none" stroke="#a66897" stroke-width="4" />
+
+        <g transform="translate(0, 5)">
+            <path d="M 25 25 L 55 30 L 65 80 L 80 40 L 105 40 L 115 85 L 135 25 L 165 25 L 140 120 L 105 120 L 95 70 L 80 120 L 45 120 Z" 
+                  fill="#4a2574" opacity="0.9"/>
+            <path d="M 25 25 L 55 30 L 65 80 L 80 40 L 105 40 L 115 85 L 135 25 L 165 25 L 140 120 L 105 120 L 95 70 L 80 120 L 45 120 Z" 
+                  fill="url(#scribble-dark)"/>
+        </g>
+
+        <g transform="translate(0, 5)">
+            <path d="M 185 32 L 225 27 L 215 120 L 175 120 Z" 
+                  fill="#a66897" opacity="0.9"/>
+            <path d="M 185 32 L 225 27 L 215 120 L 175 120 Z" 
+                  fill="url(#scribble-pink)"/>
+        </g>
+
+        <g transform="translate(0, 5)">
+            <path d="M 245 25 L 295 20 C 335 15, 335 75, 295 75 L 275 75 L 270 120 L 235 120 Z M 275 40 L 295 38 C 310 38, 310 60, 295 60 L 270 60 Z" 
+                  fill-rule="evenodd" fill="#4a2574" opacity="0.9"/>
+            <path d="M 245 25 L 295 20 C 335 15, 335 75, 295 75 L 275 75 L 270 120 L 235 120 Z M 275 40 L 295 38 C 310 38, 310 60, 295 60 L 270 60 Z" 
+                  fill-rule="evenodd" fill="url(#scribble-dark)"/>
+        </g>
+
+    </g>
+</svg>
