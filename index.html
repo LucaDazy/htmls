@@ -13,6 +13,12 @@
     <style>
         body {
             font-family: var(--font-family-mono);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            margin: 0;
+            min-height: 100vh;
         }
 
         .header {
@@ -69,6 +75,7 @@
             padding: 0.5rem;
             overflow-y: auto;
             z-index: 9999;
+            display: none; /* Hide by default */
         }
         .log-msg { white-space: pre-wrap; margin-bottom: 0.3rem; border-bottom: 1px solid #444; padding-bottom: 0.3rem; }
         .log-msg.error { color: var(--error); }
@@ -125,6 +132,7 @@
 
         const repoUrl = 'https://api.github.com/repos/LucaDazy/htmls/contents/';
         const repoApiUrl = 'https://api.github.com/repos/LucaDazy/htmls/';
+        const repoTreeUrl = 'https://api.github.com/repos/LucaDazy/htmls/git/trees/main?recursive=1';
         const cacheKey = 'study_hub_dates_v2';
 
         const loadingEl = document.getElementById('loading');
@@ -140,8 +148,7 @@
         let dateCache = {};
 
         async function fetchJSON(url) {
-            const cacheBustedUrl = `${url}${url.includes('?') ? '&' : '?'}cb=${new Date().getTime()}`;
-            const res = await fetch(cacheBustedUrl, { cache: 'no-store' });
+            const res = await fetch(url, { cache: 'no-store' });
             if (!res.ok) throw new Error(`Network/API error for ${url}`);
             return res.json();
         }
@@ -240,62 +247,83 @@
 
         async function buildHub() {
             try {
+                console.log("Starting hub build...");
                 dateCache = JSON.parse(localStorage.getItem(cacheKey)) || {};
                 let rateLimit = { hit: false };
 
-                const toolDirs = await fetchJSON(repoUrl + 'Tools');
-                const categoryPromises = toolDirs
-                    .filter(item => item.type === 'dir' && parseName(item.name))
-                    .map(async catDir => {
-                        const catInfo = parseName(catDir.name);
-                        const toolFolders = await fetchJSON(catDir.url);
-                        
-                        const toolPromises = toolFolders
-                            .filter(item => item.type === 'dir' && parseName(item.name))
-                            .map(async toolDir => {
-                                const toolInfo = parseName(toolDir.name);
-                                const toolFiles = await fetchJSON(toolDir.url);
-                                const htmlFile = toolFiles.find(f => f.name.endsWith('.html'));
-                                
-                                if (!htmlFile) return null;
-                                
-                                const { date, hit } = await getCreationDate(htmlFile.path, rateLimit);
-                                rateLimit.hit = hit;
+                // 1. Single API call to get all files recursively
+                console.log("Fetching repo file tree...");
+                const treeData = await fetchJSON(repoTreeUrl);
+                const allFiles = treeData.tree;
+                if (!allFiles) throw new Error("GitHub API response did not contain a 'tree' array.");
+                console.log(`Received ${allFiles.length} file entries.`);
 
-                                return {
-                                    displayName: toolInfo.displayName,
-                                    path: htmlFile.path,
-                                    date: date,
-                                    sort1: toolInfo.sort1,
-                                    sort2: toolInfo.sort2,
-                                    rateLimitHit: rateLimit.hit
-                                };
-                            });
-
-                        const tools = (await Promise.all(toolPromises)).filter(Boolean);
-                        return { ...catInfo, tools };
-                    });
+                // 2. Filter and process HTML files in the Tools directory
+                const htmlFiles = allFiles.filter(file => file.type === 'blob' && file.path.startsWith('Tools/') && file.path.endsWith('.html'));
+                console.log(`Found ${htmlFiles.length} HTML tool files.`);
                 
-                hubData = await Promise.all(categoryPromises);
+                const categoryMap = new Map();
+
+                for (const file of htmlFiles) {
+                    const pathParts = file.path.split('/');
+                    if (pathParts.length < 4) {
+                        console.warn(`Skipping malformed path: ${file.path}`);
+                        continue;
+                    }
+
+                    const categoryDir = pathParts[1];
+                    const toolDir = pathParts[2];
+                    
+                    const catInfo = parseName(categoryDir);
+                    const toolInfo = parseName(toolDir);
+
+                    if (!catInfo || !toolInfo) {
+                        console.warn(`Could not parse category/tool info from path: ${file.path}`);
+                        continue;
+                    }
+                    
+                    if (!categoryMap.has(catInfo.displayName)) {
+                        categoryMap.set(catInfo.displayName, { ...catInfo, tools: [] });
+                    }
+
+                    // Get creation date (this part is slow but cached)
+                    const { date, hit } = await getCreationDate(file.path, rateLimit);
+                    rateLimit.hit = hit;
+
+                    categoryMap.get(catInfo.displayName).tools.push({
+                        ...toolInfo,
+                        displayName: toolInfo.displayName,
+                        path: file.path,
+                        date: date,
+                        rateLimitHit: rateLimit.hit
+                    });
+                }
+                
+                hubData = Array.from(categoryMap.values());
                 localStorage.setItem(cacheKey, JSON.stringify(dateCache));
+                console.log("Hub data processed.");
 
                 loadingEl.style.display = 'none';
                 renderList(hubData, categoryList, true);
                 showCategoryView();
+                console.log("Hub rendered successfully.");
 
             } catch (error) {
-                loadingEl.innerHTML = `<span style="color: var(--error);">Failed to build hub. Check console for details.</span>`;
-                console.error(error);
+                loadingEl.innerHTML = `<span style="color: var(--error);">Failed to build hub. Check on-screen console for details.</span>`;
+                console.error("Error in buildHub:", error);
             }
         }
 
-        try {
-            console.log("Hub script initialized. Attaching events and starting build process...");
-            backBtn.addEventListener('click', showCategoryView);
-            buildHub();
-        } catch (e) {
-            console.error("A critical error occurred during script initialization:", e);
-        }
+        window.addEventListener('keydown', (e) => {
+            if (e.key === '`') {
+                const consoleEl = document.getElementById('debug-console');
+                const isVisible = consoleEl.style.display === 'block';
+                consoleEl.style.display = isVisible ? 'none' : 'block';
+            }
+        });
+
+        backBtn.addEventListener('click', showCategoryView);
+        buildHub();
     </script>
 </body>
 </html>
