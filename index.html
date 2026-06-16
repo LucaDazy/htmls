@@ -381,10 +381,16 @@
             let logoIndex = 0;
             let avatarIndex = 0;
 
-            // Preload images to prevent flickering on first cycle
-            [...logoFrames, ...avatarFrames].forEach(src => {
+            // Preload images into Image objects so they are cached by the browser
+            const preloadedLogos = logoFrames.map(src => {
                 const img = new Image();
                 img.src = src;
+                return img;
+            });
+            const preloadedAvatars = avatarFrames.map(src => {
+                const img = new Image();
+                img.src = src;
+                return img;
             });
 
             // Use requestAnimationFrame for smoother animation
@@ -403,9 +409,11 @@
                     logoIndex = (logoIndex + 1) % logoFrames.length;
                     avatarIndex = (avatarIndex + 1) % avatarFrames.length;
 
-                    const ts = new Date().getTime();
-                    logoImg.src = `${logoFrames[logoIndex]}?v=${ts}`;
-                    avatarImg.src = `${avatarFrames[avatarIndex]}?v=${ts}`;
+                    // Use the preloaded Image object's src (original URL without cache-busting)
+                    // The browser will use its in-memory cache, and the service worker cache
+                    // will match the original URL, ensuring offline support.
+                    logoImg.src = preloadedLogos[logoIndex].src;
+                    avatarImg.src = preloadedAvatars[avatarIndex].src;
                 }
                 requestAnimationFrame(animate);
             }
