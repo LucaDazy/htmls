@@ -1,0 +1,30 @@
+name: Update Tool Manifest
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Generate manifest file
+        run: python Scripts/generate_manifest.py
+
+      - name: Commit and push if manifest changed
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "chore: auto-generate tool manifest"
+          file_pattern: Global/tool-manifest.json
+          commit_user_name: GitHub Actions
+          commit_user_email: actions@github.com
+          commit_author: GitHub Actions <actions@github.com>
