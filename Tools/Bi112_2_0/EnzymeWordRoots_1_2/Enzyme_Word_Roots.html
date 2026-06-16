@@ -4,22 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lab 9 word roots</title>
+    <link rel="icon" href="../../../Global/SVGs/avatar.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../../Global/Css/main.css">
     <style>
-        :root {
-            --bg-color: #323437;
-            --text-main: #d1d0c5;
-            --text-muted: #646669;
-            --accent: #e2b714;
-            --error: #ca4754;
-            --success: #8cc84b;
-            --panel-bg: #2c2e31;
-            --hover-bg: #3a3d40;
-        }
-
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
-            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            font-family: var(--font-family-main);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -31,7 +22,7 @@
         h1 { color: var(--accent); margin-bottom: 0.5rem; text-align: center; }
         .subtitle { color: var(--text-muted); margin-bottom: 2rem; text-align: center; }
 
-        .action-btn { background: none; font-family: inherit; font-size: 1rem; cursor: pointer; border: 2px solid var(--accent); color: var(--accent); padding: 0.5rem 1.5rem; border-radius: 4px; margin-top: 1rem; transition: all 0.2s; }
+        .action-btn { background: none; font-family: var(--font-family-mono); font-size: 1rem; cursor: pointer; border: 2px solid var(--accent); color: var(--accent); padding: 0.5rem 1.5rem; border-radius: 4px; margin-top: 1rem; transition: all 0.2s; }
         .action-btn:hover { background: var(--accent); color: var(--bg-color); }
 
         .container {
@@ -46,19 +37,19 @@
         /* MCQ Styles */
         .mcq-question { font-size: 1.2rem; margin-bottom: 1.5rem; line-height: 1.4; }
         .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        .option-btn { background: none; border: 2px solid var(--text-main); color: var(--text-main); text-align: left; padding: 1rem; font-family: inherit; font-size: 1rem; cursor: pointer; border-radius: 4px; transition: all 0.2s; }
+        .option-btn { background: none; border: 2px solid var(--text-main); color: var(--text-main); text-align: left; padding: 1rem; font-family: var(--font-family-mono); font-size: 1rem; cursor: pointer; border-radius: 4px; transition: all 0.2s; }
         .option-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: var(--hover-bg); }
         .option-btn.correct { border-color: var(--success); color: var(--success); background: rgba(140, 200, 75, 0.1); }
         .option-btn.wrong { border-color: var(--error); color: var(--error); background: rgba(202, 71, 84, 0.1); }
         .option-btn:disabled { cursor: default; }
         
         .explanation-box { margin-top: 1.5rem; padding: 1rem; background: rgba(0,0,0,0.2); border-left: 4px solid var(--accent); border-radius: 4px; display: none; line-height: 1.5; font-size: 0.95rem; }
-        .next-mcq-btn { display: none; margin-top: 1rem; width: 100%; background: var(--accent); color: var(--bg-color); border: none; padding: 0.8rem; font-size: 1.1rem; font-family: inherit; font-weight: bold; cursor: pointer; border-radius: 4px; }
+        .next-mcq-btn { display: none; margin-top: 1rem; width: 100%; background: var(--accent); color: var(--bg-color); border: none; padding: 0.8rem; font-size: 1.1rem; font-family: var(--font-family-mono); font-weight: bold; cursor: pointer; border-radius: 4px; }
         .next-mcq-btn:hover { opacity: 0.9; }
 
         .end-screen { text-align: center; display: none; }
         .end-screen h2 { color: var(--accent); }
-        .progress { margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted); text-align: right; }
+        .progress { margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted); text-align: right; font-family: var(--font-family-mono); }
 
         /* ANSWER KEY TABLE */
         .answer-key-table {
@@ -72,6 +63,7 @@
             border: 1px solid var(--text-muted);
             padding: 0.8rem;
             text-align: left;
+            font-family: var(--font-family-mono);
         }
         .answer-key-table th {
             background: var(--bg-color);

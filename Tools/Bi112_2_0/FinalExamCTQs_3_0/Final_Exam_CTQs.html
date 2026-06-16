@@ -4,22 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BI112 - Final Exam CTQs</title>
+    <link rel="icon" href="../../../Global/SVGs/avatar.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../../Global/Css/main.css">
     <style>
-        :root {
-            --bg-color: #323437;
-            --text-main: #d1d0c5;
-            --text-muted: #646669;
-            --accent: #e2b714;
-            --error: #ca4754;
-            --success: #8cc84b;
-            --panel-bg: #2c2e31;
-            --hover-bg: #3a3d40;
-        }
-
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
-            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            font-family: var(--font-family-main);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -42,25 +33,25 @@
         }
 
         /* Utility Buttons */
-        .action-btn { background: transparent; border: 2px solid var(--accent); color: var(--accent); padding: 0.8rem 1.5rem; font-family: inherit; font-size: 1rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .action-btn { background: transparent; border: 2px solid var(--accent); color: var(--accent); padding: 0.8rem 1.5rem; font-family: var(--font-family-mono); font-size: 1rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
         .action-btn:hover { background: var(--accent); color: var(--bg-color); }
-        .hint-btn { background: transparent; border: 2px solid var(--text-muted); color: var(--text-muted); padding: 0.4rem 0.8rem; font-family: inherit; font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .hint-btn { background: transparent; border: 2px solid var(--text-muted); color: var(--text-muted); padding: 0.4rem 0.8rem; font-family: var(--font-family-mono); font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
         .hint-btn:hover { border-color: var(--accent); color: var(--accent); }
 
         /* CTQ Styles */
         .ctq-prompt { font-size: 1.15rem; line-height: 1.6; margin-bottom: 1rem; color: var(--accent); font-weight: bold; }
         
         .difficulty-selector { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--text-muted); padding-bottom: 1rem; }
-        .difficulty-selector button { background: none; border: 1px solid var(--text-muted); color: var(--text-muted); font-family: inherit; font-size: 0.85rem; padding: 0.4rem 0.8rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .difficulty-selector button { background: none; border: 1px solid var(--text-muted); color: var(--text-muted); font-family: var(--font-family-mono); font-size: 0.85rem; padding: 0.4rem 0.8rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
         .difficulty-selector button.active, .difficulty-selector button:hover { border-color: var(--accent); color: var(--accent); }
         
         .ctq-nav-bar { display: flex; gap: 0.5rem; margin-top: 2rem; border-top: 1px solid var(--text-muted); padding-top: 1.5rem; justify-content: center; flex-wrap: wrap; }
-        .ctq-nav-bar button { background: none; border: 1px solid var(--text-muted); color: var(--text-muted); font-family: inherit; font-size: 0.9rem; padding: 0.4rem 0.8rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .ctq-nav-bar button { background: none; border: 1px solid var(--text-muted); color: var(--text-muted); font-family: var(--font-family-mono); font-size: 0.9rem; padding: 0.4rem 0.8rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
         .ctq-nav-bar button.active { border-color: var(--accent); background: var(--hover-bg); color: var(--accent); }
 
         textarea {
             width: 100%; height: 160px; background: transparent; border: 2px solid var(--text-muted);
-            color: var(--text-main); font-family: inherit; font-size: 1rem; padding: 1rem;
+            color: var(--text-main); font-family: var(--font-family-mono); font-size: 1rem; padding: 1rem;
             border-radius: 4px; resize: vertical; outline: none; box-sizing: border-box; line-height: 1.5;
         }
         textarea:focus { border-color: var(--accent); }
@@ -69,7 +60,7 @@
         .cloze-text { font-size: 1.1rem; line-height: 2; color: var(--text-main); white-space: pre-wrap; }
         .cloze-input {
             background: transparent; border: none; border-bottom: 2px solid var(--text-muted);
-            color: var(--accent); font-family: inherit; font-size: 1.1rem; text-align: center;
+            color: var(--accent); font-family: var(--font-family-mono); font-size: 1.1rem; text-align: center;
             outline: none; margin: 0 0.3rem; transition: border-color 0.2s; font-weight: bold;
         }
         .cloze-input:focus { border-bottom-color: var(--accent); }
@@ -80,13 +71,13 @@
             margin-top: 1.5rem; padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 4px;
             display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center; border: 1px solid var(--text-muted);
         }
-        .wb-chip { background: var(--bg-color); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.95rem; color: var(--text-main); border: 1px solid var(--text-muted); }
+        .wb-chip { background: var(--bg-color); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.95rem; color: var(--text-main); border: 1px solid var(--text-muted); font-family: var(--font-family-mono); }
 
         /* Warm-up MCQ */
         .warmup-box { margin-top: 1.5rem; padding: 1.5rem; border: 1px dashed var(--text-muted); border-radius: 4px; display: none; background: rgba(0,0,0,0.1); }
         .warmup-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
         .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        .option-btn { background: transparent; border: 2px solid var(--text-main); color: var(--text-main); text-align: left; padding: 1rem; font-family: inherit; font-size: 0.95rem; cursor: pointer; border-radius: 4px; transition: all 0.2s; line-height: 1.4; }
+        .option-btn { background: transparent; border: 2px solid var(--text-main); color: var(--text-main); text-align: left; padding: 1rem; font-family: var(--font-family-mono); font-size: 0.95rem; cursor: pointer; border-radius: 4px; transition: all 0.2s; line-height: 1.4; }
         .option-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: var(--hover-bg); }
         .option-btn.correct { border-color: var(--success); color: var(--success); background: rgba(140, 200, 75, 0.1); }
         .option-btn.wrong { border-color: var(--error); color: var(--error); background: rgba(202, 71, 84, 0.1); }
@@ -113,6 +104,7 @@
             font-weight: bold;
             outline: none;
             user-select: none;
+            font-family: var(--font-family-mono);
         }
         .keyword-summary:hover { opacity: 0.8; color: var(--accent); }
         .text-success { color: var(--success); }

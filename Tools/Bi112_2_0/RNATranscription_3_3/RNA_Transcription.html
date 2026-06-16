@@ -4,28 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BI112 - RNA Transcription Master</title>
+    <link rel="icon" href="../../../Global/SVGs/avatar.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../../Global/Css/main.css">
     <style>
         :root {
-            --bg-color: #323437;
-            --text-main: #d1d0c5;
-            --text-muted: #646669;
-            --accent: #e2b714;
-            --error: #ca4754;
-            --success: #8cc84b;
-            --panel-bg: #2c2e31;
-            --hover-bg: #3a3d40;
-            
             /* Diagram specific colors */
             --dna-color: #5865F2;
             --rna-color: #eb459e;
-            --enzyme-color: #e2b714;
+            --enzyme-color: var(--accent);
             --promoter-color: #23a559;
         }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
-            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            font-family: var(--font-family-main);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -93,7 +86,7 @@
             box-sizing: border-box;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
-        .drop-zone.drag-over { border-color: var(--accent); background: rgba(226, 183, 20, 0.2); color: var(--accent); transform: translate(-50%, -50%) scale(1.05); }
+        .drop-zone.drag-over { border-color: var(--accent); background: rgba(165, 104, 157, 0.2); color: var(--accent); transform: translate(-50%, -50%) scale(1.05); }
         .drop-zone.filled { border: 2px solid var(--success); background: var(--bg-color); color: var(--success); }
 
         /* Draggable Word Bank */
@@ -116,7 +109,7 @@
             color: var(--accent);
             border: 2px solid var(--accent);
             padding: 0.6rem 1rem;
-            font-family: inherit;
+            font-family: var(--font-family-mono);
             font-size: 0.95rem;
             font-weight: bold;
             border-radius: 20px;
@@ -144,8 +137,9 @@
         .feedback-banner.show { opacity: 1; }
         .fb-error { background: rgba(202, 71, 84, 0.2); color: var(--error); border: 2px solid var(--error); }
         .fb-success { background: rgba(140, 200, 75, 0.2); color: var(--success); border: 2px solid var(--success); }
+        .drop-zone { font-family: var(--font-family-mono); }
 
-        .reset-btn { background: transparent; border: 2px solid var(--text-muted); color: var(--text-muted); padding: 0.8rem 1.5rem; font-family: inherit; font-size: 1rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .reset-btn { background: transparent; border: 2px solid var(--text-muted); color: var(--text-muted); padding: 0.8rem 1.5rem; font-family: var(--font-family-mono); font-size: 1rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
         .reset-btn:hover { border-color: var(--error); color: var(--error); }
 
         @media (max-width: 900px) {

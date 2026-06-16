@@ -4,22 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BI112 - Week 10 Rapid Cram</title>
+    <link rel="icon" href="../../../Global/SVGs/avatar.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../../Global/Css/main.css">
     <style>
-        :root {
-            --bg-color: #323437;
-            --text-main: #d1d0c5;
-            --text-muted: #646669;
-            --accent: #e2b714;
-            --error: #ca4754;
-            --success: #8cc84b;
-            --panel-bg: #2c2e31;
-            --hover-bg: #3a3d40;
-        }
-
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
-            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            font-family: var(--font-family-main);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -66,6 +57,7 @@
             font-size: 0.95rem;
             color: var(--text-muted);
             font-weight: bold;
+            font-family: var(--font-family-mono);
         }
 
         .hint-btn {
@@ -73,13 +65,13 @@
             border: 1px solid var(--text-muted);
             color: var(--text-muted);
             padding: 0.4rem 0.8rem;
-            font-family: inherit;
+            font-family: var(--font-family-mono);
             font-size: 0.9rem;
             cursor: pointer;
             border-radius: 4px;
             transition: 0.2s;
         }
-        .hint-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: rgba(226, 183, 20, 0.1); }
+        .hint-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: rgba(165, 104, 157, 0.1); }
         .hint-btn:disabled { opacity: 0.5; cursor: default; }
 
         .target-clue {
@@ -110,7 +102,7 @@
             border: 2px solid var(--accent);
             color: var(--accent);
             padding: 1rem 1.5rem;
-            font-family: inherit;
+            font-family: var(--font-family-mono);
             font-size: 1rem;
             cursor: pointer;
             border-radius: 4px;
@@ -134,7 +126,7 @@
             border: 2px solid var(--text-muted);
             color: var(--text-main);
             padding: 1.2rem 1rem;
-            font-family: inherit;
+            font-family: var(--font-family-mono);
             font-size: 1.05rem;
             font-weight: bold;
             cursor: pointer;
