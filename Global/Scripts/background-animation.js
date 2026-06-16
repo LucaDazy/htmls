@@ -9,25 +9,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Configuration ---
     const DOODLE_COLOR = '#403143'; // A subtle, but more visible, lighter version of --bg-color
     const NUM_STARS = 100;
-    const NUM_DOODLES = 15;
-    const DOODLE_BOIL_SPEED = 15; // Higher is slower
-    const STAR_TWINKLE_SPEED = 8; // Higher is slower
+    const NUM_DOODLES = 20;
+    const DOODLE_JITTER_AMOUNT = 0.5; // Pixels to jitter in any direction
 
     let particles = [];
     let loadedImages = {};
 
     const assets = {
         stars: [
-            'Global/SVGs/doodles/star-1.svg',
-            'Global/SVGs/doodles/star-2.svg',
-            'Global/SVGs/doodles/star-3.svg',
-            'Global/SVGs/doodles/star-2.svg'
+            'Global/SVGs/doodles/star-1.svg' // Only one static star
         ],
         doodles: [
-            'Global/SVGs/doodles/apple-1.svg',
-            'Global/SVGs/doodles/book-1.svg',
-            'Global/SVGs/doodles/pencil-1.svg',
-            'Global/SVGs/doodles/worm-1.svg'
+            'Global/SVGs/doodles/apple.svg',
+            'Global/SVGs/doodles/book.svg',
+            'Global/SVGs/doodles/pencil.svg',
+            'Global/SVGs/doodles/worm.svg'
         ]
     };
 
@@ -90,16 +86,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 y: Math.random() * canvas.height,
                 type: 'star',
                 scale: 0.5 + Math.random() * 0.5,
-                opacity: 0.2 + Math.random() * 0.5,
-                frame: Math.floor(Math.random() * assets.stars.length),
-                tick: Math.floor(Math.random() * STAR_TWINKLE_SPEED)
+                opacity: 0.2 + Math.random() * 0.5
             });
         }
         // Create Doodles
         for (let i = 0; i < NUM_DOODLES; i++) {
+            const originalX = Math.random() * canvas.width;
+            const originalY = Math.random() * canvas.height;
             particles.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
+                x: originalX,
+                y: originalY,
+                originalX: originalX,
+                originalY: originalY,
                 type: 'doodle',
                 doodleType: Math.floor(Math.random() * assets.doodles.length),
                 scale: 2 + Math.random() * 2,
@@ -112,18 +110,14 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         particles.forEach(p => {
-            p.tick++;
             let img;
-            let speed;
 
             if (p.type === 'star') {
-                speed = STAR_TWINKLE_SPEED;
-                if (p.tick >= speed) {
-                    p.frame = (p.frame + 1) % assets.stars.length;
-                    p.tick = 0;
-                }
-                img = loadedImages[assets.stars[p.frame]];
+                img = loadedImages[assets.stars[0]];
             } else { // doodle
+                // Apply jitter effect by modifying position every frame
+                p.x = p.originalX + (Math.random() - 0.5) * DOODLE_JITTER_AMOUNT * 2;
+                p.y = p.originalY + (Math.random() - 0.5) * DOODLE_JITTER_AMOUNT * 2;
                 img = loadedImages[assets.doodles[p.doodleType]];
             }
 
