@@ -1,9 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 410" width="500" height="410">
     <defs>
         <filter id="rough-edge" x="-10%" y="-10%" width="120%" height="120%">
-            <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="3" result="noise" />
+            <feTurbulence id="turbulence" type="fractalNoise" baseFrequency="0.06" numOctaves="3" result="noise" />
             <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.5" xChannelSelector="R" yChannelSelector="G" />
         </filter>
+        <style>
+            #turbulence {
+                animation: boil 6s infinite linear;
+            }
+            @keyframes boil {
+                0%, 100% { baseFrequency: 0.06; }
+                25% { baseFrequency: 0.055; }
+                50% { baseFrequency: 0.065; }
+                75% { baseFrequency: 0.05; }
+            }
+        </style>
     </defs>
 
     <g filter="url(#rough-edge)" stroke-linejoin="round" stroke-linecap="round" transform="translate(10, 10)">
