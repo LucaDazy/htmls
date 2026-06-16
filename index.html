@@ -337,8 +337,9 @@
                 logoIndex = (logoIndex + 1) % logoFrames.length;
                 avatarIndex = (avatarIndex + 1) % avatarFrames.length;
 
-                logoImg.src = logoFrames[logoIndex];
-                avatarImg.src = avatarFrames[avatarIndex];
+                const timestamp = new Date().getTime();
+                logoImg.src = `${logoFrames[logoIndex]}?v=${timestamp}`;
+                avatarImg.src = `${avatarFrames[avatarIndex]}?v=${timestamp}`;
             }, 120); // Frame rate for the animation
         }
 
