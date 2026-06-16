@@ -1,0 +1,125 @@
+/* ============================================
+   Study Hub Terminal – Entrance & Transition Animations
+   ============================================ */
+
+/* ---------- Entrance Animations ---------- */
+
+/* Fade in + slide up for the main container */
+@keyframes fadeSlideUp {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Fade in for the header logo */
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+/* Scale in for the avatar */
+@keyframes scaleIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ---------- Transition Animations ---------- */
+
+/* Smooth height transition for group containers */
+.group-container {
+    transition: max-height 0.4s ease, opacity 0.4s ease;
+    overflow: hidden;
+    max-height: 1000px; /* large enough to contain any group */
+    opacity: 1;
+}
+
+/* When a group is hidden (e.g. during category switch) */
+.group-container.hidden {
+    max-height: 0;
+    opacity: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+/* Staggered entrance for each app-btn inside a group */
+.app-btn {
+    animation: fadeSlideUp 0.5s ease both;
+}
+
+/* Stagger delay based on child index */
+.group-container .app-btn:nth-child(1) { animation-delay: 0.05s; }
+.group-container .app-btn:nth-child(2) { animation-delay: 0.10s; }
+.group-container .app-btn:nth-child(3) { animation-delay: 0.15s; }
+.group-container .app-btn:nth-child(4) { animation-delay: 0.20s; }
+.group-container .app-btn:nth-child(5) { animation-delay: 0.25s; }
+.group-container .app-btn:nth-child(6) { animation-delay: 0.30s; }
+.group-container .app-btn:nth-child(7) { animation-delay: 0.35s; }
+.group-container .app-btn:nth-child(8) { animation-delay: 0.40s; }
+.group-container .app-btn:nth-child(9) { animation-delay: 0.45s; }
+.group-container .app-btn:nth-child(10) { animation-delay: 0.50s; }
+
+/* ---------- View Transitions ---------- */
+
+/* Fade + slide for switching between category view and tool view */
+#category-view,
+#tool-view {
+    transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+#category-view.hidden,
+#tool-view.hidden {
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+}
+
+/* ---------- Loading Animation ---------- */
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+#loading {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* ---------- Back Button Hover ---------- */
+
+.back-btn {
+    transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.back-btn:hover {
+    transform: translateX(-2px);
+}
+
+/* ---------- Avatar Entrance ---------- */
+
+.container-footer .avatar {
+    animation: scaleIn 0.6s ease 0.3s both;
+}
+
+/* ---------- Logo Entrance ---------- */
+
+.container-header .logo {
+    animation: fadeIn 0.8s ease 0.1s both;
+}
+
+/* ---------- Container Entrance ---------- */
+
+.container {
+    animation: fadeSlideUp 0.6s ease 0.2s both;
+}

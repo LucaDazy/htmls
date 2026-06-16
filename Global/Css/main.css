@@ -27,6 +27,12 @@
     /* Fonts */
     --font-family-main: 'Atkinson Hyperlegible', sans-serif;
     --font-family-mono: 'Fira Code', 'Courier New', Courier, monospace;
+
+    /* Animation Timing */
+    --anim-duration-fast: 0.2s;
+    --anim-duration-normal: 0.35s;
+    --anim-duration-slow: 0.6s;
+    --anim-easing: ease;
 }
 
 * {

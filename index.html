@@ -11,6 +11,7 @@
     <title>Study Hub Terminal</title>
     <link rel="icon" href="Global/SVGs/avatar.svg" type="image/svg+xml">
     <link rel="stylesheet" href="Global/Css/main.css">
+    <link rel="stylesheet" href="Global/Css/animations.css">
     <style>
         body {
             font-family: var(--font-family-main); /* USE ATKINSON FOR MAIN TEXT */
@@ -71,6 +72,8 @@
         }
 
         .container { width: 100%; max-width: 700px; background: var(--panel-bg); padding: 2rem; border-radius: 8px; box-sizing: border-box; }
+        /* Ensure animations don't break layout on older browsers */
+        .app-btn { animation: none; } /* reset, will be overridden by animations.css */
         .link-list { display: flex; flex-direction: column; }
         
         #tool-view { display: none; }
@@ -283,13 +286,27 @@
             if (!category) return;
             viewTitle.innerText = category.categoryName;
             renderList(category.tools, toolList, false);
-            categoryView.style.display = 'none';
-            toolView.style.display = 'block';
+            // Animate transition
+            categoryView.classList.add('hidden');
+            setTimeout(() => {
+                categoryView.style.display = 'none';
+                categoryView.classList.remove('hidden');
+                toolView.style.display = 'block';
+                // Force reflow to restart animation
+                void toolView.offsetWidth;
+                toolView.classList.remove('hidden');
+            }, 350);
         }
 
         function showCategoryView() {
-            toolView.style.display = 'none';
-            categoryView.style.display = 'block';
+            toolView.classList.add('hidden');
+            setTimeout(() => {
+                toolView.style.display = 'none';
+                toolView.classList.remove('hidden');
+                categoryView.style.display = 'block';
+                void categoryView.offsetWidth;
+                categoryView.classList.remove('hidden');
+            }, 350);
         }
 
         async function buildHub() {
@@ -300,6 +317,10 @@
 
                 loadingEl.style.display = 'none';
                 renderList(hubData, categoryList, true);
+                // Ensure category view is visible with animation
+                categoryView.classList.remove('hidden');
+                categoryView.style.display = 'block';
+                void categoryView.offsetWidth;
                 showCategoryView();
                 
                 // Asynchronously populate dates without blocking UI
@@ -339,14 +360,23 @@
                 img.src = src;
             });
 
-            setInterval(() => {
-                logoIndex = (logoIndex + 1) % logoFrames.length;
-                avatarIndex = (avatarIndex + 1) % avatarFrames.length;
+            // Use requestAnimationFrame for smoother animation
+            let lastTime = 0;
+            const frameInterval = 120; // ms between frames
 
-                const timestamp = new Date().getTime();
-                logoImg.src = `${logoFrames[logoIndex]}?v=${timestamp}`;
-                avatarImg.src = `${avatarFrames[avatarIndex]}?v=${timestamp}`;
-            }, 120); // Frame rate for the animation
+            function animate(timestamp) {
+                if (timestamp - lastTime >= frameInterval) {
+                    lastTime = timestamp;
+                    logoIndex = (logoIndex + 1) % logoFrames.length;
+                    avatarIndex = (avatarIndex + 1) % avatarFrames.length;
+
+                    const ts = new Date().getTime();
+                    logoImg.src = `${logoFrames[logoIndex]}?v=${ts}`;
+                    avatarImg.src = `${avatarFrames[avatarIndex]}?v=${ts}`;
+                }
+                requestAnimationFrame(animate);
+            }
+            requestAnimationFrame(animate);
         }
 
         animateSVGs();
