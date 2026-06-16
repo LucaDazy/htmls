@@ -54,6 +54,25 @@
 
         #loading { text-align: center; color: var(--accent); font-size: 1.1rem; margin-bottom: 1rem; }
         #rate-limit-warning { color: var(--error); font-size: 0.9rem; text-align: center; margin-bottom: 1.5rem; display: none; }
+    
+        #debug-console {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 200px;
+            background: rgba(0,0,0,0.85);
+            border-top: 2px solid var(--text-muted);
+            color: var(--text-main);
+            font-family: var(--font-family-mono);
+            font-size: 0.85rem;
+            padding: 0.5rem;
+            overflow-y: auto;
+            z-index: 9999;
+        }
+        .log-msg { white-space: pre-wrap; margin-bottom: 0.3rem; border-bottom: 1px solid #444; padding-bottom: 0.3rem; }
+        .log-msg.error { color: var(--error); }
+        .log-msg.warn { color: var(--accent); }
     </style>
 </head>
 <body>
@@ -81,8 +100,31 @@
         </div>
     </div>
 
+    <div id="debug-console"></div>
+
     <script>
+        const debugConsole = document.getElementById('debug-console');
+        if (debugConsole) {
+            const createLog = (type) => (...args) => {
+                const msg = document.createElement('div');
+                msg.className = `log-msg ${type}`;
+                msg.textContent = args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : a).join(' ');
+                debugConsole.prepend(msg);
+            };
+            const originalError = console.error;
+            console.log = createLog('log');
+            console.warn = createLog('warn');
+            console.error = (...args) => {
+                originalError.apply(console, args);
+                createLog('error')(...args);
+            };
+            window.addEventListener('error', (event) => console.error('Uncaught Exception:', event.error));
+            window.addEventListener('unhandledrejection', (event) => console.error('Unhandled Promise Rejection:', event.reason));
+            console.log('Debug console initialized.');
+        }
+
         const repoUrl = 'https://api.github.com/repos/LucaDazy/htmls/contents/';
+        const repoApiUrl = 'https://api.github.com/repos/LucaDazy/htmls/';
         const cacheKey = 'study_hub_dates_v2';
 
         const loadingEl = document.getElementById('loading');
@@ -122,13 +164,18 @@
             }
 
             try {
-                const commits = await fetchJSON(`${repoUrl.replace('/contents/', '/commits')}?path=${path}&per_page=1`);
-                const creationDate = (commits && commits.length > 0) ? new Date(commits[0].commit.author.date) : new Date();
+                const commits = await fetchJSON(`${repoApiUrl}commits?path=${path}&per_page=100`);
+                let creationDate = new Date(); // Default to now
+                if (commits && commits.length > 0) {
+                    // The last commit in the list is the oldest one (creation)
+                    creationDate = new Date(commits[commits.length - 1].commit.author.date);
+                }
                 dateCache[path] = creationDate.toISOString();
                 return { date: creationDate, hit: rateLimit.hit };
             } catch (e) {
                 rateLimit.hit = true;
                 warningEl.style.display = 'block';
+                console.warn(`Could not fetch date for ${path}, using fallback.`, e);
                 return { date: new Date(), hit: rateLimit.hit };
             }
         }
@@ -242,8 +289,13 @@
             }
         }
 
-        backBtn.addEventListener('click', showCategoryView);
-        buildHub();
+        try {
+            console.log("Hub script initialized. Attaching events and starting build process...");
+            backBtn.addEventListener('click', showCategoryView);
+            buildHub();
+        } catch (e) {
+            console.error("A critical error occurred during script initialization:", e);
+        }
     </script>
 </body>
 </html>
