@@ -73,7 +73,12 @@ document.addEventListener('DOMContentLoaded', () => {
         Promise.all(uniqueUrls.map(loadSVG)).then(() => {
             createParticles();
             animate();
-        }).catch(err => console.error("Failed to load SVG assets:", err));
+        }).catch(err => {
+            // This more detailed logging bypasses the JSON.stringify issue in the custom logger.
+            console.error("Failed to load SVG assets. The animation cannot start.");
+            console.error("Error Message:", err.message || 'No message found, see details below.');
+            console.error("Full Error Object:", err);
+        });
     }
 
     function createParticles() {
