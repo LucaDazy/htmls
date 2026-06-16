@@ -25,10 +25,10 @@
             width: 100%;
             max-width: 700px;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
-            margin-bottom: 0.5rem;
-            gap: 1rem;
+            margin-bottom: 1rem;
+            gap: 1.5rem;
         }
 
         .header .logo { width: 120px; height: auto; flex-shrink: 0; }
@@ -116,7 +116,13 @@
             const createLog = (type) => (...args) => {
                 const msg = document.createElement('div');
                 msg.className = `log-msg ${type}`;
-                msg.textContent = args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : a).join(' ');
+                msg.textContent = args.map(a => {
+                    try {
+                        return typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a);
+                    } catch (e) {
+                        return '[Unserializable Object]';
+                    }
+                }).join(' ');
                 debugConsole.prepend(msg);
             };
             const originalError = console.error;
@@ -126,9 +132,9 @@
                 originalError.apply(console, args);
                 createLog('error')(...args);
             };
-            window.addEventListener('error', (event) => console.error('Uncaught Exception:', event.error));
-            window.addEventListener('unhandledrejection', (event) => console.error('Unhandled Promise Rejection:', event.reason));
-            console.log('Debug console initialized.');
+            window.addEventListener('error', (event) => console.error('Uncaught Exception:', event.error ? event.error.stack : event.message));
+            window.addEventListener('unhandledrejection', (event) => console.error('Unhandled Promise Rejection:', event.reason ? event.reason.stack : event.reason));
+            console.log('--- Debug console initialized (v2) ---');
         }
 
         const repoUrl = 'https://api.github.com/repos/LucaDazy/htmls/contents/';
@@ -149,8 +155,13 @@
         let dateCache = {};
 
         async function fetchJSON(url) {
+            console.log(`Fetching: ${url}`);
             const res = await fetch(url, { cache: 'no-store' });
-            if (!res.ok) throw new Error(`Network/API error for ${url}`);
+            if (!res.ok) {
+                console.error(`Network/API error for ${url}. Status: ${res.status}`);
+                throw new Error(`Network/API error for ${url}`);
+            }
+            console.log(`Fetch successful for: ${url}`);
             return res.json();
         }
 
@@ -165,35 +176,40 @@
 
         async function getCreationDate(path, rateLimit) {
             if (dateCache[path]) {
+                console.log(`Cache hit for date: ${path}`);
                 return { date: new Date(dateCache[path]), hit: rateLimit.hit };
             }
             if (rateLimit.hit) {
+                console.warn(`Rate limit active. Using fallback date for: ${path}`);
                 return { date: new Date(), hit: rateLimit.hit };
             }
 
             try {
+                console.log(`Fetching commit history for: ${path}`);
                 const commits = await fetchJSON(`${repoApiUrl}commits?path=${path}&per_page=100`);
                 let creationDate = new Date(); // Default to now
                 if (commits && commits.length > 0) {
-                    // The last commit in the list is the oldest one (creation)
                     creationDate = new Date(commits[commits.length - 1].commit.author.date);
+                    console.log(`Date found for ${path}: ${creationDate.toISOString()}`);
+                } else {
+                    console.warn(`No commits found for ${path}, using current date.`);
                 }
                 dateCache[path] = creationDate.toISOString();
                 return { date: creationDate, hit: rateLimit.hit };
             } catch (e) {
                 rateLimit.hit = true;
                 warningEl.style.display = 'block';
-                console.warn(`Could not fetch date for ${path}, using fallback.`, e);
+                console.error(`Could not fetch date for ${path}, using fallback. Error:`, e);
                 return { date: new Date(), hit: rateLimit.hit };
             }
         }
 
         function renderList(items, container, isCategory) {
+            console.log(`Rendering list. Is category: ${isCategory}. Items count: ${items.length}`);
             container.innerHTML = '';
             
-            // Group items by their primary sort key (the first number in _X_Y)
             const groups = items.reduce((acc, item) => {
-                const key = isCategory ? item.sort1 : item.sort1; // Redundant but clear
+                const key = item.sort1;
                 if (!acc[key]) acc[key] = [];
                 acc[key].push(item);
                 return acc;
@@ -209,7 +225,7 @@
 
                 for (const item of sortedItems) {
                     const a = document.createElement('a');
-                    a.className = 'app-btn';
+a.className = 'app-btn';
                     
                     let titleHTML = `<span class="app-title">${item.displayName}</span>`;
                     
@@ -228,11 +244,16 @@
                 }
                 container.appendChild(groupContainer);
             }
+            console.log("Render complete.");
         }
 
         function showToolView(categoryName) {
+            console.log(`Switching to tool view for category: ${categoryName}`);
             const category = hubData.find(c => c.displayName === categoryName);
-            if (!category) return;
+            if (!category) {
+                console.error(`Category '${categoryName}' not found in hubData.`);
+                return;
+            }
             
             viewTitle.innerText = category.displayName;
             renderList(category.tools, toolList, false);
@@ -242,33 +263,34 @@
         }
 
         function showCategoryView() {
+            console.log("Switching to category view.");
             toolView.style.display = 'none';
             categoryView.style.display = 'block';
         }
 
         async function buildHub() {
             try {
-                console.log("Starting hub build...");
+                console.log("--- Starting hub build process ---");
                 dateCache = JSON.parse(localStorage.getItem(cacheKey)) || {};
+                console.log(`Loaded ${Object.keys(dateCache).length} items from localStorage cache.`);
                 let rateLimit = { hit: false };
 
-                // 1. Single API call to get all files recursively
-                console.log("Fetching repo file tree...");
+                console.log("Fetching recursive repo file tree...");
                 const treeData = await fetchJSON(repoTreeUrl);
                 const allFiles = treeData.tree;
-                if (!allFiles) throw new Error("GitHub API response did not contain a 'tree' array.");
-                console.log(`Received ${allFiles.length} file entries.`);
+                if (!allFiles || !Array.isArray(allFiles)) throw new Error("GitHub API response did not contain a 'tree' array.");
+                console.log(`Received ${allFiles.length} total file entries from GitHub.`);
 
-                // 2. Filter and process HTML files in the Tools directory
                 const htmlFiles = allFiles.filter(file => file.type === 'blob' && file.path.startsWith('Tools/') && file.path.endsWith('.html'));
-                console.log(`Found ${htmlFiles.length} HTML tool files.`);
+                console.log(`Filtered down to ${htmlFiles.length} HTML tool files.`);
                 
                 const categoryMap = new Map();
 
                 for (const file of htmlFiles) {
+                    console.log(`Processing file: ${file.path}`);
                     const pathParts = file.path.split('/');
                     if (pathParts.length < 4) {
-                        console.warn(`Skipping malformed path: ${file.path}`);
+                        console.warn(`Skipping malformed path (not enough parts): ${file.path}`);
                         continue;
                     }
 
@@ -284,10 +306,10 @@
                     }
                     
                     if (!categoryMap.has(catInfo.displayName)) {
+                        console.log(`New category found: ${catInfo.displayName}`);
                         categoryMap.set(catInfo.displayName, { ...catInfo, tools: [] });
                     }
 
-                    // Get creation date (this part is slow but cached)
                     const { date, hit } = await getCreationDate(file.path, rateLimit);
                     rateLimit.hit = hit;
 
@@ -301,17 +323,19 @@
                 }
                 
                 hubData = Array.from(categoryMap.values());
+                console.log("Final processed hub data:", JSON.parse(JSON.stringify(hubData)));
+                
                 localStorage.setItem(cacheKey, JSON.stringify(dateCache));
-                console.log("Hub data processed.");
+                console.log("Saved updated date cache to localStorage.");
 
                 loadingEl.style.display = 'none';
                 renderList(hubData, categoryList, true);
                 showCategoryView();
-                console.log("Hub rendered successfully.");
+                console.log("--- Hub rendered successfully ---");
 
             } catch (error) {
                 loadingEl.innerHTML = `<span style="color: var(--error);">Failed to build hub. Check on-screen console for details.</span>`;
-                console.error("Error in buildHub:", error);
+                console.error("FATAL ERROR in buildHub:", error.stack);
             }
         }
 
@@ -322,6 +346,21 @@
                 consoleEl.style.display = isVisible ? 'none' : 'block';
             }
         });
+        
+        window.onload = () => {
+            console.log("--- window.onload event fired ---");
+            try {
+                const bodyStyles = window.getComputedStyle(document.body);
+                console.log(`Computed body display: ${bodyStyles.getPropertyValue('display')}`);
+                console.log(`Computed body align-items: ${bodyStyles.getPropertyValue('align-items')}`);
+
+                const headerStyles = window.getComputedStyle(document.querySelector('.header'));
+                console.log(`Computed header display: ${headerStyles.getPropertyValue('display')}`);
+                console.log(`Computed header justify-content: ${headerStyles.getPropertyValue('justify-content')}`);
+            } catch (e) {
+                console.error("Could not get computed styles.", e);
+            }
+        };
 
         backBtn.addEventListener('click', showCategoryView);
         buildHub();
