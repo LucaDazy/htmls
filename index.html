@@ -199,6 +199,7 @@
         const backBtn = document.getElementById('back-btn');
         const viewTitle = document.getElementById('view-title');
         const mainContainer = document.querySelector('.container');
+        const viewsWrapper = document.querySelector('.views-wrapper');
 
         let hubData = [];
         let dateCache = {};
@@ -295,34 +296,45 @@
         }
 
         function showToolView(categoryName) {
-            mainContainer.scrollIntoView({ behavior: 'smooth' });
+            // Lock wrapper height to its current size to prevent page jump
+            viewsWrapper.style.minHeight = `${viewsWrapper.offsetHeight}px`;
+
             const category = hubData.find(c => c.categoryName === categoryName);
             if (!category) return;
             viewTitle.innerText = category.categoryName;
-            
+
             categoryView.classList.add('hidden');
             toolView.classList.remove('hidden');
-            
-            // Cancel any pending render from a previous navigation
+
             if (renderTimeout) clearTimeout(renderTimeout);
-            
-            // Delay rendering slightly. This gives the view time to start its
-            // transition, ensuring the list item animations are visible.
+
             renderTimeout = setTimeout(() => {
                 renderList(category.tools, toolList, false);
                 renderTimeout = null;
-            }, 50); // A small 50ms delay is enough.
+            }, 50);
+
+            // After transition, release the fixed height
+            setTimeout(() => {
+                viewsWrapper.style.minHeight = '';
+            }, 350); // Must match the CSS transition duration
         }
 
         function showCategoryView() {
-            mainContainer.scrollIntoView({ behavior: 'smooth' });
+            // Lock wrapper height to its current size to prevent page jump
+            viewsWrapper.style.minHeight = `${viewsWrapper.offsetHeight}px`;
+
             toolView.classList.add('hidden');
             categoryView.classList.remove('hidden');
-            // Cancel any pending tool render
+
             if (renderTimeout) {
                 clearTimeout(renderTimeout);
                 renderTimeout = null;
             }
+
+            // After transition, release the fixed height
+            setTimeout(() => {
+                viewsWrapper.style.minHeight = '';
+            }, 350); // Must match the CSS transition duration
         }
 
         async function buildHub() {
