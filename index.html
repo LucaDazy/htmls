@@ -313,6 +313,37 @@
             }
         });
 
+        function animateSVGs() {
+            const logoImg = document.querySelector('.container-header .logo');
+            const avatarImg = document.querySelector('.container-footer .avatar');
+
+            if (!logoImg || !avatarImg) {
+                console.error("Animation failed: Could not find logo or avatar image element.");
+                return;
+            }
+
+            const logoFrames = [ 'Global/SVGs/logo.svg', 'Global/SVGs/logo-alt1.svg', 'Global/SVGs/logo-alt2.svg' ];
+            const avatarFrames = [ 'Global/SVGs/avatar.svg', 'Global/SVGs/avatar-alt1.svg', 'Global/SVGs/avatar-alt2.svg' ];
+            let logoIndex = 0;
+            let avatarIndex = 0;
+
+            // Preload images to prevent flickering on first cycle
+            [...logoFrames, ...avatarFrames].forEach(src => {
+                const img = new Image();
+                img.src = src;
+            });
+
+            setInterval(() => {
+                logoIndex = (logoIndex + 1) % logoFrames.length;
+                avatarIndex = (avatarIndex + 1) % avatarFrames.length;
+
+                logoImg.src = logoFrames[logoIndex];
+                avatarImg.src = avatarFrames[avatarIndex];
+            }, 120); // Frame rate for the animation
+        }
+
+        animateSVGs();
+
         backBtn.addEventListener('click', showCategoryView);
         buildHub();
     </script>
