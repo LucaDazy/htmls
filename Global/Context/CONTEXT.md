@@ -3,11 +3,11 @@
 \#\# 1\. Project Goals & Architecture  
 The objective is to build a centralized, interactive, client-side Study Hub hosted on GitHub Pages (\`htmls\` repository) to master prerequisite coursework (BI 112, STAT 243Z, BI 231\) for the Rogue Community College Dental Hygiene program. 
 
-\*\*Architectural Philosophy:\*\*  
-\* \*\*Zero-Dependency Vanilla JS:\*\* No external frameworks or libraries (React, Vue, jQuery). Everything is built using pure HTML, CSS, and Vanilla JavaScript to ensure longevity and fast load times.  
-\* \*\*Single-File Modules (Mostly):\*\* Tools are designed as isolated, single-file HTML applications to maximize LLM output generation and avoid complex build steps. When data scales too large (e.g., A\&P 1 Atlas), data is offloaded to a single adjacent \`.js\` file (e.g., \`ap1\_data.js\`).  
-\* \*\*Game-Dev Inspired Mechanics:\*\* Utilizing interactive logic such as drag-and-drop snap-back penalties, procedural word-problem generation, scalable mathematical SVG drawing, and timed spaced-repetition algorithms.  
-\* \*\*Local Persistence:\*\* User progress, settings, and spaced-repetition data are strictly saved to the browser's \`localStorage\` to ensure privacy and persistence without a backend database.
+**Architectural Philosophy:**  
+* **Optimized & Modular:** Prioritize best practices for code organization, efficiency, and performance. Employ a modular structure with shared global assets (CSS, JS) to ensure maintainability and reduce code duplication.  
+* **Creative & Performant Solutions:** Implement functionality using the most effective methods available in modern Vanilla JS, avoiding unnecessary dependencies. Seek creative solutions to optimize performance and minimize AI development token consumption.  
+* **Game-Dev Inspired Mechanics:** Utilizing interactive logic such as drag-and-drop snap-back penalties, procedural word-problem generation, scalable mathematical SVG drawing, and timed spaced-repetition algorithms.  
+* **Local Persistence:** User progress, settings, and spaced-repetition data are strictly saved to the browser's `localStorage` to ensure privacy and persistence without a backend database.
 
 \#\# 2\. Aesthetic & UI Style Guide  
 The visual theme is a strict, minimalist, dark-mode aesthetic heavily inspired by "Monkeytype." It prioritizes low eye strain, high contrast for essential information, and clean, monospaced typography.
