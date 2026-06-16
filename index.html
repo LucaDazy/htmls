@@ -9,264 +9,241 @@
     <meta http-equiv="Expires" content="0">
     
     <title>Study Hub Terminal</title>
+    <link rel="stylesheet" href="Global/Css/main.css">
     <style>
-        :root {
-            --bg-color: #323437;
-            --text-main: #d1d0c5;
-            --text-muted: #646669;
-            --accent: #e2b714;
-            --panel-bg: #2c2e31;
-            --hover-bg: #3a3d40;
-            --error: #ca4754;
-        }
-
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'Fira Code', 'Courier New', Courier, monospace;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 2rem;
-            margin: 0;
-            min-height: 100vh;
+            font-family: var(--font-family-mono);
         }
 
-        .header-container {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .logo {
-            width: 60px;
-            height: auto;
-            border-radius: 50%;
-        }
-
-        h1 { 
-            color: var(--accent); 
-            margin: 0; 
-            text-align: center; 
-        }
-        
-        .subtitle { 
-            color: var(--text-muted); 
-            margin-bottom: 3rem; 
-            text-align: center; 
-        }
-
-        .container {
+        .header {
             width: 100%;
             max-width: 700px;
-            background: var(--panel-bg);
-            padding: 2rem;
-            border-radius: 8px;
-            box-sizing: border-box;
-        }
-
-        .link-list {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .group-container {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            margin-bottom: 2.5rem;
-        }
-
-        .group-container:last-child {
-            margin-bottom: 0;
-        }
-
-        .app-btn {
-            background: transparent;
-            border: 2px solid var(--text-muted);
-            color: var(--text-main);
-            padding: 1.2rem 1.5rem;
-            font-family: inherit;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: all 0.2s;
-            text-decoration: none;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 0.5rem;
         }
 
-        .app-btn:hover {
-            border-color: var(--accent);
-            background: var(--hover-bg);
-            transform: translateX(4px);
-        }
+        .header .logo { width: 120px; height: auto; }
+        .header .avatar { width: 60px; height: auto; }
 
-        .app-title {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: var(--text-main);
-            transition: color 0.2s;
-        }
+        h1 { color: var(--minimal-white); margin: 0; text-align: center; font-family: var(--font-family-main); font-size: 2.5rem;}
+        .subtitle { color: var(--text-muted); margin-bottom: 2rem; text-align: center; font-family: var(--font-family-main);}
 
-        .app-btn:hover .app-title {
-            color: var(--accent);
-        }
-
-        .app-date {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        #loading {
-            text-align: center;
-            color: var(--accent);
-            font-size: 1.1rem;
-            margin-bottom: 1rem;
-        }
+        .container { width: 100%; max-width: 700px; background: var(--panel-bg); padding: 2rem; border-radius: 8px; box-sizing: border-box; }
+        .link-list { display: flex; flex-direction: column; }
         
-        #rate-limit-warning {
-            color: var(--error);
-            font-size: 0.9rem;
-            text-align: center;
-            margin-bottom: 1.5rem;
-            display: none;
+        #tool-view { display: none; }
+        .view-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--hover-bg); padding-bottom: 1rem;}
+        .view-title { color: var(--minimal-white); font-family: var(--font-family-main); font-size: 1.5rem; margin: 0; }
+        .back-btn { background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted); padding: 0.4rem 0.8rem; font-family: inherit; font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .back-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        .group-container { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 2.5rem; }
+        .group-container:last-child { margin-bottom: 0; }
+
+        .app-btn {
+            background: transparent; border: 2px solid var(--text-muted); color: var(--text-main);
+            padding: 1.2rem 1.5rem; font-family: var(--font-family-mono); cursor: pointer; border-radius: 4px;
+            transition: all 0.2s; text-decoration: none; display: flex; justify-content: space-between; align-items: center;
         }
+        .app-btn:hover { border-color: var(--accent); background: var(--hover-bg); transform: translateX(4px); }
+        .app-title { font-size: 1.1rem; font-weight: bold; color: var(--text-main); transition: color 0.2s; }
+        .app-btn:hover .app-title { color: var(--accent); }
+        .app-date { font-size: 0.85rem; color: var(--text-muted); }
+
+        #loading { text-align: center; color: var(--accent); font-size: 1.1rem; margin-bottom: 1rem; }
+        #rate-limit-warning { color: var(--error); font-size: 0.9rem; text-align: center; margin-bottom: 1.5rem; display: none; }
     </style>
 </head>
 <body>
-
-    <div class="header-container">
-        <img id="dynamic-logo" alt="Study Hub Logo" class="logo">
-        <h1>Study Hub Terminal</h1>
-    </div>
-    <div class="subtitle">Automated Chronological Index</div>
+    <header class="header">
+        <img src="Global/SVGs/avatar.svg" alt="Avatar" class="avatar">
+        <img src="Global/SVGs/logo.svg" alt="Study Hub Logo" class="logo">
+    </header>
+    <h1>Study Hub</h1>
+    <div class="subtitle">An Organized Collection of Gamified Study Tools</div>
 
     <div class="container">
-        <div id="loading">Scanning GitHub repository timeline...</div>
-        <div id="rate-limit-warning">GitHub API rate limit reached. Displaying files with cached or approximate dates until the limit resets (1 hour).</div>
-        <div class="link-list" id="link-list"></div>
+        <div id="loading">Initializing Hub Interface...</div>
+        <div id="rate-limit-warning">GitHub API rate limit reached. Displaying tools with cached or approximate dates.</div>
+        
+        <div id="category-view">
+            <div class="link-list" id="category-list"></div>
+        </div>
+
+        <div id="tool-view">
+            <div class="view-header">
+                <h2 id="view-title" class="view-title">Category</h2>
+                <button class="back-btn" id="back-btn">← Back to Categories</button>
+            </div>
+            <div class="link-list" id="tool-list"></div>
+        </div>
     </div>
 
     <script>
-        // Force the browser to grab the newest version of the logo every single time
-        document.getElementById('dynamic-logo').src = 'lucadazyyellow.png?v=' + new Date().getTime();
-
         const repoUrl = 'https://api.github.com/repos/LucaDazy/htmls/contents/';
+        const cacheKey = 'study_hub_dates_v2';
 
-        // Added strict no-store cache busting to the API fetch
+        const loadingEl = document.getElementById('loading');
+        const warningEl = document.getElementById('rate-limit-warning');
+        const categoryView = document.getElementById('category-view');
+        const toolView = document.getElementById('tool-view');
+        const categoryList = document.getElementById('category-list');
+        const toolList = document.getElementById('tool-list');
+        const backBtn = document.getElementById('back-btn');
+        const viewTitle = document.getElementById('view-title');
+
+        let hubData = [];
+        let dateCache = {};
+
         async function fetchJSON(url) {
-            // Append a random timestamp to the URL so the browser thinks it's a completely new request
-            const separator = url.includes('?') ? '&' : '?';
-            const cacheBustedUrl = `${url}${separator}cb=${new Date().getTime()}`;
-            
+            const cacheBustedUrl = `${url}${url.includes('?') ? '&' : '?'}cb=${new Date().getTime()}`;
             const res = await fetch(cacheBustedUrl, { cache: 'no-store' });
-            if (!res.ok) throw new Error("Network/API error");
+            if (!res.ok) throw new Error(`Network/API error for ${url}`);
             return res.json();
         }
 
-        async function buildTerminal() {
-            const list = document.getElementById('link-list');
-            const loading = document.getElementById('loading');
-            const warning = document.getElementById('rate-limit-warning');
+        function parseName(name) {
+            const parts = name.split('_');
+            if (parts.length < 3) return null;
+            const sort1 = parseInt(parts[parts.length - 2], 10);
+            const sort2 = parseInt(parts[parts.length - 1], 10);
+            const displayName = parts.slice(0, -2).join(' ');
+            return { displayName, sort1, sort2 };
+        }
+
+        async function getCreationDate(path, rateLimit) {
+            if (dateCache[path]) {
+                return { date: new Date(dateCache[path]), hit: rateLimit.hit };
+            }
+            if (rateLimit.hit) {
+                return { date: new Date(), hit: rateLimit.hit };
+            }
 
             try {
-                // 1. Get current files in the repo (Always fresh)
-                let filesData;
-                try {
-                    filesData = await fetchJSON(repoUrl);
-                } catch (e) {
-                    loading.innerHTML = `<span style="color: var(--error);">Failed to connect to GitHub. Please check your internet connection or repository URL.</span>`;
-                    return;
-                }
+                const commits = await fetchJSON(`${repoUrl.replace('/contents/', '/commits')}?path=${path}&per_page=1`);
+                const creationDate = (commits && commits.length > 0) ? new Date(commits[0].commit.author.date) : new Date();
+                dateCache[path] = creationDate.toISOString();
+                return { date: creationDate, hit: rateLimit.hit };
+            } catch (e) {
+                rateLimit.hit = true;
+                warningEl.style.display = 'block';
+                return { date: new Date(), hit: rateLimit.hit };
+            }
+        }
 
-                const htmlFiles = filesData.filter(f => f.name.endsWith('.html') && f.name.toLowerCase() !== 'index.html');
+        function renderList(items, container, isCategory) {
+            container.innerHTML = '';
+            
+            // Group items by their primary sort key (the first number in _X_Y)
+            const groups = items.reduce((acc, item) => {
+                const key = isCategory ? item.sort1 : item.sort1; // Redundant but clear
+                if (!acc[key]) acc[key] = [];
+                acc[key].push(item);
+                return acc;
+            }, {});
 
-                if (htmlFiles.length === 0) {
-                    loading.style.display = 'none';
-                    list.innerHTML = '<div style="color: var(--error); text-align: center;">No HTML modules found.</div>';
-                    return;
-                }
+            const sortedGroupKeys = Object.keys(groups).sort((a, b) => b - a);
 
-                // 2. Load Local Cache (Only caching dates to avoid rate limit)
-                let cache = JSON.parse(localStorage.getItem('study_hub_dates')) || {};
-                let fileDataArray = [];
-                let rateLimitHit = false;
-
-                // 3. Process each file
-                for (const file of htmlFiles) {
-                    if (cache[file.name]) {
-                        fileDataArray.push({ name: file.name, date: new Date(cache[file.name]) });
-                    } else if (!rateLimitHit) {
-                        try {
-                            const commits = await fetchJSON(`https://api.github.com/repos/LucaDazy/htmls/commits?path=${file.name}&per_page=100`);
-                            let creationDate = new Date();
-                            if (commits && commits.length > 0) {
-                                creationDate = new Date(commits[commits.length - 1].commit.author.date);
-                            }
-                            fileDataArray.push({ name: file.name, date: creationDate });
-                            cache[file.name] = creationDate.toISOString(); 
-                        } catch (e) {
-                            rateLimitHit = true;
-                            warning.style.display = 'block';
-                            fileDataArray.push({ name: file.name, date: new Date() }); // Fallback to current date
-                        }
-                    } else {
-                        // If rate limit is already hit, just use fallback
-                        fileDataArray.push({ name: file.name, date: new Date() });
-                    }
-                }
-
-                localStorage.setItem('study_hub_dates', JSON.stringify(cache));
-
-                // 4. Sort array by date descending
-                fileDataArray.sort((a, b) => b.date - a.date);
-
-                // 5. Render UI
-                loading.style.display = 'none';
+            for (const key of sortedGroupKeys) {
+                const groupContainer = document.createElement('div');
+                groupContainer.className = 'group-container';
                 
-                let currentGroup = null;
-                let lastDate = null;
-                const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
+                const sortedItems = groups[key].sort((a, b) => b.sort2 - a.sort2);
 
-                fileDataArray.forEach(file => {
-                    if (!lastDate || Math.abs(lastDate - file.date) > TWO_DAYS_MS) {
-                        currentGroup = document.createElement('div');
-                        currentGroup.className = 'group-container';
-                        list.appendChild(currentGroup);
-                    }
-
+                for (const item of sortedItems) {
                     const a = document.createElement('a');
-                    a.href = file.name;
-                    a.target = '_blank';
                     a.className = 'app-btn';
-
-                    let displayName = file.name.replace('.html', '').replace(/([A-Z])/g, ' $1').trim();
-                    displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
-
-                    const dateStr = file.date.toLocaleDateString(undefined, { 
-                        year: 'numeric', 
-                        month: 'short', 
-                        day: 'numeric' 
-                    });
-
-                    a.innerHTML = `
-                        <span class="app-title">${displayName}</span>
-                        <span class="app-date">${rateLimitHit && !cache[file.name] ? 'Date Unknown' : dateStr}</span>
-                    `;
                     
-                    currentGroup.appendChild(a);
-                    lastDate = file.date;
-                });
+                    let titleHTML = `<span class="app-title">${item.displayName}</span>`;
+                    
+                    if (isCategory) {
+                        a.onclick = () => showToolView(item.displayName);
+                        a.style.cursor = 'pointer';
+                    } else {
+                        a.href = item.path;
+                        a.target = '_blank';
+                        const dateStr = item.date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+                        const dateClass = (item.rateLimitHit && !dateCache[item.path]) ? 'Date Unknown' : dateStr;
+                        titleHTML += `<span class="app-date">${dateClass}</span>`;
+                    }
+                    a.innerHTML = titleHTML;
+                    groupContainer.appendChild(a);
+                }
+                container.appendChild(groupContainer);
+            }
+        }
+
+        function showToolView(categoryName) {
+            const category = hubData.find(c => c.displayName === categoryName);
+            if (!category) return;
+            
+            viewTitle.innerText = category.displayName;
+            renderList(category.tools, toolList, false);
+            
+            categoryView.style.display = 'none';
+            toolView.style.display = 'block';
+        }
+
+        function showCategoryView() {
+            toolView.style.display = 'none';
+            categoryView.style.display = 'block';
+        }
+
+        async function buildHub() {
+            try {
+                dateCache = JSON.parse(localStorage.getItem(cacheKey)) || {};
+                let rateLimit = { hit: false };
+
+                const toolDirs = await fetchJSON(repoUrl + 'Tools');
+                const categoryPromises = toolDirs
+                    .filter(item => item.type === 'dir' && parseName(item.name))
+                    .map(async catDir => {
+                        const catInfo = parseName(catDir.name);
+                        const toolFolders = await fetchJSON(catDir.url);
+                        
+                        const toolPromises = toolFolders
+                            .filter(item => item.type === 'dir' && parseName(item.name))
+                            .map(async toolDir => {
+                                const toolInfo = parseName(toolDir.name);
+                                const toolFiles = await fetchJSON(toolDir.url);
+                                const htmlFile = toolFiles.find(f => f.name.endsWith('.html'));
+                                
+                                if (!htmlFile) return null;
+                                
+                                const { date, hit } = await getCreationDate(htmlFile.path, rateLimit);
+                                rateLimit.hit = hit;
+
+                                return {
+                                    displayName: toolInfo.displayName,
+                                    path: htmlFile.path,
+                                    date: date,
+                                    sort1: toolInfo.sort1,
+                                    sort2: toolInfo.sort2,
+                                    rateLimitHit: rateLimit.hit
+                                };
+                            });
+
+                        const tools = (await Promise.all(toolPromises)).filter(Boolean);
+                        return { ...catInfo, tools };
+                    });
+                
+                hubData = await Promise.all(categoryPromises);
+                localStorage.setItem(cacheKey, JSON.stringify(dateCache));
+
+                loadingEl.style.display = 'none';
+                renderList(hubData, categoryList, true);
+                showCategoryView();
 
             } catch (error) {
-                loading.innerHTML = `<span style="color: var(--error);">An unexpected error occurred building the terminal.</span>`;
+                loadingEl.innerHTML = `<span style="color: var(--error);">Failed to build hub. Check console for details.</span>`;
                 console.error(error);
             }
         }
 
-        buildTerminal();
+        backBtn.addEventListener('click', showCategoryView);
+        buildHub();
     </script>
 </body>
 </html>

@@ -25,3 +25,6 @@ The visual theme is a strict, minimalist, dark-mode aesthetic heavily inspired b
     \--success: \#8cc84b;       /\* Soft green for correct feedback \*/  
     \--hard: \#e27d60;          /\* Orange for SRS 'Hard' rating \*/  
 }  
+# 3. Asset Guidelines
+* **SVG Preference:** Use Scalable Vector Graphics (SVGs) for all icons, logos, and illustrative diagrams to ensure scalability and performance.
+* **Fallback SVG:** If a required SVG asset has not yet been created, use `Global/SVGs/wip.svg` as a placeholder to maintain layout integrity.

@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Fira+Code:wght@400;700&display=swap');
+
+:root {
+    /* User Requested Palette */
+    --bg-color: #221924;      /* Site Background */
+    --panel-bg: #3d1c60;      /* Dark purple for main containers */
+    --accent: #a5689d;        /* Muted pink/purple for interactive elements */
+    --minimal-white: #ffffff; /* Strictly used for the main title */
+    
+    /* Aesthetic Fill-Out Colors */
+    --text-main: #e0d0e3;     /* Pale lavender for readable body text */
+    --text-muted: #9c82a1;    /* Dimmer mauve for subtitles and hints */
+    --hover-bg: #512b7a;      /* Lighter purple for hover states */
+    
+    /* Drill States (Tuned to fit the deep purple vibe) */
+    --error: #e05e75;         /* Soft warm coral/red */
+    --success: #4db6ac;       /* Bioluminescent teal/green */
+
+    /* Legacy variables for easier tool migration */
+    --main-text: var(--text-main);
+    --sub-text: var(--text-muted);
+    --caret-color: var(--accent);
+    --error-color: var(--error);
+    --correct-color: var(--success);
+    --revealed-color: var(--accent);
+
+    /* Fonts */
+    --font-family-main: 'Atkinson Hyperlegible', sans-serif;
+    --font-family-mono: 'Fira Code', 'Courier New', Courier, monospace;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    font-family: var(--font-family-main);
+    margin: 0;
+    min-height: 100vh;
+}
