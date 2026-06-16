@@ -198,6 +198,7 @@
         const toolList = document.getElementById('tool-list');
         const backBtn = document.getElementById('back-btn');
         const viewTitle = document.getElementById('view-title');
+        const mainContainer = document.querySelector('.container');
 
         let hubData = [];
         let dateCache = {};
@@ -293,6 +294,7 @@
         }
 
         function showToolView(categoryName) {
+            mainContainer.scrollIntoView({ behavior: 'smooth' });
             const category = hubData.find(c => c.categoryName === categoryName);
             if (!category) return;
             viewTitle.innerText = category.categoryName;
@@ -308,6 +310,7 @@
         }
 
         function showCategoryView() {
+            mainContainer.scrollIntoView({ behavior: 'smooth' });
             toolView.classList.add('hidden');
             categoryView.classList.remove('hidden');
         }
