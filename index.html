@@ -10,6 +10,36 @@
     
     <title>Study Hub Terminal</title>
     <link rel="stylesheet" href="Global/Css/main.css">
+    <script>
+        window.addEventListener('load', () => {
+            console.log('[DEBUG] Window fully loaded (including images).');
+            const logoEl = document.querySelector('.container-header .logo');
+            
+            if (logoEl) {
+                console.log('[DEBUG] Logo element found. Tag:', logoEl.tagName);
+                
+                const checkDimensions = () => {
+                    console.log('[DEBUG] --- Checking Logo Dimensions ---');
+                    const rect = logoEl.getBoundingClientRect();
+                    console.log(`[DEBUG] BoundingRect (rendered size): width=${rect.width}, height=${rect.height}`);
+                    console.log(`[DEBUG] offsetWidth/Height: ${logoEl.offsetWidth} x ${logoEl.offsetHeight}`);
+                    console.log(`[DEBUG] naturalWidth/Height (original img size): ${logoEl.naturalWidth} x ${logoEl.naturalHeight}`);
+                    
+                    if (rect.width === 0 || rect.height === 0) {
+                        console.error('[DEBUG] FATAL: Logo is rendered with zero dimensions, making it invisible.');
+                        const parentRect = logoEl.parentElement.getBoundingClientRect();
+                        console.warn(`[DEBUG] Parent (.container-header) dimensions: width=${parentRect.width}, height=${parentRect.height}`);
+                    } else {
+                        console.log('[DEBUG] SUCCESS: Logo rendered with non-zero dimensions.');
+                    }
+                };
+                setTimeout(checkDimensions, 100); // Small delay for rendering safety
+
+            } else {
+                console.error('[DEBUG] FATAL: Logo element was not found in the DOM.');
+            }
+        });
+    </script>
     <style>
         body {
             font-family: var(--font-family-main); /* USE ATKINSON FOR MAIN TEXT */
@@ -29,7 +59,6 @@
         .container-header .logo {
             max-width: 896px; /* 1.6x bigger */
             height: auto;
-            pointer-events: none; /* Prevents object from interfering with mouse events */
         }
 
         .container-footer {
@@ -118,9 +147,7 @@
 </head>
 <body>
     <div class="container-header">
-        <object type="image/svg+xml" data="Global/SVGs/logo.svg" class="logo">
-            Study Hub Logo
-        </object>
+        <img src="Global/SVGs/logo.svg" alt="Study Hub Logo" class="logo">
     </div>
 
     <div class="container">
