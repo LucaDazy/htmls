@@ -419,17 +419,33 @@
     </script>
 
     <script>
-      // Register the service worker to enable offline access and asset caching
+      // Register the service worker to enable offline access and asset caching with enhanced logging
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('service-worker.js')
             .then(registration => {
-              console.log('ServiceWorker registration successful with scope: ', registration.scope);
+              console.log('[SW Registration] ServiceWorker registration successful with scope: ', registration.scope);
+
+              // This logic helps debug service worker updates.
+              registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                console.log('[SW Registration] New service worker found. State:', newWorker.state);
+                newWorker.addEventListener('statechange', () => {
+                  console.log('[SW Registration] Service worker state changed:', newWorker.state);
+                });
+              });
             })
             .catch(error => {
-              console.error('ServiceWorker registration failed: ', error);
+              console.error('[SW Registration] ServiceWorker registration failed: ', error);
             });
         });
+        
+        // Log if a service worker is already controlling the page on load.
+        if (navigator.serviceWorker.controller) {
+            console.log('[SW Registration] This page is currently controlled by:', navigator.serviceWorker.controller);
+        }
+      } else {
+        console.warn('[SW Registration] Service workers are not supported in this browser.');
       }
     </script>
 </body>
