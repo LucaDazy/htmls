@@ -83,6 +83,10 @@
     opacity: 0;
     transform: translateY(10px);
     pointer-events: none;
+    
+    /* Take the hidden view out of the document flow */
+    position: absolute;
+    width: calc(100% - 4rem); /* Match parent container's padding */
 }
 
 /* ---------- Loading Animation ---------- */

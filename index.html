@@ -71,7 +71,7 @@
             color: var(--accent);
         }
 
-        .container { width: 100%; max-width: 700px; background: var(--panel-bg); padding: 2rem; border-radius: 8px; box-sizing: border-box; }
+        .container { width: 100%; max-width: 700px; background: var(--panel-bg); padding: 2rem; border-radius: 8px; box-sizing: border-box; position: relative; }
         /* Ensure animations don't break layout on older browsers */
         .app-btn { animation: none; } /* reset, will be overridden by animations.css */
         .link-list { display: flex; flex-direction: column; }
@@ -294,8 +294,11 @@
             categoryView.classList.add('hidden');
             toolView.classList.remove('hidden');
             
-            // By re-rendering the list, we ensure the stagger animation re-triggers
-            renderList(category.tools, toolList, false);
+            // Delay rendering slightly. This gives the view time to start its
+            // transition, ensuring the list item animations are visible.
+            setTimeout(() => {
+                renderList(category.tools, toolList, false);
+            }, 50); // A small 50ms delay is enough.
         }
 
         function showCategoryView() {
