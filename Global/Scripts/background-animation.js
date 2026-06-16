@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const DOODLE_COLOR = '#403143'; // A subtle, but more visible, lighter version of --bg-color
     const NUM_STARS = 100;
     const NUM_DOODLES = 20;
-    const DOODLE_JITTER_AMOUNT = 0.5; // Pixels to jitter in any direction
 
     let particles = [];
     let loadedImages = {};
@@ -91,17 +90,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         // Create Doodles
         for (let i = 0; i < NUM_DOODLES; i++) {
-            const originalX = Math.random() * canvas.width;
-            const originalY = Math.random() * canvas.height;
+            const doodleImg = loadedImages[assets.doodles[Math.floor(Math.random() * assets.doodles.length)]];
+            const scale = 2 + Math.random() * 2;
+
+            // Create an off-screen canvas for this particle
+            const offscreenCanvas = document.createElement('canvas');
+            const offscreenCtx = offscreenCanvas.getContext('2d');
+            offscreenCanvas.width = doodleImg.width * scale;
+            offscreenCanvas.height = doodleImg.height * scale;
+
             particles.push({
-                x: originalX,
-                y: originalY,
-                originalX: originalX,
-                originalY: originalY,
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
                 type: 'doodle',
                 doodleType: Math.floor(Math.random() * assets.doodles.length),
-                scale: 2 + Math.random() * 2,
-                opacity: 0.8
+                scale: scale,
+                opacity: 0.8,
+                img: doodleImg,
+                offscreenCanvas: offscreenCanvas,
+                offscreenCtx: offscreenCtx
             });
         }
     }
@@ -115,17 +122,22 @@ document.addEventListener('DOMContentLoaded', () => {
             if (p.type === 'star') {
                 img = loadedImages[assets.stars[0]];
             } else { // doodle
-                // Apply jitter effect by modifying position every frame
-                p.x = p.originalX + (Math.random() - 0.5) * DOODLE_JITTER_AMOUNT * 2;
-                p.y = p.originalY + (Math.random() - 0.5) * DOODLE_JITTER_AMOUNT * 2;
-                img = loadedImages[assets.doodles[p.doodleType]];
+                // Step 1: Clear the small off-screen canvas
+                p.offscreenCtx.clearRect(0, 0, p.offscreenCanvas.width, p.offscreenCanvas.height);
+
+                // Step 2: Draw the currently animated SVG frame onto the off-screen canvas
+                p.offscreenCtx.drawImage(p.img, 0, 0, p.offscreenCanvas.width, p.offscreenCanvas.height);
+
+                // Step 3: Set the 'img' to be the off-screen canvas itself for the main draw operation
+                img = p.offscreenCanvas;
             }
 
             if (img) {
-                const w = img.width * p.scale;
-                const h = img.height * p.scale;
+                // For doodles, img is already scaled. For stars, we use p.scale.
+                const w = p.type === 'doodle' ? img.width : img.width * p.scale;
+                const h = p.type === 'doodle' ? img.height : img.height * p.scale;
                 ctx.globalAlpha = p.opacity;
-                ctx.drawImage(img, p.x - w / 2, p.y - h / 2, w, h);
+                ctx.drawImage(img, p.x - w / 2, p.y - h / 2);
             }
         });
 

@@ -1,3 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-    <path d="m18 10-8-8-7 7 8 8m-5-3 6-6m4-4 2 2"/>
+    <defs>
+        <filter id="boil" x="-10%" y="-10%" width="120%" height="120%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.2" numOctaves="2" result="noise">
+                <animate attributeName="seed" values="0;1;2;3;4;5" dur="0.6s" repeatCount="indefinite" calcMode="discrete"/>
+            </feTurbulence>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.0" />
+        </filter>
+    </defs>
+    <g filter="url(#boil)">
+        <path d="m18 10-8-8-7 7 8 8m-5-3 6-6m4-4 2 2"/>
+    </g>
 </svg>
