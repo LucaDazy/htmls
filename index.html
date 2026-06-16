@@ -75,6 +75,9 @@
         
         #tool-view { display: none; }
         .view-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--hover-bg); padding-bottom: 1rem;}
+        .centered-header {
+            justify-content: center;
+        }
         .view-title { color: var(--minimal-white); font-family: var(--font-family-main); font-size: 1.5rem; margin: 0; }
         .back-btn { background: transparent; border: 2px solid var(--text-muted); color: var(--text-muted); padding: 0.4rem 0.8rem; font-family: var(--font-family-mono); font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
         .back-btn:hover { border-color: var(--accent); color: var(--accent); }
@@ -126,6 +129,9 @@
         <div id="rate-limit-warning">GitHub API rate limit reached. Displaying tools with cached or approximate dates.</div>
         
         <div id="category-view">
+            <div class="view-header centered-header">
+                <h2 class="view-title">Hello (つ ͡ꈍ ͜ʖ̫ ͡ꈍ )</h2>
+            </div>
             <div class="link-list" id="category-list"></div>
         </div>
 
