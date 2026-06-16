@@ -9,6 +9,37 @@
     <meta http-equiv="Expires" content="0">
     
     <title>Study Hub Terminal</title>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('[DEBUG] DOM fully loaded.');
+            const logoImg = document.querySelector('.container-header .logo');
+            if (logoImg) {
+                console.log('[DEBUG] Logo <img> element found:', logoImg);
+                console.log('[DEBUG] Logo src attribute:', logoImg.src);
+                
+                logoImg.onload = () => {
+                    console.log('[DEBUG] Logo image loaded successfully via onload event.');
+                    console.log('[DEBUG] --- Logo Dimensions ---');
+                    console.log(`[DEBUG] Natural (Original) WxH: ${logoImg.naturalWidth} x ${logoImg.naturalHeight}`);
+                    console.log(`[DEBUG] Rendered WxH: ${logoImg.width} x ${logoImg.height}`);
+                    const computed = window.getComputedStyle(logoImg);
+                    console.log(`[DEBUG] Computed WxH: ${computed.width} x ${computed.height}`);
+                    console.log(`[DEBUG] Computed display: ${computed.display}, opacity: ${computed.opacity}`);
+                };
+                logoImg.onerror = () => {
+                    console.error('[DEBUG] FATAL: Logo image failed to load via onerror event. Check file path and server permissions.');
+                };
+
+                // Fallback check in case onload fires too fast
+                if (logoImg.complete) {
+                     console.log('[DEBUG] Logo image was already complete on script run.');
+                }
+
+            } else {
+                console.error('[DEBUG] FATAL: Logo <img> element with class ".container-header .logo" was not found in the DOM.');
+            }
+        });
+    </script>
     <link rel="stylesheet" href="Global/Css/main.css">
     <style>
         body {
@@ -27,15 +58,20 @@
         }
 
         .container-header .logo {
-            max-width: 350px; /* Bigger logo */
+            max-width: 560px; /* Bigger logo */
             height: auto;
         }
 
         .container-footer {
             text-align: center;
             margin-top: 3rem;
-            padding-top: 2rem;
-            border-top: 1px solid var(--hover-bg);
+            padding: 2rem;
+            background: var(--text-main);
+            border-radius: 0 0 8px 8px;
+            /* Negative margins to absorb parent padding */
+            margin-left: -2rem;
+            margin-right: -2rem;
+            margin-bottom: -2rem;
         }
 
         .container-footer .avatar {
@@ -45,12 +81,12 @@
         }
 
         .contact-info {
-            color: var(--text-muted);
+            color: var(--panel-bg); /* Dark purple text */
             font-size: 0.9rem;
         }
 
         .contact-info a {
-            color: var(--text-main);
+            color: var(--bg-color); /* Darkest site color for link */
             text-decoration: none;
             font-weight: bold;
         }
