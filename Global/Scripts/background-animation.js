@@ -61,7 +61,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!svgContentMatch || !svgContentMatch[1]) {
                         return reject(new Error(`Could not parse content of SVG: ${url}`));
                     }
-                    let innerContent = svgContentMatch[1].replace(/filter="url\(#jitter\)"/g, '');
+                    // Strip the jitter filter definition and usage for performance.
+                    // The filter is for standalone viewing, not for the canvas animation.
+                    let innerContent = svgContentMatch[1]
+                        .replace(/<defs>[\s\S]*?<\/defs>/, '')
+                        .replace(/filter="url\(#jitter\)"/g, '');
 
                     const normalizedSvgString = `
                         <svg xmlns="http://www.w3.org/2000/svg" width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}">
