@@ -43,27 +43,49 @@ document.addEventListener('DOMContentLoaded', () => {
                     return response.text();
                 })
                 .then(svgText => {
-                    // 1. Remove the non-functional jitter filter to prevent rendering issues
-                    const noFilterSvg = svgText.replace(/filter="url\(#jitter\)"/g, '');
-                    // 2. Replace the white color with our desired subtle background color
-                    const coloredSvg = noFilterSvg.replace(/#FFFFFF/gi, DOODLE_COLOR);
+                    // --- SVG Normalization Logic ---
 
-                    // 3. Intelligently parse the viewBox to get the SVG's native dimensions
+                    // 1. Parse viewBox to get dimensions and offsets
                     const viewBoxMatch = svgText.match(/viewBox="([^"]+)"/);
-                    let svgWidth = 100, svgHeight = 100; // A safe default
+                    let svgWidth = 100, svgHeight = 100, minX = 0, minY = 0;
                     if (viewBoxMatch && viewBoxMatch[1]) {
                         const parts = viewBoxMatch[1].split(' ');
                         if (parts.length === 4) {
+                            minX = parseFloat(parts[0]);
+                            minY = parseFloat(parts[1]);
                             svgWidth = parseFloat(parts[2]);
                             svgHeight = parseFloat(parts[3]);
                         }
                     }
+
+                    // 2. Extract the content inside the <svg> tag
+                    const svgContentMatch = svgText.match(/<svg[^>]*>([\s\S]*)<\/svg>/i);
+                    if (!svgContentMatch || !svgContentMatch[1]) {
+                        return reject(new Error(`Could not parse content of SVG: ${url}`));
+                    }
+                    let innerContent = svgContentMatch[1];
+
+                    // 3. Remove the non-functional filter
+                    innerContent = innerContent.replace(/filter="url\(#jitter\)"/g, '');
+
+                    // 4. Create a new, normalized SVG string that is perfectly centered
+                    const normalizedSvgString = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}">
+                            <g transform="translate(${-minX}, ${-minY})">
+                                ${innerContent}
+                            </g>
+                        </svg>
+                    `;
                     
+                    // 5. Apply the desired color
+                    const coloredSvg = normalizedSvgString.replace(/#FFFFFF/gi, DOODLE_COLOR);
+
+                    // --- Image Loading Logic ---
                     const blob = new Blob([coloredSvg], { type: 'image/svg+xml' });
                     const blobUrl = URL.createObjectURL(blob);
                     
                     img.onload = () => {
-                        // Store the image object and its real dimensions
+                        // Store the image object and its true dimensions
                         loadedImageObjects[url] = { img, width: svgWidth, height: svgHeight };
                         resolve();
                     };
@@ -88,7 +110,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function createParticles() {
         particles = [];
-        // Create shuffled "lanes" to distribute particles horizontally, reducing initial overlap.
         const laneWidth = canvas.width / TOTAL_PARTICLES;
         const lanes = Array.from({ length: TOTAL_PARTICLES }, (_, i) => i).sort(() => Math.random() - 0.5);
 
@@ -96,11 +117,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const url = assetUrls[Math.floor(Math.random() * assetUrls.length)];
             const asset = loadedImageObjects[url];
             
-            // --- Smart Sizing Logic ---
-            // Target an average size and calculate the correct scale for each unique SVG.
-            const baseSize = 35; // The average size you want the doodles to be (in pixels)
+            const baseSize = 35; 
             const maxDim = Math.max(asset.width, asset.height);
-            // Calculate scale and add a bit of random variation
             const scale = (baseSize / maxDim) * (0.8 + Math.random() * 0.4); 
 
             const laneIndex = lanes.pop();
@@ -108,8 +126,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 x: (laneIndex * laneWidth) + (Math.random() * laneWidth),
                 y: Math.random() * canvas.height,
                 scale: scale,
-                opacity: 0.2 + Math.random() * 0.6, // Varied opacity for depth
-                speed: 0.05 + Math.random() * 0.2,   // Slow to very slow falling speed
+                opacity: 0.2 + Math.random() * 0.6,
+                speed: 0.05 + Math.random() * 0.2,
                 imgObject: asset.img,
                 baseWidth: asset.width,
                 baseHeight: asset.height
@@ -121,16 +139,13 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         particles.forEach(p => {
-            // Update position for the falling effect
             p.y += p.speed;
-
             const w = p.baseWidth * p.scale;
             const h = p.baseHeight * p.scale;
 
-            // If a particle's top edge has passed the bottom of the screen, recycle it.
             if (p.y - h > canvas.height) {
-                p.y = -h; // Reset completely above the screen to prevent "popping in."
-                p.x = Math.random() * canvas.width; // Give it a new horizontal position.
+                p.y = -h;
+                p.x = Math.random() * canvas.width;
             }
             
             ctx.globalAlpha = p.opacity;
