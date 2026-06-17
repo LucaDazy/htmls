@@ -111,10 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const url = fillerUrls[Math.floor(Math.random() * fillerUrls.length)];
             const asset = loadedImageObjects[url];
             
-            let baseSize = 25; // Base size for small fillers
-            if (url.includes('plus.svg')) {
-                baseSize *= 0.5; // Make plus even smaller
-            }
+            const baseSize = 42; // Base size for small fillers (1.7x larger)
             
             const maxDim = Math.max(asset.width, asset.height);
             const scale = (baseSize / maxDim) * (0.8 + Math.random() * 0.4); 
@@ -136,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const url = doodleUrls[Math.floor(Math.random() * doodleUrls.length)];
             const asset = loadedImageObjects[url];
             
-            const baseSize = 140; // New, much larger size for doodles
+            const baseSize = 182; // Larger size for doodles (1.3x larger)
             const maxDim = Math.max(asset.width, asset.height);
             const scale = (baseSize / maxDim) * (0.8 + Math.random() * 0.4); 
 

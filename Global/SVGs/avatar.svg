@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 500" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 500">
     <defs>
         <filter id="jittery-edges" x="-5%" y="-5%" width="110%" height="110%">
             <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="3" result="noise">
@@ -9,8 +9,7 @@
         </filter>
     </defs>
 
-    <g transform="translate(-70, -35)">
-        <g filter="url(#jittery-edges)">
+    <g filter="url(#jittery-edges)" transform="translate(-70, -35)">
             <path d="M 160 250 L 90 260 L 150 310 Z M 160 360 L 95 405 L 170 430 Z M 220 480 L 170 520 L 250 500 Z" fill="#3d1c60"/>
             <path d="M 430 260 L 495 285 L 450 325 Z M 440 335 L 500 355 L 430 400 Z" fill="#3d1c60"/>
 
@@ -47,6 +46,5 @@
             </g>
             <circle cx="295" cy="140" r="5" fill="#3d1c60"/>
             <circle cx="335" cy="140" r="5" fill="#3d1c60"/>
-        </g>
     </g>
 </svg>

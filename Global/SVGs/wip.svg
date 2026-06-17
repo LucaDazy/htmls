@@ -14,8 +14,7 @@
         </pattern>
     </defs>
 
-    <g transform="translate(-4, -2)">
-        <g filter="url(#crayon)">
+    <g filter="url(#crayon)" transform="translate(-4, -2)">
             
             <g stroke="#a66897" stroke-width="5" stroke-linecap="round">
                 <line x1="12" y1="18" x2="28" y2="34"/>
@@ -54,6 +53,5 @@
                       fill-rule="evenodd" fill="url(#scribble-dark)"/>
             </g>
 
-        </g>
     </g>
 </svg>
