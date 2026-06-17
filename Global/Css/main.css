@@ -1,5 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Fira+Code:wght@400;700&display=swap');
 
+/* Custom Font Definition */
+@font-face {
+    font-family: 'DK Cool Crayon';
+    src: url('../Fonts/DKCoolCrayon-Regular.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap; /* Ensures text is visible while font loads */
+}
+
 :root {
     /* User Requested Palette */
     --bg-color: #221924;      /* Site Background */
@@ -27,6 +36,7 @@
     /* Fonts */
     --font-family-main: 'Atkinson Hyperlegible', sans-serif;
     --font-family-mono: 'Fira Code', 'Courier New', Courier, monospace;
+    --font-family-display: 'DK Cool Crayon', 'Atkinson Hyperlegible', sans-serif; /* For special titles */
 
     /* Animation Timing */
     --anim-duration-fast: 0.2s;
