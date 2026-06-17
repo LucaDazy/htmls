@@ -45,7 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     img.onload = () => {
                         loadedImageObjects[url] = img;
                         resolve(img);
-                        // We don't revoke the blob URL because the images need it.
                     };
                     img.onerror = () => reject(new Error(`Image object failed to load for ${url}`));
                     img.src = blobUrl;
@@ -69,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function createParticles() {
         particles = [];
-        // Create Stars
+        // Create Stars (static)
         for (let i = 0; i < NUM_STARS; i++) {
             particles.push({
                 x: Math.random() * canvas.width,
@@ -80,32 +79,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 imgObject: loadedImageObjects[assets.stars[0]]
             });
         }
-        // Create Doodles
+        // Create Doodles (falling)
         for (let i = 0; i < NUM_DOODLES; i++) {
             const doodleUrl = assets.doodles[Math.floor(Math.random() * assets.doodles.length)];
-            const imgObject = loadedImageObjects[doodleUrl];
-            
-            // New, intermediate size. The base SVG is 24px. This gives a range of ~29px to ~48px.
-            const scale = 1.2 + Math.random() * 0.8; 
-            const width = imgObject.width * scale;
-            const height = imgObject.height * scale;
-
-            // Create a dedicated off-screen canvas for this particle
-            const offscreenCanvas = document.createElement('canvas');
-            offscreenCanvas.width = width;
-            offscreenCanvas.height = height;
-            const offscreenCtx = offscreenCanvas.getContext('2d');
-
             particles.push({
                 x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
+                y: Math.random() * canvas.height, // Start at a random Y position
                 type: 'doodle',
                 opacity: 0.8,
-                width: width,
-                height: height,
-                imgObject: imgObject,
-                offscreenCanvas: offscreenCanvas,
-                offscreenCtx: offscreenCtx
+                scale: 1.5 + Math.random() * 1.0, // New intermediate size
+                speed: 0.2 + Math.random() * 0.3, // Slow falling speed
+                imgObject: loadedImageObjects[doodleUrl]
             });
         }
     }
@@ -114,23 +98,21 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         particles.forEach(p => {
-            let imageToDraw = p.imgObject;
-            let w = p.width;
-            let h = p.height;
-            
             if (p.type === 'doodle') {
-                // Step 1: Render the animated SVG onto the particle's hidden canvas
-                p.offscreenCtx.clearRect(0, 0, p.width, p.height);
-                p.offscreenCtx.drawImage(p.imgObject, 0, 0, p.width, p.height);
-                // Step 2: Use the hidden canvas as the source for the main draw operation
-                imageToDraw = p.offscreenCanvas;
-            } else { // 'star'
-                w = p.imgObject.width * p.scale;
-                h = p.imgObject.height * p.scale;
+                // Update position for falling effect
+                p.y += p.speed;
+                // If it goes off the bottom, recycle it to the top
+                if (p.y > canvas.height + 50) {
+                    p.y = -50; // Reset above the screen
+                    p.x = Math.random() * canvas.width; // Reset to a new horizontal position
+                }
             }
             
+            const w = p.imgObject.width * p.scale;
+            const h = p.imgObject.height * p.scale;
+            
             ctx.globalAlpha = p.opacity;
-            ctx.drawImage(imageToDraw, p.x - w / 2, p.y - h / 2, w, h);
+            ctx.drawImage(p.imgObject, p.x - w / 2, p.y - h / 2, w, h);
         });
 
         requestAnimationFrame(animate);
