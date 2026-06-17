@@ -1,3 +1,5 @@
+const basePath = document.currentScript.dataset.basePath || '';
+
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('background-canvas');
     if (!canvas) {
@@ -18,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'Global/SVGs/doodles/plus.svg',
         'Global/SVGs/doodles/sparkle.svg',
         'Global/SVGs/doodles/square.svg'
-    ];
+    ].map(url => basePath + url);
     const doodleUrls = [
         'Global/SVGs/doodles/apple.svg',
         'Global/SVGs/doodles/books.svg',
@@ -28,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'Global/SVGs/doodles/ruler.svg',
         'Global/SVGs/doodles/star.svg',
         'Global/SVGs/doodles/worm.svg'
-    ];
+    ].map(url => basePath + url);
     const assetUrls = [...fillerUrls, ...doodleUrls];
 
     function resizeCanvas() {
@@ -113,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ...Array(3).fill('Global/SVGs/doodles/dot.svg'),      // Increased 1.5x
             ...Array(2).fill('Global/SVGs/doodles/plus.svg'),    // Standard
             ...Array(1).fill('Global/SVGs/doodles/square.svg'),  // Decreased
-        ];
+        ].map(url => basePath + url);
 
         // Create Fillers
         for (let i = 0; i < numFillers; i++) {
