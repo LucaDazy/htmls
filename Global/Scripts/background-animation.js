@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const assets = {
         stars: ['Global/SVGs/doodles/star-1.svg'],
         doodles: [
+            'Global/SVGs/doodles/star-1.svg',
             'Global/SVGs/doodles/apple.svg',
             'Global/SVGs/doodles/pencil.svg',
             'Global/SVGs/doodles/worm.svg'
