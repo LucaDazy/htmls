@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
         stars: ['Global/SVGs/doodles/star-1.svg'],
         doodles: [
             'Global/SVGs/doodles/apple.svg',
-            'Global/SVGs/doodles/book.svg',
             'Global/SVGs/doodles/pencil.svg',
             'Global/SVGs/doodles/worm.svg'
         ]
