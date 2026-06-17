@@ -8,7 +8,7 @@
         </filter>
     </defs>
 
-    <g filter="url(#jitter)" fill="none" stroke="#FFFFFF" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round" transform="rotate(-38, 350, 350)">
+    <g filter="url(#jitter)" fill="none" stroke="#FFFFFF" stroke-width="11.25" stroke-linecap="round" stroke-linejoin="round" transform="rotate(-38, 350, 350)">
         
         <path d="M 350 60 L 330 110 Q 350 120 370 110 Z" fill="#FFFFFF" stroke-linejoin="miter" />
 
