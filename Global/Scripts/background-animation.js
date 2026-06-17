@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctx = canvas.getContext('2d');
 
     // --- Configuration ---
-    const PIXELATION_FACTOR = 15; // Lower is more pixelated, higher is less. Start with 15.
+    const PIXELATION_FACTOR = 30; // Larger number = larger pixels. Doubled for a stronger effect.
     const DOODLE_COLOR = '#403143'; // The subtle color for the doodles
 
     let particles = [];
@@ -185,17 +185,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const scaledWidth = canvas.width / PIXELATION_FACTOR;
         const scaledHeight = canvas.height / PIXELATION_FACTOR;
 
-        // Turn off image smoothing to get sharp pixels.
+        // Turn off image smoothing to get sharp, blocky pixels.
         ctx.imageSmoothingEnabled = false;
-        
-        // Downscale the image to create the low-res version.
+
+        // Downscale the image to a temporary, low-resolution version in the top-left corner.
         ctx.drawImage(canvas, 0, 0, scaledWidth, scaledHeight);
-        
-        // Upscale the low-res version back to full size, creating the pixelated effect.
+
+        // Use the 'copy' operation to ensure the next draw completely replaces the existing canvas content.
+        ctx.globalCompositeOperation = 'copy';
+
+        // Upscale the temporary low-res version back to the full canvas size.
+        // This overwrites the original high-res drawing with the pixelated version.
         ctx.drawImage(canvas, 0, 0, scaledWidth, scaledHeight, 0, 0, canvas.width, canvas.height);
 
-        // It's good practice to restore the context state.
+        // It's crucial to restore the context state for the next frame's drawing.
         ctx.imageSmoothingEnabled = true;
+        ctx.globalCompositeOperation = 'source-over';
 
         // 3. Request the next frame.
         requestAnimationFrame(animate);
