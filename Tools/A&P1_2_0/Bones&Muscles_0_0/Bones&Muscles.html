@@ -6,20 +6,11 @@
     <title>Bones &amp; Muscles - Master Atlas &amp; Rosetta Engine</title>
     <link rel="icon" href="../../../Global/SVGs/avatar.svg" type="image/svg+xml">
     <link rel="stylesheet" href="../../../Global/Css/main.css">
+    <link rel="stylesheet" href="../../../Global/Css/animations.css">
     <style>
         :root {
             --hard: var(--accent);
             --glow: var(--success);
-        }
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 2rem;
-            margin: 0;
-            min-height: 100vh;
         }
 
         h1 { color: var(--accent); margin-bottom: 0.5rem; text-align: center; }
@@ -132,8 +123,10 @@
     <script src="Bones&Muscles_data.js"></script>
 </head>
 <body>
+    <canvas id="background-canvas"></canvas>
 
-    <h1>A&P 1 Mastery Engine</h1>
+    <div class="content-wrapper">
+        <h1>A&P 1 Mastery Engine</h1>
     <div class="subtitle">Bones &amp; Muscles - Anatomical Decoder &amp; Spaced Repetition Cache</div>
 
     <div class="container">
@@ -205,7 +198,8 @@
             <div class="dict-grid" id="dict-grid"></div>
         </details>
 
-    </div>
+    </div> <!-- .container -->
+    </div> <!-- .content-wrapper -->
 
     <script>
         // --- 1. ROSETTA STONE DICTIONARY ---
@@ -477,5 +471,6 @@
         };
 
     </script>
+    <script src="../../../Global/Scripts/background-animation.js" defer></script>
 </body>
 </html>
