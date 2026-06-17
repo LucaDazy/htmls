@@ -178,6 +178,9 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.drawImage(p.imgObject, p.x - w / 2, p.y - h / 2, w, h);
         });
 
+        // Restore full opacity before applying the pixelation effect.
+        ctx.globalAlpha = 1.0;
+
         // 2. Apply the pixelation effect.
         const scaledWidth = canvas.width / PIXELATION_FACTOR;
         const scaledHeight = canvas.height / PIXELATION_FACTOR;
