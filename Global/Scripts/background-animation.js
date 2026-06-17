@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const assetUrls = [
         'Global/SVGs/doodles/apple.svg',
         'Global/SVGs/doodles/books.svg',
-        'Global/SVGs/doodles/dot.svg',
         'Global/SVGs/doodles/emc2.svg',
         'Global/SVGs/doodles/gradcap.svg',
         'Global/SVGs/doodles/pencil.svg',
