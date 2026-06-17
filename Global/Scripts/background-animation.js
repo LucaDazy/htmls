@@ -68,27 +68,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function createParticles() {
         particles = [];
-        // Create Stars (static)
+        const totalParticles = NUM_STARS + NUM_DOODLES;
+        // Create shuffled "lanes" to distribute particles horizontally, reducing initial overlap.
+        const laneWidth = canvas.width / totalParticles;
+        const lanes = Array.from({ length: totalParticles }, (_, i) => i).sort(() => Math.random() - 0.5);
+
+        // Create Stars (now falling)
         for (let i = 0; i < NUM_STARS; i++) {
+            const laneIndex = lanes.pop();
             particles.push({
-                x: Math.random() * canvas.width,
+                x: (laneIndex * laneWidth) + (Math.random() * laneWidth), // Spawn in a unique lane
                 y: Math.random() * canvas.height,
-                type: 'star',
                 scale: 0.5 + Math.random() * 0.5,
                 opacity: 0.2 + Math.random() * 0.5,
+                speed: 0.05 + Math.random() * 0.1, // Very slow speed
                 imgObject: loadedImageObjects[assets.stars[0]]
             });
         }
         // Create Doodles (falling)
         for (let i = 0; i < NUM_DOODLES; i++) {
             const doodleUrl = assets.doodles[Math.floor(Math.random() * assets.doodles.length)];
+            const laneIndex = lanes.pop();
             particles.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height, // Start at a random Y position
-                type: 'doodle',
+                x: (laneIndex * laneWidth) + (Math.random() * laneWidth), // Spawn in a unique lane
+                y: Math.random() * canvas.height,
                 opacity: 0.8,
-                scale: 1.5 + Math.random() * 1.0, // New intermediate size
-                speed: 0.2 + Math.random() * 0.3, // Slow falling speed
+                scale: 1.5 + Math.random() * 1.0,
+                speed: 0.1 + Math.random() * 0.15, // Slower falling speed
                 imgObject: loadedImageObjects[doodleUrl]
             });
         }
@@ -98,18 +104,17 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         particles.forEach(p => {
-            if (p.type === 'doodle') {
-                // Update position for falling effect
-                p.y += p.speed;
-                // If it goes off the bottom, recycle it to the top
-                if (p.y > canvas.height + 50) {
-                    p.y = -50; // Reset above the screen
-                    p.x = Math.random() * canvas.width; // Reset to a new horizontal position
-                }
-            }
-            
-            const w = p.imgObject.width * p.scale;
+            // Update position for the falling effect
+            p.y += p.speed;
+
             const h = p.imgObject.height * p.scale;
+            const w = p.imgObject.width * p.scale;
+
+            // If a particle's top edge has passed the bottom of the screen, recycle it.
+            if (p.y - h / 2 > canvas.height) {
+                p.y = -h; // Reset completely above the screen to prevent "popping in."
+                p.x = Math.random() * canvas.width; // Give it a new horizontal position.
+            }
             
             ctx.globalAlpha = p.opacity;
             ctx.drawImage(p.imgObject, p.x - w / 2, p.y - h / 2, w, h);
