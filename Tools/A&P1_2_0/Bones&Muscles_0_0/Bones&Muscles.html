@@ -113,6 +113,27 @@
         .end-screen { text-align: center; display: none; padding: 4rem 0; width: 100%; background: var(--panel-bg); border-radius: 8px;}
         .end-screen h2 { color: var(--success); }
 
+        /* Corner Graphics */
+        .corner-logo,
+        .corner-avatar {
+            position: fixed;
+            bottom: 1.5rem;
+            width: 80px; /* Approx. 1 inch on a standard 16" display */
+            height: auto;
+            z-index: 10;
+            opacity: 0.4;
+            transition: opacity 0.3s ease;
+            pointer-events: none; /* Make them decorative so they don't interfere */
+        }
+        
+        .corner-logo {
+            left: 1.5rem;
+        }
+
+        .corner-avatar {
+            right: 1.5rem;
+        }
+
         @media (max-width: 600px) {
             .details-grid { grid-template-columns: 1fr; gap: 0.3rem; }
             .detail-label { text-align: left; }
@@ -124,6 +145,8 @@
 </head>
 <body>
     <canvas id="background-canvas"></canvas>
+    <img src="../../../Global/SVGs/logo.svg" alt="Study Hub Logo" class="corner-logo">
+    <img src="../../../Global/SVGs/avatar.svg" alt="Avatar" class="corner-avatar">
 
     <div class="content-wrapper">
         <h1>A&P 1 Mastery Engine</h1>
