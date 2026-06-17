@@ -99,19 +99,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function createParticles() {
         particles = [];
-        const numFillers = 150; // Increased count for small shapes
+        const numFillers = 150; 
         const numDoodles = 15;  // Reduced count for large shapes
-        const totalParticles = numFillers + numDoodles;
 
-        const laneWidth = canvas.width / totalParticles;
-        const lanes = Array.from({ length: totalParticles }, (_, i) => i).sort(() => Math.random() - 0.5);
+        // Create a weighted array to control the distribution of filler shapes
+        const weightedFillerUrls = [
+            ...Array(4).fill('Global/SVGs/doodles/sparkle.svg'), // Increased
+            ...Array(3).fill('Global/SVGs/doodles/dot.svg'),      // Increased 1.5x
+            ...Array(2).fill('Global/SVGs/doodles/plus.svg'),    // Standard
+            ...Array(1).fill('Global/SVGs/doodles/square.svg'),  // Decreased
+        ];
 
         // Create Fillers
         for (let i = 0; i < numFillers; i++) {
-            const url = fillerUrls[Math.floor(Math.random() * fillerUrls.length)];
+            const url = weightedFillerUrls[Math.floor(Math.random() * weightedFillerUrls.length)];
             const asset = loadedImageObjects[url];
             
-            const baseSize = 42; // Base size for small fillers (1.7x larger)
+            let baseSize = 25 * 1.7; // Start with the smaller size and increase it by 1.7x
+            if (url.includes('plus.svg')) {
+                baseSize *= 0.5; // Apply the requested reduction for the plus sign
+            }
             
             const maxDim = Math.max(asset.width, asset.height);
             const scale = (baseSize / maxDim) * (0.8 + Math.random() * 0.4); 
@@ -133,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const url = doodleUrls[Math.floor(Math.random() * doodleUrls.length)];
             const asset = loadedImageObjects[url];
             
-            const baseSize = 182; // Larger size for doodles (1.3x larger)
+            const baseSize = 140 * 1.3; // Start with the original larger size and increase by 1.3x
             const maxDim = Math.max(asset.width, asset.height);
             const scale = (baseSize / maxDim) * (0.8 + Math.random() * 0.4); 
 
