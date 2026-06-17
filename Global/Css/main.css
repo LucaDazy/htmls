@@ -67,6 +67,7 @@ body {
     background-color: var(--bg-color);
     z-index: -1; /* Places the canvas behind all other content */
     pointer-events: none; /* Ensures the canvas doesn't intercept mouse clicks */
+    animation: fadeIn 1s ease both; /* Subtle fade-in on page load */
 }
 
 .container-header {
