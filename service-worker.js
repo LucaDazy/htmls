@@ -1,6 +1,6 @@
 // service-worker.js with heavy logging
 
-const CACHE_NAME = 'study-hub-cache-v2'; // Incremented version to trigger update
+const CACHE_NAME = 'study-hub-cache-v3'; // Incremented version to trigger update
 const LOG_PREFIX = '[ServiceWorker]';
 console.log(`${LOG_PREFIX} Script loading. Cache name: ${CACHE_NAME}`);
 
@@ -9,15 +9,26 @@ const urlsToCache = [
   'index.html',
   'Global/Css/main.css',
   'Global/Css/animations.css',
+  'Global/Scripts/background-animation.js',
   'Global/tool-manifest.json',
+  // Core SVGs
   'Global/SVGs/logo.svg',
-  'Global/SVGs/logo-alt1.svg',
-  'Global/SVGs/logo-alt2.svg',
   'Global/SVGs/avatar.svg',
-  'Global/SVGs/avatar-alt1.svg',
-  'Global/SVGs/avatar-alt2.svg',
   'Global/SVGs/wip.svg',
-  'Global/Clicker/SVGs/flashcard.svg'
+  'Global/Clicker/SVGs/flashcard.svg',
+  // Background Animation Doodles
+  'Global/SVGs/doodles/apple.svg',
+  'Global/SVGs/doodles/books.svg',
+  'Global/SVGs/doodles/dot.svg',
+  'Global/SVGs/doodles/emc2.svg',
+  'Global/SVGs/doodles/gradcap.svg',
+  'Global/SVGs/doodles/pencil.svg',
+  'Global/SVGs/doodles/plus.svg',
+  'Global/SVGs/doodles/ruler.svg',
+  'Global/SVGs/doodles/sparkle.svg',
+  'Global/SVGs/doodles/square.svg',
+  'Global/SVGs/doodles/star.svg',
+  'Global/SVGs/doodles/worm.svg'
 ];
 
 self.addEventListener('install', event => {
