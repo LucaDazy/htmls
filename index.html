@@ -244,6 +244,20 @@
                 }
             }
 
+            // --- Logo Debugging ---
+            function debugLogo() {
+                const logoImg = document.querySelector('.container-header .logo');
+                if (logoImg) {
+                    console.log('[Logo Debug] Logo <img> element FOUND in the DOM.');
+                    logoImg.addEventListener('load', () => console.log('[Logo Debug] Logo SVG loaded SUCCESSFULLY.'));
+                    logoImg.addEventListener('error', (e) => {
+                        console.error('[Logo Debug] Logo SVG FAILED to load. Path:', logoImg.src, 'This is often due to a viewBox issue or the file being missing.');
+                    });
+                } else {
+                    console.error('[Logo Debug] CRITICAL: Logo <img> element NOT FOUND in the DOM.');
+                }
+            }
+
             window.addEventListener('keydown', (e) => {
                 if (e.key === '`') {
                     const consoleEl = document.getElementById('debug-console');
@@ -255,6 +269,7 @@
 
             backBtn.addEventListener('click', showCategoryView);
             buildHub();
+            debugLogo(); // Run the debugger
         </script>
 
         <script src="Global/Scripts/background-animation.js" defer></script>
