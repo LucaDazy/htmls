@@ -117,7 +117,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const url = assetUrls[Math.floor(Math.random() * assetUrls.length)];
             const asset = loadedImageObjects[url];
             
-            const baseSize = 35; 
+            let baseSize = 70; // New default size is twice as large
+            // Keep specified doodles at the original, smaller size
+            if (url.includes('sparkle.svg') || url.includes('dot.svg') || url.includes('square.svg')) {
+                baseSize = 35;
+            }
+            
             const maxDim = Math.max(asset.width, asset.height);
             const scale = (baseSize / maxDim) * (0.8 + Math.random() * 0.4); 
 
