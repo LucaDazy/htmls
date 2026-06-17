@@ -7,29 +7,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctx = canvas.getContext('2d');
 
     // --- Configuration ---
-    const DOODLE_COLOR = '#403143';
-    const NUM_STARS = 100;
-    const NUM_DOODLES = 20;
+    const DOODLE_COLOR = '#403143'; // The subtle color for the doodles
+    const TOTAL_PARTICLES = 120;     // Total number of shapes in the background
 
     let particles = [];
-    let loadedImageObjects = {}; // Will store preloaded JS Image objects
+    let loadedImageObjects = {}; // Will store preloaded image data
 
-    const assets = {
-        stars: ['Global/SVGs/doodles/star-1.svg'],
-        doodles: [
-            'Global/SVGs/doodles/star-1.svg',
-            'Global/SVGs/doodles/apple.svg',
-            'Global/SVGs/doodles/pencil.svg',
-            'Global/SVGs/doodles/worm.svg'
-        ]
-    };
+    // This array now contains all of your new, improved doodle assets
+    const assetUrls = [
+        'Global/SVGs/doodles/apple.svg',
+        'Global/SVGs/doodles/books.svg',
+        'Global/SVGs/doodles/dot.svg',
+        'Global/SVGs/doodles/emc2.svg',
+        'Global/SVGs/doodles/gradcap.svg',
+        'Global/SVGs/doodles/pencil.svg',
+        'Global/SVGs/doodles/plus.svg',
+        'Global/SVGs/doodles/ruler.svg',
+        'Global/SVGs/doodles/sparkle.svg',
+        'Global/SVGs/doodles/square.svg',
+        'Global/SVGs/doodles/star.svg',
+        'Global/SVGs/doodles/worm.svg'
+    ];
 
     function resizeCanvas() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
     }
 
-    function loadAndColorSVG(url) {
+    function loadAndPrepareSVG(url) {
         return new Promise((resolve, reject) => {
             const img = new Image();
             fetch(url)
@@ -38,13 +43,29 @@ document.addEventListener('DOMContentLoaded', () => {
                     return response.text();
                 })
                 .then(svgText => {
-                    const coloredSvg = svgText.replace(/currentColor/g, DOODLE_COLOR);
+                    // 1. Remove the non-functional jitter filter to prevent rendering issues
+                    const noFilterSvg = svgText.replace(/filter="url\(#jitter\)"/g, '');
+                    // 2. Replace the white color with our desired subtle background color
+                    const coloredSvg = noFilterSvg.replace(/#FFFFFF/gi, DOODLE_COLOR);
+
+                    // 3. Intelligently parse the viewBox to get the SVG's native dimensions
+                    const viewBoxMatch = svgText.match(/viewBox="([^"]+)"/);
+                    let svgWidth = 100, svgHeight = 100; // A safe default
+                    if (viewBoxMatch && viewBoxMatch[1]) {
+                        const parts = viewBoxMatch[1].split(' ');
+                        if (parts.length === 4) {
+                            svgWidth = parseFloat(parts[2]);
+                            svgHeight = parseFloat(parts[3]);
+                        }
+                    }
+                    
                     const blob = new Blob([coloredSvg], { type: 'image/svg+xml' });
                     const blobUrl = URL.createObjectURL(blob);
                     
                     img.onload = () => {
-                        loadedImageObjects[url] = img;
-                        resolve(img);
+                        // Store the image object and its real dimensions
+                        loadedImageObjects[url] = { img, width: svgWidth, height: svgHeight };
+                        resolve();
                     };
                     img.onerror = () => reject(new Error(`Image object failed to load for ${url}`));
                     img.src = blobUrl;
@@ -57,8 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
-        const allAssetUrls = [...assets.stars, ...assets.doodles];
-        Promise.all(allAssetUrls.map(loadAndColorSVG))
+        Promise.all(assetUrls.map(loadAndPrepareSVG))
             .then(() => {
                 createParticles();
                 animate();
@@ -68,34 +88,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function createParticles() {
         particles = [];
-        const totalParticles = NUM_STARS + NUM_DOODLES;
         // Create shuffled "lanes" to distribute particles horizontally, reducing initial overlap.
-        const laneWidth = canvas.width / totalParticles;
-        const lanes = Array.from({ length: totalParticles }, (_, i) => i).sort(() => Math.random() - 0.5);
+        const laneWidth = canvas.width / TOTAL_PARTICLES;
+        const lanes = Array.from({ length: TOTAL_PARTICLES }, (_, i) => i).sort(() => Math.random() - 0.5);
 
-        // Create Stars (now falling)
-        for (let i = 0; i < NUM_STARS; i++) {
+        for (let i = 0; i < TOTAL_PARTICLES; i++) {
+            const url = assetUrls[Math.floor(Math.random() * assetUrls.length)];
+            const asset = loadedImageObjects[url];
+            
+            // --- Smart Sizing Logic ---
+            // Target an average size and calculate the correct scale for each unique SVG.
+            const baseSize = 35; // The average size you want the doodles to be (in pixels)
+            const maxDim = Math.max(asset.width, asset.height);
+            // Calculate scale and add a bit of random variation
+            const scale = (baseSize / maxDim) * (0.8 + Math.random() * 0.4); 
+
             const laneIndex = lanes.pop();
             particles.push({
-                x: (laneIndex * laneWidth) + (Math.random() * laneWidth), // Spawn in a unique lane
+                x: (laneIndex * laneWidth) + (Math.random() * laneWidth),
                 y: Math.random() * canvas.height,
-                scale: 0.5 + Math.random() * 0.5,
-                opacity: 0.2 + Math.random() * 0.5,
-                speed: 0.05 + Math.random() * 0.1, // Very slow speed
-                imgObject: loadedImageObjects[assets.stars[0]]
-            });
-        }
-        // Create Doodles (falling)
-        for (let i = 0; i < NUM_DOODLES; i++) {
-            const doodleUrl = assets.doodles[Math.floor(Math.random() * assets.doodles.length)];
-            const laneIndex = lanes.pop();
-            particles.push({
-                x: (laneIndex * laneWidth) + (Math.random() * laneWidth), // Spawn in a unique lane
-                y: Math.random() * canvas.height,
-                opacity: 0.8,
-                scale: 1.5 + Math.random() * 1.0,
-                speed: 0.1 + Math.random() * 0.15, // Slower falling speed
-                imgObject: loadedImageObjects[doodleUrl]
+                scale: scale,
+                opacity: 0.2 + Math.random() * 0.6, // Varied opacity for depth
+                speed: 0.05 + Math.random() * 0.2,   // Slow to very slow falling speed
+                imgObject: asset.img,
+                baseWidth: asset.width,
+                baseHeight: asset.height
             });
         }
     }
@@ -107,11 +124,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // Update position for the falling effect
             p.y += p.speed;
 
-            const h = p.imgObject.height * p.scale;
-            const w = p.imgObject.width * p.scale;
+            const w = p.baseWidth * p.scale;
+            const h = p.baseHeight * p.scale;
 
             // If a particle's top edge has passed the bottom of the screen, recycle it.
-            if (p.y - h / 2 > canvas.height) {
+            if (p.y - h > canvas.height) {
                 p.y = -h; // Reset completely above the screen to prevent "popping in."
                 p.x = Math.random() * canvas.width; // Give it a new horizontal position.
             }
