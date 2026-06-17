@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctx = canvas.getContext('2d');
 
     // --- Configuration ---
+    const PIXELATION_FACTOR = 15; // Lower is more pixelated, higher is less. Start with 15.
     const DOODLE_COLOR = '#403143'; // The subtle color for the doodles
 
     let particles = [];
@@ -161,8 +162,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function animate() {
+        // 1. Draw the original, high-resolution doodles.
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
         particles.forEach(p => {
             p.y += p.speed;
             const w = p.baseWidth * p.scale;
@@ -177,6 +178,23 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.drawImage(p.imgObject, p.x - w / 2, p.y - h / 2, w, h);
         });
 
+        // 2. Apply the pixelation effect.
+        const scaledWidth = canvas.width / PIXELATION_FACTOR;
+        const scaledHeight = canvas.height / PIXELATION_FACTOR;
+
+        // Turn off image smoothing to get sharp pixels.
+        ctx.imageSmoothingEnabled = false;
+        
+        // Downscale the image to create the low-res version.
+        ctx.drawImage(canvas, 0, 0, scaledWidth, scaledHeight);
+        
+        // Upscale the low-res version back to full size, creating the pixelated effect.
+        ctx.drawImage(canvas, 0, 0, scaledWidth, scaledHeight, 0, 0, canvas.width, canvas.height);
+
+        // It's good practice to restore the context state.
+        ctx.imageSmoothingEnabled = true;
+
+        // 3. Request the next frame.
         requestAnimationFrame(animate);
     }
 
