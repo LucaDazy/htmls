@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctx = canvas.getContext('2d');
 
     // --- Configuration ---
-    const PIXELATION_FACTOR = 30; // Larger number = larger pixels. Doubled for a stronger effect.
+    const PIXELATION_FACTOR = 3; // Smaller number = larger, more pronounced pixels.
     const DOODLE_COLOR = '#403143'; // The subtle color for the doodles
 
     let particles = [];
