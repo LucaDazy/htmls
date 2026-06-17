@@ -10,18 +10,7 @@
 
     <g filter="url(#jitter)" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
         
-        <path d="M 296 296 
-                 L 297 286 
-                 L 303 287 
-                 L 304 296 
-                 L 314 297 
-                 L 313 303 
-                 L 304 304 
-                 L 303 314 
-                 L 297 313 
-                 L 296 304 
-                 L 286 303 
-                 L 287 297 Z" />
+        <path d="M 296 296 L 297 286 L 303 287 L 304 296 L 314 297 L 313 303 L 304 304 L 303 314 L 297 313 L 296 304 L 286 303 L 287 297 Z" />
 
     </g>
 </svg>
