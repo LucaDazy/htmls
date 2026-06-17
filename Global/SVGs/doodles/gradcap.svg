@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="65 65 690 620" width="100%" height="100%">
+    <defs>
+        <filter id="jitter">
+            <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" result="noise">
+                <animate attributeName="seed" values="1;2;3;4;5;6;7;8" dur="0.6s" repeatCount="indefinite" calcMode="discrete" />
+            </feTurbulence>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+    </defs>
+
+    <g filter="url(#jitter)" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+        
+        <path d="M 80 250 L 450 80 L 740 180 L 430 330 Z" />
+
+        <path d="M 80 250 L 85 265 L 430 345 L 730 195 L 740 180" />
+
+        <ellipse cx="460" cy="170" rx="20" ry="10" />
+
+        <path d="M 440 170 Q 300 240 220 280 Q 215 285 220 295 L 220 520" />
+
+        <circle cx="220" cy="532" r="12" />
+
+        <path d="M 220 544 L 220 670 A 4 4 0 0 0 228 670 L 226 544" />
+        <path d="M 216 543 L 195 660 A 4 4 0 0 0 205 662 L 220 544" />
+        <path d="M 210 540 L 175 645 A 4 4 0 0 0 185 648 L 216 543" />
+        <path d="M 224 544 L 245 660 A 4 4 0 0 0 255 658 L 228 544" />
+        <path d="M 230 540 L 265 645 A 4 4 0 0 0 275 642 L 232 542" />
+
+        <path d="M 280 310 C 260 450, 380 500, 480 480 C 580 460, 660 380, 635 242" />
+
+    </g>
+</svg>
