@@ -1,6 +1,6 @@
 // service-worker.js with heavy logging
 
-const CACHE_NAME = 'study-hub-cache-v4'; // Incremented version to trigger update
+const CACHE_NAME = 'study-hub-cache-v5'; // Incremented version to trigger update
 const LOG_PREFIX = '[ServiceWorker]';
 console.log(`${LOG_PREFIX} Script loading. Cache name: ${CACHE_NAME}`);
 
@@ -71,50 +71,65 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  const url = new URL(event.request.url);
-  // Log only requests for local assets to reduce noise.
-  if (url.origin === self.location.origin) {
-    console.log(LOG_PREFIX, 'FETCH event for:', event.request.url);
-  }
-
-  // We only want to cache GET requests.
+  // We only cache GET requests.
   if (event.request.method !== 'GET') {
     return;
   }
 
-  // Use a "Cache, then Network with Cache Update" strategy.
-  event.respondWith(
-    caches.match(event.request, { ignoreSearch: true }).then(cachedResponse => {
-      if (cachedResponse) {
-        console.log(LOG_PREFIX, `CACHE HIT for: ${event.request.url}`);
-        return cachedResponse;
-      }
+  const url = new URL(event.request.url);
+  const isLocal = url.origin === self.location.origin;
+  if (isLocal) {
+    console.log(LOG_PREFIX, 'FETCH event for:', event.request.url);
+  }
 
-      console.warn(LOG_PREFIX, `CACHE MISS for: ${event.request.url}. Fetching from network.`);
-      
-      return fetch(event.request).then(networkResponse => {
-        console.log(LOG_PREFIX, `NETWORK FETCH successful for: ${event.request.url}`);
-        
-        // Check if we received a valid response.
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-          console.warn(LOG_PREFIX, `Won't cache invalid response for ${event.request.url}. Status: ${networkResponse ? networkResponse.status : 'N/A'}`);
-          return networkResponse;
+  // Define assets that are part of the "app shell" and need to be fresh.
+  // This includes the main page, core styles, scripts, and the data manifest.
+  const isAppShell = event.request.destination === 'document' ||
+                     event.request.destination === 'style' ||
+                     event.request.destination === 'script' ||
+                     url.pathname.endsWith('tool-manifest.json');
+
+  // Strategy 1: Network First for App Shell.
+  // This ensures the user always gets the latest version of the core app files.
+  // If the network fails, it falls back to the cached version.
+  if (isAppShell && isLocal) {
+    event.respondWith(
+      fetch(event.request)
+        .then(networkResponse => {
+          // If fetch is successful, update the cache with the new version.
+          return caches.open(CACHE_NAME).then(cache => {
+            console.log(LOG_PREFIX, `NETWORK-FIRST: Caching fresh asset: ${event.request.url}`);
+            cache.put(event.request, networkResponse.clone());
+            return networkResponse;
+          });
+        })
+        .catch(() => {
+          // If network fails (offline), serve the asset from the cache.
+          console.warn(LOG_PREFIX, `NETWORK-FIRST: Network failed, serving from cache: ${event.request.url}`);
+          return caches.match(event.request);
+        })
+    );
+  } else if (isLocal) {
+    // Strategy 2: Cache First for static assets (SVGs, etc.).
+    // These assets change infrequently, so serving them from the cache is fast and efficient.
+    event.respondWith(
+      caches.match(event.request).then(cachedResponse => {
+        // If the asset is in the cache, return it.
+        if (cachedResponse) {
+          console.log(LOG_PREFIX, `CACHE-FIRST: Serving from cache: ${event.request.url}`);
+          return cachedResponse;
         }
 
-        // IMPORTANT: Clone the response. A response is a stream and can only be consumed once.
-        const responseToCache = networkResponse.clone();
-
-        caches.open(CACHE_NAME)
-          .then(cache => {
-            console.log(LOG_PREFIX, `Caching new network response for: ${event.request.url}`);
-            cache.put(event.request, responseToCache);
+        // If not in cache, fetch from network, cache it, and then return it.
+        return fetch(event.request).then(networkResponse => {
+          return caches.open(CACHE_NAME).then(cache => {
+            console.log(LOG_PREFIX, `CACHE-FIRST: Caching new asset: ${event.request.url}`);
+            cache.put(event.request, networkResponse.clone());
+            return networkResponse;
           });
-
-        return networkResponse;
-      }).catch(error => {
-          console.error(LOG_PREFIX, `NETWORK FETCH FAILED for: ${event.request.url}`, error);
-          throw error;
-      });
-    })
-  );
+        });
+      })
+    );
+  }
+  // For cross-origin requests (like Google Fonts), we don't intervene.
 });

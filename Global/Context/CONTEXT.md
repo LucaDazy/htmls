@@ -9,7 +9,9 @@ The objective is to build a centralized, interactive, client-side Study Hub host
 *   **Manifest-Driven Hub:** The main `index.html` page is built from a static `Global/tool-manifest.json` file. This file is **automatically generated** by a GitHub Action every time code is pushed to the `main` branch. This provides a fully automated hub that is also fast and reliable.
 *   **Game-Dev Inspired Mechanics:** Utilizing interactive logic such as drag-and-drop snap-back penalties, procedural word-problem generation, scalable mathematical SVG drawing, and timed spaced-repetition algorithms.  
 *   **Local Persistence:** User progress, settings, and spaced-repetition data are strictly saved to the browser's `localStorage` to ensure privacy and persistence without a backend database.
-*   **Offline-First with Service Workers:** A dedicated service worker (`service-worker.js`) provides a robust offline experience. It caches core assets (HTML, CSS, SVGs) on the first visit, allowing the hub to load and function instantly on subsequent visits, even without an internet connection.
+*   **Offline-First with Service Workers:** A dedicated service worker (`service-worker.js`) provides a robust offline experience by implementing a dual caching strategy:
+    *   **Network-First for App Shell:** Critical assets like `index.html`, CSS files, and core JavaScript are handled with a "network-first" approach. The service worker always tries to fetch the latest version from the network. If the network is unavailable, it serves the last-known-good version from the cache. This ensures users always have the freshest content when online, preventing stale UI issues.
+    *   **Cache-First for Static Assets:** All other assets, such as SVGs and images, are handled with a "cache-first" strategy. They are served instantly from the cache for maximum performance, with network requests only made if the asset isn't already cached.
 
 ## 2. Aesthetic & UI Style Guide
 The visual theme is a strict, minimalist, dark-mode aesthetic heavily inspired by "Monkeytype." It prioritizes low eye strain, high contrast for essential information, and clean, readable typography.
