@@ -44,47 +44,57 @@
 
         /* SRS Flashcard UI */
         .card-arena {
-            width: 100%; background: var(--panel-bg); border-radius: 12px; padding: 2.5rem;
-            box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            display: flex; flex-direction: column; align-items: center; position: relative;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+            background: var(--panel-bg);
+            border-radius: 12px;
+            padding: 2.5rem;
+            box-sizing: border-box;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
-
-        .image-container {
-            width: 300px; height: 300px; background: var(--bg-color); border: 2px dashed var(--text-muted);
-            border-radius: 8px; position: relative; overflow: hidden; margin-bottom: 1.5rem;
-            display: flex; align-items: center; justify-content: center; text-align: center;
-            transition: 0.3s;
+        
+        .visual-column {
+            background: var(--bg-color);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
         }
-        .image-container.hidden { display: none; }
-        .image-container img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; z-index: 2; }
-        .fallback-text { z-index: 1; padding: 1rem; font-size: 0.9rem; color: var(--text-muted); }
-        .fallback-filename { color: var(--accent); font-weight: bold; display: block; margin-top: 0.5rem; word-break: break-all;}
+        .visual-column svg { width: 100%; max-width: 420px; height: auto; }
+        .interactive-layer { filter: none; }
+        .interactive-layer.subdued { opacity: 0.15; }
+        .interactive-layer.highlight { opacity: 1; filter: url(#glow); }
 
+        .info-column { display: flex; flex-direction: column; }
+        
         .card-type { font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.5rem; }
-        .card-title { font-size: 1.8rem; font-weight: bold; color: var(--accent); margin-bottom: 1rem; text-align: center; text-transform: uppercase; }
-        
-        .objective-box { background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 6px; border-left: 4px solid var(--accent); margin-bottom: 1.5rem; width: 100%; box-sizing: border-box; text-align: center; font-size: 1.05rem; }
-        .objective-box strong { color: var(--accent); }
+        .card-title { font-size: 1.8rem; font-weight: bold; color: var(--accent); margin-bottom: 1rem; text-transform: uppercase; }
 
-        .hint-btn {
-            background: rgba(165, 104, 157, 0.1); border: 1px solid var(--accent); color: var(--accent);
-            padding: 0.5rem 1rem; border-radius: 20px; font-family: var(--font-family-mono); font-size: 0.9rem;
-            cursor: pointer; margin-bottom: 1.5rem; transition: 0.2s;
-        }
-        .hint-btn:hover { background: var(--accent); color: var(--bg-color); }
-        .hint-display { display: none; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 6px; font-size: 0.95rem; color: var(--accent); margin-bottom: 1.5rem; width: 100%; text-align: center; box-sizing: border-box; }
-
-        .btn-reveal { background: var(--accent); color: var(--bg-color); border: none; padding: 1rem 2rem; font-size: 1.1rem; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.2s; width: 100%; font-family: var(--font-family-mono);}
+        .btn-reveal { background: var(--accent); color: var(--bg-color); border: none; padding: 1rem 2rem; font-size: 1.1rem; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.2s; width: 100%; font-family: var(--font-family-mono); margin-top: 2rem;}
         .btn-reveal:hover { opacity: 0.9; }
-        
-        .card-back { display: none; width: 100%; flex-direction: column; align-items: center; border-top: 1px solid var(--text-muted); padding-top: 1.5rem; margin-top: 1.5rem; }
-        .card-back.visible { display: flex; }
 
-        .interpreted-text { background: rgba(140, 200, 75, 0.1); border: 1px solid var(--success); border-radius: 6px; padding: 1.2rem; width: 100%; box-sizing: border-box; margin-bottom: 1.5rem; font-size: 1.1rem; line-height: 1.5; color: var(--text-main); text-align: center; }
-
-        .details-grid { display: grid; grid-template-columns: auto 1fr; gap: 0.8rem 1.5rem; width: 100%; margin-bottom: 1.5rem; font-size: 1.05rem; line-height: 1.4; }
-        .detail-label { font-weight: bold; color: var(--text-muted); text-align: right; }
-        .detail-value { color: var(--text-main); }
+        /* Revealed Card Content */
+        #revealed-content { display: none; }
+        #revealed-content.visible { display: block; }
+        .info-card {
+            background: transparent;
+            border-left: 3px solid var(--text-muted);
+            padding: 1rem 1.2rem;
+            margin-bottom: 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .info-card.active, .info-card:hover { background: var(--hover-bg); border-left-color: var(--accent); }
+        .info-card-title { font-size: 0.85rem; text-transform: lowercase; margin-bottom: 0.5rem; color: var(--text-muted); transition: color 0.2s ease; }
+        .info-card.active .info-card-title, .info-card:hover .info-card-title { color: var(--accent); }
+        .info-card-body { font-size: 0.95rem; line-height: 1.6; color: var(--text-main); opacity: 0.8; transition: opacity 0.2s ease; }
+        .info-card.active .info-card-body, .info-card:hover .info-card-body { opacity: 1; }
 
         /* SRS Buttons */
         .controls { display: flex; gap: 1rem; width: 100%; justify-content: center; flex-wrap: wrap; margin-top: 1rem;}
@@ -140,8 +150,9 @@
             .detail-value { margin-bottom: 0.8rem; }
         }
     </style>
-    <!-- Load the external data file BEFORE the main script -->
+    <!-- Load the external data files BEFORE the main script -->
     <script src="Bones&Muscles_data.js"></script>
+    <script src="Bones&Muscles_svg_data.js"></script>
 </head>
 <body>
     <canvas id="background-canvas"></canvas>
@@ -172,39 +183,38 @@
                 <button class="btn" data-filter="muscle" onclick="setFilter('muscle')">Muscles Only</button>
             </div>
             <div class="row" style="border-top: 1px dashed var(--text-muted); padding-top: 1rem;">
-                <button class="btn" id="btn-toggle-img" onclick="toggleImage()">👁️ Hide Image</button>
                 <button class="btn btn-danger" onclick="wipeCache()">⚠️ Reset Progress Cache</button>
             </div>
         </div>
 
         <!-- FLASHCARD ARENA -->
         <div class="card-arena" id="arena">
-            <div class="image-container" id="card-img-box">
-                <div class="fallback-text">Missing Image<br><span class="fallback-filename" id="img-filename"></span></div>
-                <img id="card-img" src="" onerror="this.style.display='none'">
+            <!-- Left Column for SVG -->
+            <div class="visual-column" id="svg-container">
+                <!-- SVG will be injected here by script -->
             </div>
 
-            <div class="card-type" id="card-type">Bone</div>
-            <div class="card-title" id="card-title">Temporal Bone</div>
-            
-            <div class="objective-box" id="card-prompt"><strong>Objective:</strong> Identify...</div>
+            <!-- Right Column for Info & Controls -->
+            <div class="info-column">
+                <div class="card-type" id="card-type"></div>
+                <div class="card-title" id="card-title"></div>
+                <div id="card-prompt"></div>
 
-            <button class="hint-btn" id="btn-hint" onclick="showHint()">💡 Reveal Anatomical Hint</button>
-            <div class="hint-display" id="hint-display"></div>
+                <!-- This content is shown AFTER reveal -->
+                <div id="revealed-content">
+                    <div id="info-cards-container">
+                        <!-- Info cards will be injected here -->
+                    </div>
 
-            <button class="btn-reveal" id="btn-reveal" onclick="revealCard()">Reveal Answer</button>
-
-            <div class="card-back" id="card-back">
-                <div id="interpreted-sentence" class="interpreted-text"></div>
-
-                <div class="details-grid" id="card-details"></div>
-
-                <div class="controls">
-                    <button class="srs-btn btn-again" onclick="rateCard(0)">Again <span class="srs-sub">&lt; 1 min</span></button>
-                    <button class="srs-btn btn-hard" onclick="rateCard(1)">Hard <span class="srs-sub" id="time-hard"></span></button>
-                    <button class="srs-btn btn-good" onclick="rateCard(2)">Good <span class="srs-sub" id="time-good"></span></button>
-                    <button class="srs-btn btn-easy" onclick="rateCard(3)">Easy <span class="srs-sub" id="time-easy"></span></button>
+                    <div class="controls">
+                        <button class="srs-btn btn-again" onclick="rateCard(0)">Again <span class="srs-sub">&lt; 1 min</span></button>
+                        <button class="srs-btn btn-hard" onclick="rateCard(1)">Hard <span class="srs-sub" id="time-hard"></span></button>
+                        <button class="srs-btn btn-good" onclick="rateCard(2)">Good <span class="srs-sub" id="time-good"></span></button>
+                        <button class="srs-btn btn-easy" onclick="rateCard(3)">Easy <span class="srs-sub" id="time-easy"></span></button>
+                    </div>
                 </div>
+
+                <button class="btn-reveal" id="btn-reveal" onclick="revealCard()">Reveal Answer</button>
             </div>
         </div>
 
@@ -291,7 +301,7 @@
 
         // --- 2. STATE MANAGEMENT ---
         let appState = {
-            settings: { filter: 'all', hideImages: false },
+            settings: { filter: 'all' },
             srs: {} 
         };
 
@@ -300,8 +310,9 @@
             if (saved) {
                 try { appState = JSON.parse(saved); } catch (e) { console.error("Corrupt save data"); }
             }
+            // Ensure settings object exists to prevent errors on old save data
+            if (!appState.settings) appState.settings = { filter: 'all' };
             setFilterUI(appState.settings.filter);
-            if (appState.settings.hideImages) toggleImage(true);
         }
 
         function saveState() {
@@ -332,29 +343,9 @@
             document.querySelector(`#filter-btns .btn[data-filter="${filterType}"]`).classList.add('active');
         }
 
-        function toggleImage(forceHide = null) {
-            const imgBox = document.getElementById('card-img-box');
-            const btn = document.getElementById('btn-toggle-img');
-            
-            if (forceHide !== null) {
-                appState.settings.hideImages = forceHide;
-            } else {
-                appState.settings.hideImages = !appState.settings.hideImages;
-            }
-            saveState();
-
-            if (appState.settings.hideImages) {
-                imgBox.classList.add('hidden');
-                btn.innerText = "👁️ Show Image";
-            } else {
-                imgBox.classList.remove('hidden');
-                btn.innerText = "👁️ Hide Image";
-            }
-        }
-
         function buildQueue() {
-            if (typeof rawDB === 'undefined') {
-                document.getElementById('arena').innerHTML = `<h2 style="color:var(--error);">Error: Bones&Muscles_data.js not found!</h2><p>Please ensure the data file is saved in the same folder.</p>`;
+            if (typeof rawDB === 'undefined' || typeof svgDB === 'undefined') {
+                document.getElementById('arena').innerHTML = `<h2 style="color:var(--error);">Error: Data file not found!</h2><p>Please ensure Bones&Muscles_data.js and Bones&Muscles_svg_data.js are present.</p>`;
                 return;
             }
 
@@ -383,41 +374,37 @@
             document.getElementById('deck-stats').innerText = `Cards Due: ${due.length} | New: ${newCards.length}`;
         }
 
-        function clearDictionaryHighlights() {
-            document.querySelectorAll('.dict-card').forEach(c => c.classList.remove('glow'));
+        // SVG Interaction Handlers
+        function activateHighlight(targetKey) {
+            clearHighlights();
+            const svg = document.querySelector('#svg-container svg');
+            if (!svg) return;
+
+            svg.querySelectorAll('.interactive-layer').forEach(el => el.classList.add('subdued'));
+            
+            const targetElement = svg.querySelector(`#${targetKey}-layer`);
+            if (targetElement) {
+                targetElement.classList.remove('subdued');
+                targetElement.classList.add('highlight');
+            }
+            
+            const cardElement = document.getElementById(`info-card-${targetKey}`);
+            if(cardElement) cardElement.classList.add('active');
         }
 
-        function showHint() {
-            const display = document.getElementById('hint-display');
-            clearDictionaryHighlights();
-            
-            let lowerText = currentItem.n.toLowerCase();
-            let matches = [];
-            
-            for (const [root, def] of Object.entries(dictionary)) {
-                if (lowerText.includes(root)) {
-                    matches.push(`<strong>${root.toUpperCase()}</strong>: ${def}`);
-                    
-                    // Highlight in dictionary below
-                    const dictCard = document.getElementById('dict-card-' + root);
-                    if (dictCard) dictCard.classList.add('glow');
-                }
+        function clearHighlights() {
+            const svg = document.querySelector('#svg-container svg');
+            if(svg) {
+                svg.querySelectorAll('.interactive-layer').forEach(el => {
+                    el.classList.remove('subdued');
+                    el.classList.remove('highlight');
+                });
             }
-            
-            if (matches.length > 0) {
-                display.innerHTML = `<strong>Rosetta Translation:</strong><br>${matches.join('<br>')}<br><span style="font-size:0.85rem; color:var(--text-main); margin-top:0.5rem; display:block;">(Scroll down to see these highlighted in your dictionary)</span>`;
-            } else {
-                let fallbackClue = currentItem.t === 'b' ? currentItem.l.substring(0,20) : currentItem.o.substring(0,20);
-                display.innerHTML = `<em>No complex roots detected.</em><br><strong>First letters hint:</strong> ${fallbackClue}...`;
-            }
-            display.style.display = "block";
-            
-            // Ensure dictionary is open so they can see the glow
-            document.getElementById('dict-toggle').open = true;
+            document.querySelectorAll('.info-card').forEach(card => card.classList.remove('active'));
         }
 
         function nextCard() {
-            clearDictionaryHighlights();
+            clearHighlights();
 
             if (queue.length === 0) {
                 document.getElementById('arena').style.display = 'none';
@@ -425,28 +412,28 @@
                 return;
             }
 
-            document.getElementById('arena').style.display = 'flex';
+            document.getElementById('arena').style.display = 'grid';
             document.getElementById('end-screen').style.display = 'none';
             document.getElementById('btn-reveal').style.display = 'block';
-            document.getElementById('card-back').classList.remove('visible');
-            document.getElementById('hint-display').style.display = 'none';
+            document.getElementById('revealed-content').classList.remove('visible');
+            document.getElementById('info-cards-container').innerHTML = '';
 
             currentItem = queue[0]; 
 
-            const imgEl = document.getElementById('card-img');
-            imgEl.style.display = 'block'; 
-            imgEl.src = `ap1photos/${currentItem.img}`;
-            document.getElementById('img-filename').innerText = currentItem.img;
+            // Inject SVG
+            const svgContainer = document.getElementById('svg-container');
+            const svgString = svgDB[currentItem.svg_id] || svgDB[currentItem.svg_template];
+            svgContainer.innerHTML = svgString || '<p style="color:var(--error);">SVG not found!</p>';
 
             document.getElementById('card-type').innerText = `${currentItem.t === 'b' ? 'Bone' : 'Muscle'}`;
             document.getElementById('card-title').innerText = currentItem.n;
+            
+            let promptText = currentItem.t === 'b' ? 
+                "Identify the Region and major Landmarks." : 
+                "Identify the Origin, Insertion, and Action.";
+            document.getElementById('card-prompt').innerHTML = promptText;
 
-            if (currentItem.t === 'b') {
-                document.getElementById('card-prompt').innerHTML = "<strong>Objective:</strong> Identify the Region and major Landmarks of this bone.";
-            } else {
-                document.getElementById('card-prompt').innerHTML = "<strong>Objective:</strong> Identify the Origin, Insertion, and Action of this muscle.";
-            }
-
+            // Calculate and display SRS times
             const cardData = appState.srs[currentItem.id] || { int: 0, ease: 2.5 };
             let iHard = Math.max(1, Math.round(cardData.int * 1.2));
             let iGood = Math.max(1, Math.round((cardData.int === 0 ? 1 : cardData.int * cardData.ease)));
@@ -459,24 +446,35 @@
 
         function revealCard() {
             document.getElementById('btn-reveal').style.display = 'none';
-            document.getElementById('card-back').classList.add('visible');
+            document.getElementById('revealed-content').classList.add('visible');
 
-            const details = document.getElementById('card-details');
-            const sentenceBox = document.getElementById('interpreted-sentence');
+            const infoContainer = document.getElementById('info-cards-container');
+            infoContainer.innerHTML = ''; // Clear previous cards
 
+            let infoMap;
             if (currentItem.t === 'b') {
-                sentenceBox.innerHTML = `This bone is located in the <strong>${currentItem.r}</strong> and features key landmarks including the <strong>${currentItem.l.toLowerCase()}</strong>.`;
-                details.innerHTML = `
-                    <div class="detail-label">Region:</div><div class="detail-value">${currentItem.r}</div>
-                    <div class="detail-label">Landmarks:</div><div class="detail-value">${currentItem.l}</div>
-                `;
+                infoMap = {
+                    region: { title: "Region", body: currentItem.r },
+                    landmarks: { title: "Landmarks", body: currentItem.l }
+                };
             } else {
-                sentenceBox.innerHTML = `The <strong>${currentItem.n}</strong> originates at the <strong>${currentItem.o.toLowerCase()}</strong> and inserts into the <strong>${currentItem.i.toLowerCase()}</strong>. When it contracts, it acts to <strong>${currentItem.a.toLowerCase()}</strong>.`;
-                details.innerHTML = `
-                    <div class="detail-label">Origin:</div><div class="detail-value">${currentItem.o}</div>
-                    <div class="detail-label">Insertion:</div><div class="detail-value">${currentItem.i}</div>
-                    <div class="detail-label">Action:</div><div class="detail-value">${currentItem.a}</div>
-                `;
+                infoMap = {
+                    origin: { title: "Origin", body: currentItem.o },
+                    insertion: { title: "Insertion", body: currentItem.i },
+                    action: { title: "Action", body: currentItem.a }
+                };
+            }
+
+            for (const [key, value] of Object.entries(infoMap)) {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'info-card';
+                cardEl.id = `info-card-${key}`;
+                cardEl.innerHTML = `<div class="info-card-title">${value.title}</div><div class="info-card-body">${value.body}</div>`;
+                
+                cardEl.onmouseenter = () => activateHighlight(key);
+                cardEl.onmouseleave = () => clearHighlights();
+                
+                infoContainer.appendChild(cardEl);
             }
         }
 

@@ -124,13 +124,17 @@ const rawDB = [
     { t: 'm', p: 2, n: 'Extensor Digitorum Longus', o: 'Lateral condyle of tibia & fibula', i: 'Superior surface of phalanges 2-5', a: 'Extends toes 2-5' }
 ];
 
-// Formatting function to generate exact image filenames automatically
-// Note: This logic matches the auto-generation in your HTML file perfectly!
+// Formatting function to generate unique IDs and SVG references for each item.
 rawDB.forEach((item, idx) => {
+    item.id = idx; // Assign a simple numeric ID for the SRS cache.
     const prefix = item.t === 'b' ? 'bone' : 'muscle';
-    // e.g., "Pectoralis Major" -> "muscle_pectoralis_major.png"
-    // "Os Coxa (Pelvis)" -> "bone_os_coxa_pelvis.png"
-    let imgName = `${prefix}_${item.n.toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/_$/,'')}.png`;
-    item.id = idx;
-    item.img = imgName;
+    
+    // Generate a clean, consistent ID string for linking to SVG data.
+    // e.g., "Pectoralis Major" -> "muscle_pectoralis_major"
+    // e.g., "Os Coxa (Pelvis)" -> "bone_os_coxa_pelvis"
+    item.svg_id = `${prefix}_${item.n.toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/_$/,'')}`;
+    
+    // Assign a fallback placeholder SVG template. The engine will look for a specific
+    // SVG matching svg_id first, and use this template if a custom one isn't found.
+    item.svg_template = item.t === 'b' ? 'placeholder_bone' : 'placeholder_muscle';
 });
