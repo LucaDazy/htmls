@@ -31,6 +31,42 @@ const svgDB = {
         <circle cx="180" cy="100" r="5" />
     </g>
 </svg>`,
+    "bone_parietal_bone": `
+<svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#94a3b8" /><stop offset="25%" stop-color="#f1f5f9" /><stop offset="75%" stop-color="#cbd5e1" /><stop offset="100%" stop-color="#475569" /></linearGradient>
+        <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter>
+    </defs>
+    <!-- Background Bones (Lateral view of skull) -->
+    <g class="svg-bg" fill="url(#bone-shading)" opacity="0.4">
+        <!-- Frontal bone -->
+        <path d="M 30,30 C 10,50 10,120 30,140 L 60,140 C 80,120 80,50 60,30 Z"/>
+        <!-- Temporal bone -->
+        <path d="M 180,80 C 160,100 160,160 180,180 L 210,180 C 230,160 230,100 210,80 Z"/>
+        <!-- Occipital bone -->
+        <path d="M 240,40 C 220,60 220,140 240,160 L 270,160 C 290,140 290,60 270,40 Z"/>
+        <!-- Sphenoid region -->
+        <path d="M 120,90 C 110,110 110,140 120,150 L 140,150 C 150,140 150,110 140,90 Z"/>
+    </g>
+
+    <!-- INTERACTIVE LAYERS -->
+    <g id="region-layer" class="interactive-layer" style="transition: all 0.3s ease;">
+        <!-- Parietal Bone (lateral view, large curved plate) -->
+        <path d="M 60,30 C 40,50 40,160 60,180 L 180,180 C 200,160 200,50 180,30 Z" fill="url(#bone-shading)"/>
+    </g>
+    <g id="landmarks-layer" class="interactive-layer" fill="var(--accent)" style="transition: all 0.3s ease;">
+        <!-- Sagittal suture line (top edge) -->
+        <path d="M 60,30 L 180,30" stroke="var(--accent)" stroke-width="3" fill="none" stroke-dasharray="6,4"/>
+        <!-- Coronal suture line (front edge) -->
+        <path d="M 60,30 L 60,180" stroke="var(--accent)" stroke-width="3" fill="none" stroke-dasharray="6,4"/>
+        <!-- Lambdoid suture line (back edge) -->
+        <path d="M 180,30 L 180,180" stroke="var(--accent)" stroke-width="3" fill="none" stroke-dasharray="6,4"/>
+        <!-- Squamous suture line (bottom edge) -->
+        <path d="M 60,180 L 180,180" stroke="var(--accent)" stroke-width="3" fill="none" stroke-dasharray="6,4"/>
+        <!-- Central landmark: parietal eminence -->
+        <circle cx="120" cy="105" r="6" />
+    </g>
+</svg>`,
     "muscle_pectoralis_major": `
 <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
     <defs>

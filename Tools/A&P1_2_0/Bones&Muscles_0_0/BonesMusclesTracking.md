@@ -12,7 +12,7 @@ This file tracks the completion status of custom SVGs for each bone and muscle.
 | Status | Name | SVG ID |
 |:------:|:-----|:-------|
 | ✅ | Frontal Bone | `bone_frontal_bone` |
-| ⬜ | Parietal Bone | `bone_parietal_bone` |
+| ✅ | Parietal Bone | `bone_parietal_bone` |
 | ⬜ | Temporal Bone | `bone_temporal_bone` |
 | ⬜ | Sphenoid Bone | `bone_sphenoid_bone` |
 | ⬜ | Occipital Bone | `bone_occipital_bone` |
