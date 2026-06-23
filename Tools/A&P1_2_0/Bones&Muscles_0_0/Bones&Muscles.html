@@ -201,6 +201,18 @@
             align-items: center;
         }
         .toc-item:hover { background: var(--hover-bg); }
+        .toc-item { position: relative; padding-left: 2.2rem; }
+        .toc-status-dot {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .toc-status-dot.complete { background-color: var(--success); }
+        .toc-status-dot.incomplete { background-color: var(--text-muted); opacity: 0.5; }
         .toc-item-name { font-weight: bold; }
         .toc-item-type { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; }
         .toc-item-type.bone { color: var(--success); }
