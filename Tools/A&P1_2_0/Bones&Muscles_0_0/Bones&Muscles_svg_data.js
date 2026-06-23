@@ -1,6 +1,36 @@
 // A&P 1 Master SVG Database
 // Provides modular, interactive SVG templates for the Bones & Muscles tool.
 const svgDB = {
+    "bone_frontal_bone": `
+<svg viewBox="50 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#94a3b8" /><stop offset="25%" stop-color="#f1f5f9" /><stop offset="75%" stop-color="#cbd5e1" /><stop offset="100%" stop-color="#475569" /></linearGradient>
+        <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter>
+    </defs>
+    <!-- Background Bones (Anterior View of Skull) -->
+    <g class="svg-bg" fill="url(#bone-shading)" opacity="0.3">
+        <!-- Parietal bones (top) -->
+        <path d="M100,10 C130,5 170,5 200,10 L 190,0 L 110,0 Z"/>
+        <!-- Nasal bones -->
+        <path d="M140,110 L160,110 L155,130 L145,130 Z"/>
+        <!-- Zygomatic bones -->
+        <path d="M100,110 C90,130 95,150 110,160 L120,155 C110,145 105,130 110,115 Z"/>
+        <path d="M200,110 C210,130 205,150 190,160 L180,155 C190,145 195,130 190,115 Z"/>
+        <!-- Maxilla -->
+        <path d="M125,120 C130,160 170,160 175,120 Z"/>
+    </g>
+
+    <!-- INTERACTIVE LAYERS -->
+    <g id="region-layer" class="interactive-layer" style="transition: all 0.3s ease;">
+        <!-- Frontal Bone Shape -->
+        <path d="M100,10 C50,20 50,100 100,110 L120,110 C120,80 135,80 140,90 L160,90 C165,80 180,80 180,110 L200,110 C250,100 250,20 200,10 Z" fill="url(#bone-shading)"/>
+    </g>
+    <g id="landmarks-layer" class="interactive-layer" fill="var(--accent)" style="transition: all 0.3s ease;">
+        <!-- Supraorbital Foramina (left and right) -->
+        <circle cx="120" cy="100" r="5" />
+        <circle cx="180" cy="100" r="5" />
+    </g>
+</svg>`,
     "muscle_pectoralis_major": `
 <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
     <defs>
