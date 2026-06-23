@@ -38,6 +38,42 @@ const svgDB = {
         <path d="M250,70 C150,80 100,50 65,100 C150,150 200,200 250,220 Z" fill="url(#muscle-shading)" />
     </g>
 </svg>`,
+    "muscle_latissimus_dorsi": `
+<svg viewBox="100 0 250 400" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#94a3b8" /><stop offset="25%" stop-color="#f1f5f9" /><stop offset="75%" stop-color="#cbd5e1" /><stop offset="100%" stop-color="#475569" /></linearGradient>
+        <linearGradient id="muscle-shading" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#7f1d1d" /><stop offset="35%" stop-color="#ef4444" /><stop offset="80%" stop-color="#b91c1c" /><stop offset="100%" stop-color="#450a0a" /></linearGradient>
+        <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter>
+    </defs>
+    <!-- Background Bones (Posterior View) -->
+    <g class="svg-bg" fill="url(#bone-shading)" opacity="0.4">
+        <!-- Humerus -->
+        <path d="M120,50 C100,70 100,150 120,170 L140,170 C160,150 160,70 140,50 Z" />
+        <circle cx="130" cy="50" r="25"/>
+        <!-- Scapula -->
+        <path d="M140,60 L240,70 L240,180 L140,160 Z"/>
+        <!-- Vertebral Column -->
+        <path d="M250,50 L250,350 L270,350 L270,50 Z"/>
+        <!-- Pelvis (Iliac Crest) -->
+        <path d="M250,340 C220,330 200,345 180,360 L180,370 C200,355 220,340 250,350 Z"/>
+    </g>
+
+    <!-- INTERACTIVE LAYERS -->
+    <g id="origin-layer" class="interactive-layer" fill="var(--success)" style="transition: all 0.3s ease;">
+        <!-- Origin on Vertebrae -->
+        <path d="M255,180 L255,345 L265,345 L265,180 Z" />
+        <!-- Origin on Iliac Crest -->
+        <path d="M245,342 C220,335 200,348 185,362 L190,368 C205,352 225,340 245,348 Z"/>
+    </g>
+    <g id="insertion-layer" class="interactive-layer" fill="var(--accent)" style="transition: all 0.3s ease;">
+        <!-- Insertion on Humerus -->
+        <circle cx="130" cy="110" r="10" />
+    </g>
+    <g id="action-layer" class="interactive-layer" style="transition: all 0.3s ease;">
+        <!-- Muscle Belly -->
+        <path d="M260,180 C200,150 150,150 130,110 C180,250 220,320 260,340 Z" fill="url(#muscle-shading)" />
+    </g>
+</svg>`,
     "placeholder_muscle": `
 <svg viewBox="0 0 200 400" xmlns="http://www.w3.org/2000/svg">
     <defs>

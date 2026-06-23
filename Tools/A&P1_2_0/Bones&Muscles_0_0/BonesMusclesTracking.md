@@ -32,7 +32,7 @@ This file tracks the completion status of custom SVGs for each bone and muscle.
 | ⬜ | Masseter | `muscle_masseter` |
 | ⬜ | Sternocleidomastoid | `muscle_sternocleidomastoid` |
 | ✅ | Pectoralis Major | `muscle_pectoralis_major` |
-| ⬜ | Latissimus Dorsi | `muscle_latissimus_dorsi` |
+| ✅ | Latissimus Dorsi | `muscle_latissimus_dorsi` |
 | ⬜ | Deltoid | `muscle_deltoid` |
 | ⬜ | Biceps Brachii | `muscle_biceps_brachii` |
 | ⬜ | Triceps Brachii | `muscle_triceps_brachii` |
