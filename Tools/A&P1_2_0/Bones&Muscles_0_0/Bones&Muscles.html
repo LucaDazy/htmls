@@ -149,6 +149,62 @@
             .detail-label { text-align: left; }
             .detail-value { margin-bottom: 0.8rem; }
         }
+
+        /* Table of Contents Modal */
+        .toc-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        .toc-modal-content {
+            background: var(--panel-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .toc-modal-content h2 { color: var(--accent); margin-top: 0; text-align: center; }
+        #toc-search {
+            width: 100%;
+            padding: 0.8rem;
+            font-family: var(--font-family-mono);
+            font-size: 1rem;
+            background: var(--bg-color);
+            border: 2px solid var(--text-muted);
+            color: var(--text-main);
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            box-sizing: border-box;
+        }
+        #toc-search:focus { outline: none; border-color: var(--accent); }
+        .toc-list-container { overflow-y: auto; flex-grow: 1; }
+        .toc-item {
+            padding: 0.8rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            border-bottom: 1px solid var(--hover-bg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .toc-item:hover { background: var(--hover-bg); }
+        .toc-item-name { font-weight: bold; }
+        .toc-item-type { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; }
+        .toc-item-type.bone { color: var(--success); }
+        .toc-item-type.muscle { color: var(--accent); }
     </style>
     <!-- Load the external data files BEFORE the main script -->
     <script src="Bones&Muscles_data.js"></script>
@@ -232,6 +288,18 @@
         </details>
 
     </div> <!-- .container -->
+    
+    <!-- TABLE OF CONTENTS MODAL -->
+    <div id="toc-modal" class="toc-modal-overlay" style="display: none;">
+        <div class="toc-modal-content">
+            <h2>Table of Contents <span style="font-weight:normal; color: var(--text-muted); font-size: 1rem;">(Press 't' to close)</span></h2>
+            <input type="text" id="toc-search" placeholder="Search for a bone or muscle...">
+            <div id="toc-list" class="toc-list-container">
+                <!-- Items will be injected here by script -->
+            </div>
+        </div>
+    </div>
+
     </div> <!-- .content-wrapper -->
 
     <script>
@@ -372,6 +440,76 @@
             queue = [...due, ...newCards];
             
             document.getElementById('deck-stats').innerText = `Cards Due: ${due.length} | New: ${newCards.length}`;
+        }
+
+        // --- 4. TABLE OF CONTENTS LOGIC ---
+        function toggleToc() {
+            const modal = document.getElementById('toc-modal');
+            const isVisible = modal.style.display === 'flex';
+            modal.style.display = isVisible ? 'none' : 'flex';
+            if (!isVisible) {
+                document.getElementById('toc-search').focus();
+                document.getElementById('toc-search').select();
+            }
+        }
+
+        function buildToc() {
+            const listContainer = document.getElementById('toc-list');
+            listContainer.innerHTML = '';
+            
+            rawDB.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'toc-item';
+                div.dataset.itemId = item.id;
+                div.innerHTML = `
+                    <span class="toc-item-name">${item.n}</span>
+                    <span class="toc-item-type ${item.t === 'b' ? 'bone' : 'muscle'}">${item.t === 'b' ? 'Bone' : 'Muscle'}</span>
+                `;
+                div.onclick = () => jumpToCard(item.id);
+                listContainer.appendChild(div);
+            });
+        }
+
+        function filterToc() {
+            const filterText = document.getElementById('toc-search').value.toLowerCase();
+            const items = document.querySelectorAll('#toc-list .toc-item');
+            
+            items.forEach(item => {
+                const name = item.querySelector('.toc-item-name').textContent.toLowerCase();
+                if (name.includes(filterText)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function jumpToCard(itemId) {
+            if (currentItem && currentItem.id === itemId) {
+                toggleToc();
+                return;
+            }
+
+            const targetItem = rawDB.find(item => item.id === itemId);
+            if (!targetItem) return;
+
+            const existingIndex = queue.findIndex(item => item.id === itemId);
+            if (existingIndex > -1) {
+                queue.splice(existingIndex, 1);
+            }
+
+            queue.unshift(targetItem);
+            nextCard();
+            toggleToc();
+        }
+
+        function handleKeydown(e) {
+            if (e.key.toLowerCase() === 't') {
+                if (document.activeElement.id !== 'toc-search') {
+                    e.preventDefault();
+                    toggleToc();
+                }
+            }
         }
 
         // SVG Interaction Handlers
@@ -534,9 +672,14 @@
         // --- INIT ---
         window.onload = () => {
             buildDictionaryUI();
+            buildToc(); // Build the Table of Contents list
             loadState();
             buildQueue();
             nextCard();
+
+            // Add event listeners for the new functionality
+            window.addEventListener('keydown', handleKeydown);
+            document.getElementById('toc-search').addEventListener('input', filterToc);
         };
 
     </script>
