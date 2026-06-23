@@ -461,7 +461,14 @@
                 const div = document.createElement('div');
                 div.className = 'toc-item';
                 div.dataset.itemId = item.id;
+
+                // Check if a custom SVG exists for this item
+                const isComplete = svgDB.hasOwnProperty(item.svg_id);
+                const statusClass = isComplete ? 'complete' : 'incomplete';
+                const statusTitle = isComplete ? 'Custom SVG Complete' : 'Placeholder SVG';
+                
                 div.innerHTML = `
+                    <span class="toc-status-dot ${statusClass}" title="${statusTitle}"></span>
                     <span class="toc-item-name">${item.n}</span>
                     <span class="toc-item-type ${item.t === 'b' ? 'bone' : 'muscle'}">${item.t === 'b' ? 'Bone' : 'Muscle'}</span>
                 `;
