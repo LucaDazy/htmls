@@ -67,6 +67,50 @@ const svgDB = {
         <circle cx="120" cy="105" r="6" />
     </g>
 </svg>`,
+    "bone_temporal_bone": `
+<svg viewBox="0 0 300 250" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#94a3b8" /><stop offset="25%" stop-color="#f1f5f9" /><stop offset="75%" stop-color="#cbd5e1" /><stop offset="100%" stop-color="#475569" /></linearGradient>
+        <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter>
+    </defs>
+    <!-- Background Bones (Lateral view of skull) -->
+    <g class="svg-bg" fill="url(#bone-shading)" opacity="0.4">
+        <!-- Frontal bone (anterior) -->
+        <path d="M 20,30 C 10,60 10,120 20,150 L 50,150 C 60,120 60,60 50,30 Z"/>
+        <!-- Parietal bone (superior) -->
+        <path d="M 50,20 C 80,10 140,10 170,20 L 170,50 C 140,40 80,40 50,50 Z"/>
+        <!-- Occipital bone (posterior) -->
+        <path d="M 220,30 C 240,60 240,140 220,170 L 190,170 C 180,140 180,60 190,30 Z"/>
+        <!-- Sphenoid bone (anterior/inferior) -->
+        <path d="M 100,100 C 90,120 90,150 100,160 L 120,160 C 130,150 130,120 120,100 Z"/>
+        <!-- Zygomatic bone (cheek) -->
+        <path d="M 80,160 C 70,180 80,200 100,210 L 120,200 C 130,190 130,170 120,160 Z"/>
+        <!-- Mandible (lower jaw) -->
+        <path d="M 60,200 C 50,220 60,240 80,240 L 180,240 C 200,240 210,220 200,200 Z"/>
+    </g>
+
+    <!-- INTERACTIVE LAYERS -->
+    <g id="region-layer" class="interactive-layer" style="transition: all 0.3s ease;">
+        <!-- Temporal Bone (lateral view) -->
+        <path d="M 170,30 C 150,40 140,80 140,120 C 140,140 150,160 160,170 C 170,180 180,180 190,170 C 200,160 210,140 210,120 C 210,80 200,40 180,30 Z" fill="url(#bone-shading)"/>
+        <!-- Zygomatic process (anterior projection) -->
+        <path d="M 140,120 C 130,120 120,130 120,140 C 120,150 130,150 140,150 C 150,150 150,140 150,130 Z" fill="url(#bone-shading)"/>
+        <!-- Petrous region (medial extension, shown as a darker area) -->
+        <path d="M 170,170 C 180,190 190,210 200,220 C 210,210 210,190 200,170 Z" fill="url(#bone-shading)" opacity="0.7"/>
+    </g>
+    <g id="landmarks-layer" class="interactive-layer" fill="var(--accent)" style="transition: all 0.3s ease;">
+        <!-- Mastoid process (posterior inferior) -->
+        <circle cx="195" cy="175" r="8" />
+        <!-- Styloid process (inferior, thin) -->
+        <circle cx="175" cy="195" r="5" />
+        <!-- External auditory meatus (central) -->
+        <circle cx="165" cy="145" r="7" />
+        <!-- Mandibular fossa (anterior, near zygomatic process) -->
+        <circle cx="145" cy="135" r="6" />
+        <!-- Zygomatic process tip -->
+        <circle cx="120" cy="135" r="5" />
+    </g>
+</svg>`,
     "muscle_pectoralis_major": `
 <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
     <defs>
