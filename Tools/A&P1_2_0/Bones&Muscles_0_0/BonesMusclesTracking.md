@@ -120,7 +120,7 @@ This file tracks the completion status of custom SVGs for each bone and muscle.
 | ⬜ | Sartorius | `muscle_sartorius` |
 | ⬜ | Soleus | `muscle_soleus` |
 | ⬜ | Popliteus | `muscle_popliteus` |
-| ⬜ | Peroneus (Fibularis) Longus | `muscle_peroneus_fibularis_longus` |
+| ✅ | Peroneus (Fibularis) Longus | `muscle_peroneus_fibularis_longus` |
 | ⬜ | Peroneus (Fibularis) Brevis | `muscle_peroneus_fibularis_brevis` |
 | ⬜ | Tibialis Anterior | `muscle_tibialis_anterior` |
 | ⬜ | Tibialis Posterior | `muscle_tibialis_posterior` |

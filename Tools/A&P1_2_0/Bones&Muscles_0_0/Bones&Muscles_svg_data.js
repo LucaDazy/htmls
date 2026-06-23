@@ -140,6 +140,52 @@ const svgDB = {
         <path d="M260,180 C200,150 150,150 130,110 C180,250 220,320 260,340 Z" fill="url(#muscle-shading)" />
     </g>
 </svg>`,
+    "muscle_peroneus_fibularis_longus": `
+<svg viewBox="20 60 260 530" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#94a3b8" /><stop offset="25%" stop-color="#f1f5f9" /><stop offset="75%" stop-color="#cbd5e1" /><stop offset="100%" stop-color="#475569" /></linearGradient>
+        <linearGradient id="muscle-shading" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#7f1d1d" /><stop offset="35%" stop-color="#ef4444" /><stop offset="80%" stop-color="#b91c1c" /><stop offset="100%" stop-color="#450a0a" /></linearGradient>
+        <linearGradient id="tendon-shading" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#64748b" /><stop offset="50%" stop-color="#f8fafc" /><stop offset="100%" stop-color="#334155" /></linearGradient>
+        <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter>
+    </defs>
+    
+    <!-- Background Bones -->
+    <g class="svg-bg" fill="url(#bone-shading)" opacity="0.4">
+        <!-- Tibia (background) -->
+        <path d="M 160,80 C 140,150 145,300 140,460 C 140,480 150,490 165,490 L 175,490 L 180,80 Z"/>
+        <!-- Fibula (main context bone) -->
+        <path d="M 100,90 C 85,100 90,120 100,135 C 105,250 110,350 100,450 C 95,480 95,505 105,515 C 120,520 130,505 130,485 C 135,400 135,200 125,125 C 125,100 115,85 100,90 Z"/>
+        <!-- Foot bones (tarsals/metatarsals) -->
+        <path d="M 105,510 C 80,515 50,530 55,560 C 60,580 90,580 120,575 C 160,570 230,585 260,580 C 270,575 250,555 200,545 C 150,535 130,505 105,510 Z"/>
+    </g>
+    
+    <!-- INTERACTIVE LAYERS -->
+    <g id="origin-layer" class="interactive-layer">
+         <!-- Lateral condyle of tibia & fibula -->
+         <path d="M 100,90 C 92,112 101,122 101,122 C 112,122 124,115 124,102 C 116,92 108,88 100,90 Z" />
+         <path d="M 101,122 C 105,200 108,280 102,340 L 115,340 C 118,280 115,200 122,125 C 124,115 112,122 101,122 Z" />
+    </g>
+    
+    <g id="action-layer" class="interactive-layer">
+        <!-- Muscle Belly -->
+        <path d="M 98,105 C 70,180 75,280 95,350 C 100,380 115,400 120,400 C 135,320 135,180 120,115 C 115,100 105,100 98,105 Z" fill="url(#muscle-shading)" />
+        <!-- Striations -->
+        <g stroke="#450a0a" stroke-width="1.5" opacity="0.4" fill="none">
+            <path d="M 95,130 Q 105,160 120,140" /> <path d="M 90,180 Q 105,210 125,190" />
+            <path d="M 85,230 Q 105,260 128,240" /> <path d="M 86,280 Q 105,310 125,290" />
+            <path d="M 92,330 Q 105,350 118,335" />
+        </g>
+         <!-- Tendon Path -->
+        <path d="M 112,350 C 115,400 105,450 90,490 C 80,520 90,545 110,550 C 130,555 160,555 190,565" fill="none" stroke="url(#tendon-shading)" stroke-width="9" stroke-linecap="round"/>
+        <path d="M 112,350 C 115,400 105,450 90,490 C 80,520 90,545 110,550 C 130,555 160,555 190,565" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.3"/>
+    </g>
+    
+    <g id="insertion-layer" class="interactive-layer">
+        <!-- Insertion Point circle on foot bones: Base of 1st metatarsal & medial cuneiform bone -->
+        <circle cx="190" cy="565" r="8" />
+        <circle cx="215" cy="560" r="8" />
+    </g>
+</svg>`,
     "placeholder_muscle": `
 <svg viewBox="0 0 200 400" xmlns="http://www.w3.org/2000/svg">
     <defs>
