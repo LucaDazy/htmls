@@ -35,14 +35,14 @@ You will be provided with this prompt file, a second file named `AnatomicalDatab
             <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter>
         </defs>
         ```
-5.  **Strict Interactive Layer Structure:** The SVG **must** be structured with specific interactive layers using `<g>` elements with these exact `id`s. All visual paths for the main item must be placed inside these groups.
+5.  **Strict Interactive Layer Structure:** The SVG **must** be structured with specific interactive layers using `<g>` elements with these exact `id`s. All visual paths for the main item must be placed inside these groups. **Critically, the fill colors must be applied directly to the child shapes (`<path>`, `<circle>`, etc.) inside these groups**, not to the parent `<g>` tag.
     -   **If Bone:**
-        -   `<g id="region-layer">`: Contains the primary path(s) for the bone itself. Fill with `url(#bone-shading)`.
-        -   `<g id="landmarks-layer">`: Contains shapes highlighting the key landmarks from the database.
+        -   `<g id="region-layer">`: Contains the primary `<path>`(s) for the bone itself. These paths must have `fill="url(#bone-shading)"`.
+        -   `<g id="landmarks-layer">`: Contains shapes highlighting key landmarks. These shapes must have `fill="var(--accent)"`.
     -   **If Muscle:**
-        -   `<g id="origin-layer">`: Contains all paths/shapes representing the origin points.
-        -   `<g id="insertion-layer">`: Contains all paths/shapes representing the insertion points.
-        -   `<g id="action-layer">`: Contains all paths for the muscle belly, tendons, striations, and glints.
+        -   `<g id="origin-layer">`: Contains all paths/shapes representing origin points. These shapes must have `fill="var(--success)"`.
+        -   `<g id="insertion-layer">`: Contains all paths/shapes representing insertion points. These shapes must have `fill="var(--accent)"`.
+        -   `<g id="action-layer">`: Contains paths for the muscle belly (filled with `url(#muscle-shading)`), tendons, etc.
 6.  **Background Context:** Include other nearby bones/structures as non-interactive elements to provide anatomical context. Place these in a `<g class="svg-bg">` tag and set their opacity to `0.4` so the main item stands out.
 7.  **Static Preview Only:** **Do not include any `<script>` tags or `onmouseenter`/`onclick` attributes.** The provided CSS will create a simple hover effect on the layers for preview purposes.
 
