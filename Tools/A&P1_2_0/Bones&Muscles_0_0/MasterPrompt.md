@@ -42,7 +42,9 @@ You will be provided with this prompt file, a second file named `AnatomicalDatab
     -   **If Muscle:**
         -   `<g id="origin-layer">`: Contains all paths/shapes representing origin points. These shapes must have `fill="var(--success)"`.
         -   `<g id="insertion-layer">`: Contains all paths/shapes representing insertion points. These shapes must have `fill="var(--accent)"`.
-        -   `<g id="action-layer">`: Contains paths for the muscle belly (filled with `url(#muscle-shading)`), tendons, etc.
+        -   `<g id="action-layer">`: This is a container group. It **must** contain two mandatory child groups:
+            -   `<g id="action-belly">`: Contains all paths for the muscle belly.
+            -   `<g id="action-tendon">`: Contains all paths for the tendons, glints, and other connective tissues.
 6.  **Background Context:** Include other nearby bones/structures as non-interactive elements to provide anatomical context. Place these in a `<g class="svg-bg">` tag and set their opacity to `0.4` so the main item stands out.
 7.  **Static Preview Only:** **Do not include any `<script>` tags or `onmouseenter`/`onclick` attributes.** The provided CSS will create a simple hover effect on the layers for preview purposes.
 

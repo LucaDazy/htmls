@@ -25,7 +25,9 @@ All newly generated SVGs must adhere to the following principles to ensure consi
     *   **For Muscles**:
         *   `<g id="origin-layer">`: Contains all paths/shapes representing the muscle's origin points.
         *   `<g id="insertion-layer">`: Contains all paths/shapes representing the insertion points.
-        *   `<g id="action-layer">`: Contains the paths for the muscle belly, tendons, and any striations.
+        *   `<g id="action-layer">`: This is a container group for the sequential highlight. It **must** contain two mandatory child groups:
+            *   `<g id="action-belly">`: Contains all paths for the muscle belly.
+            *   `<g id="action-tendon">`: Contains all paths for the tendons and other connective tissues.
     *   **For Bones**:
         *   `<g id="region-layer">`: Contains the main path(s) for the bone itself.
         *   `<g id="landmarks-layer">`: Contains shapes (circles, rects) highlighting the key landmarks.
