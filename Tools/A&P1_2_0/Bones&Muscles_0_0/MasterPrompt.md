@@ -50,7 +50,7 @@ You will be provided with this prompt file, a second file named `AnatomicalDatab
 
 ### Gold Standard Example for "Peroneus (Fibularis) Longus"
 
-**Re-create your next SVG with this level of quality and structure.** Study how the background bones provide context, how the muscle and tendon are layered, and how all interactive parts are correctly grouped into the required `<g>` layers.
+**Re-create your next SVG with this level of quality and structure.** Study how the `fill` attributes are applied directly to the shapes within the interactive layers (`origin-layer` and `insertion-layer`). This is the correct and required method.
 
 ```html
 <!DOCTYPE html>
@@ -74,10 +74,6 @@ You will be provided with this prompt file, a second file named `AnatomicalDatab
             filter: url(#glow);
             cursor: pointer;
         }
-        /* Define interactive layer colors for preview */
-        #origin-layer { fill: var(--success); }
-        #insertion-layer { fill: var(--accent); }
-        #landmarks-layer { fill: var(--accent); }
     </style>
 </head>
 <body>
@@ -93,38 +89,31 @@ You will be provided with this prompt file, a second file named `AnatomicalDatab
         
         <!-- Background Bones -->
         <g class="svg-bg" fill="url(#bone-shading)" opacity="0.4">
-            <!-- Tibia (background) -->
             <path d="M 160,80 C 140,150 145,300 140,460 C 140,480 150,490 165,490 L 175,490 L 180,80 Z"/>
-            <!-- Fibula (main context bone) -->
             <path d="M 100,90 C 85,100 90,120 100,135 C 105,250 110,350 100,450 C 95,480 95,505 105,515 C 120,520 130,505 130,485 C 135,400 135,200 125,125 C 125,100 115,85 100,90 Z"/>
-            <!-- Foot bones (tarsals/metatarsals) -->
             <path d="M 105,510 C 80,515 50,530 55,560 C 60,580 90,580 120,575 C 160,570 230,585 260,580 C 270,575 250,555 200,545 C 150,535 130,505 105,510 Z"/>
         </g>
         
         <!-- INTERACTIVE LAYERS -->
         <g id="origin-layer" class="interactive-layer">
-             <path d="M 100,90 C 92,112 101,122 101,122 C 112,122 124,115 124,102 C 116,92 108,88 100,90 Z" />
-             <path d="M 101,122 C 105,200 108,280 102,340 L 115,340 C 118,280 115,200 122,125 C 124,115 112,122 101,122 Z" />
+             <path d="M 100,90 C 92,112 101,122 101,122 C 112,122 124,115 124,102 C 116,92 108,88 100,90 Z" fill="var(--success)" />
+             <path d="M 101,122 C 105,200 108,280 102,340 L 115,340 C 118,280 115,200 122,125 C 124,115 112,122 101,122 Z" fill="var(--success)" />
         </g>
         
         <g id="action-layer" class="interactive-layer">
-            <!-- Muscle Belly -->
             <path d="M 98,105 C 70,180 75,280 95,350 C 100,380 115,400 120,400 C 135,320 135,180 120,115 C 115,100 105,100 98,105 Z" fill="url(#muscle-shading)" />
-            <!-- Striations -->
             <g stroke="#450a0a" stroke-width="1.5" opacity="0.4" fill="none">
                 <path d="M 95,130 Q 105,160 120,140" /> <path d="M 90,180 Q 105,210 125,190" />
                 <path d="M 85,230 Q 105,260 128,240" /> <path d="M 86,280 Q 105,310 125,290" />
                 <path d="M 92,330 Q 105,350 118,335" />
             </g>
-             <!-- Tendon Path -->
             <path d="M 112,350 C 115,400 105,450 90,490 C 80,520 90,545 110,550 C 130,555 160,555 190,565" fill="none" stroke="url(#tendon-shading)" stroke-width="9" stroke-linecap="round"/>
             <path d="M 112,350 C 115,400 105,450 90,490 C 80,520 90,545 110,550 C 130,555 160,555 190,565" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.3"/>
         </g>
         
         <g id="insertion-layer" class="interactive-layer">
-            <!-- Insertion Point circle on foot bones -->
-            <circle cx="190" cy="565" r="8" />
-            <circle cx="215" cy="560" r="8" />
+            <circle cx="190" cy="565" r="8" fill="var(--accent)" />
+            <circle cx="215" cy="560" r="8" fill="var(--accent)" />
         </g>
     </svg>
 </body>

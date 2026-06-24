@@ -206,8 +206,8 @@ const svgDB = {
     <!-- INTERACTIVE LAYERS -->
     <g id="origin-layer" class="interactive-layer">
          <!-- Lateral condyle of tibia & fibula -->
-         <path d="M 100,90 C 92,112 101,122 101,122 C 112,122 124,115 124,102 C 116,92 108,88 100,90 Z" />
-         <path d="M 101,122 C 105,200 108,280 102,340 L 115,340 C 118,280 115,200 122,125 C 124,115 112,122 101,122 Z" />
+         <path d="M 100,90 C 92,112 101,122 101,122 C 112,122 124,115 124,102 C 116,92 108,88 100,90 Z" fill="var(--success)" />
+         <path d="M 101,122 C 105,200 108,280 102,340 L 115,340 C 118,280 115,200 122,125 C 124,115 112,122 101,122 Z" fill="var(--success)" />
     </g>
     
     <g id="action-layer" class="interactive-layer">
@@ -226,8 +226,8 @@ const svgDB = {
     
     <g id="insertion-layer" class="interactive-layer">
         <!-- Insertion Point circle on foot bones: Base of 1st metatarsal & medial cuneiform bone -->
-        <circle cx="190" cy="565" r="8" />
-        <circle cx="215" cy="560" r="8" />
+        <circle cx="190" cy="565" r="8" fill="var(--accent)" />
+        <circle cx="215" cy="560" r="8" fill="var(--accent)" />
     </g>
 </svg>`,
     "placeholder_muscle": `
