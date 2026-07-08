@@ -166,6 +166,47 @@
         }
         .btn-next-card:hover { opacity: 0.9; }
 
+        .mcq-container {
+            margin-top: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .mcq-option {
+            width: 100%;
+            padding: 0.8rem;
+            font-family: var(--font-family-mono);
+            background: var(--bg-color);
+            border: 2px solid var(--text-muted);
+            color: var(--text-main);
+            border-radius: 4px;
+            box-sizing: border-box;
+            transition: all 0.2s;
+            text-align: left;
+            cursor: pointer;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        .mcq-option:hover:not(:disabled) {
+            border-color: var(--field-color);
+            background-color: var(--hover-bg);
+        }
+        .mcq-option.correct {
+            border-color: var(--success);
+            background-color: rgba(77, 182, 172, 0.1);
+            color: var(--success);
+            font-weight: bold;
+        }
+        .mcq-option.incorrect {
+            border-color: var(--error);
+            background-color: rgba(224, 94, 117, 0.1);
+            color: var(--error);
+        }
+        .mcq-option:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
         .deck-stats { margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted); text-align: center;}
 
         /* Collapsible Rosetta Dictionary */
@@ -456,6 +497,8 @@
             "ulnaris": "Ulna side (pinky)",
             "vastus": "Vast/Huge"
         };
+
+        let boneNames = [];
 
         // --- 2. STATE MANAGEMENT ---
         let appState = {
@@ -759,20 +802,18 @@
                 const fieldEl = document.createElement('div');
                 fieldEl.className = `interactive-field field-${key}`;
                 
+                const maxHints = (key === 'action') ? 1 : 3;
                 const header = document.createElement('div');
                 header.className = 'field-header';
                 header.innerHTML = `
                     <span class="field-title">${value.title}</span>
-                    <button id="hint-btn-${key}" class="btn-hint" onclick="requestHint('${key}')">Hint (0/3)</button>
+                    <button id="hint-btn-${key}" class="btn-hint" onclick="requestHint('${key}')">Hint (0/${maxHints})</button>
                 `;
                 fieldEl.appendChild(header);
 
                 if (key === 'landmarks') {
                     const landmarks = value.answer.split(', ').map(l => l.trim()).filter(l => l);
-                    currentCardState.landmarks = {
-                        answers: landmarks,
-                        solved: Array(landmarks.length).fill(false)
-                    };
+                    currentCardState.landmarks = { answers: landmarks, solved: Array(landmarks.length).fill(false) };
 
                     const landmarkContainer = document.createElement('div');
                     landmarkContainer.className = 'landmark-field-container';
@@ -780,112 +821,104 @@
 
                     landmarks.forEach((landmark, index) => {
                         const input = document.createElement('input');
-                        input.type = 'text';
-                        input.id = `input-landmarks-${index}`;
-                        input.className = 'field-input';
-                        input.dataset.index = index;
-                        input.placeholder = `Landmark #${index + 1}`;
+                        input.type = 'text'; input.id = `input-landmarks-${index}`; input.className = 'field-input';
+                        input.dataset.index = index; input.placeholder = `Landmark #${index + 1}`;
                         input.oninput = () => checkAnswer(key, input);
-                        input.onfocus = () => previewHighlight('landmarks');
-                        input.onblur = () => clearAllPreviews();
+                        input.onfocus = () => previewHighlight('landmarks'); input.onblur = () => clearAllPreviews();
                         landmarkContainer.appendChild(input);
                     });
                     fieldEl.appendChild(landmarkContainer);
+                } else if (key === 'action') {
+                    const correctAnswer = value.answer;
+                    const allActions = rawDB.filter(item => item.t === 'm' && item.a !== correctAnswer).map(item => item.a);
+                    allActions.sort(() => Math.random() - 0.5); // Shuffle for variety
                     
-                    const hintDisplay = document.createElement('div');
-                    hintDisplay.id = `hint-display-${key}`;
-                    hintDisplay.className = 'hint-display';
-                    fieldEl.appendChild(hintDisplay);
+                    const choices = [correctAnswer, ...allActions.slice(0, 3)].sort(() => Math.random() - 0.5);
 
-                } else {
+                    const mcqContainer = document.createElement('div');
+                    mcqContainer.className = 'mcq-container';
+                    choices.forEach(choice => {
+                        const button = document.createElement('button');
+                        button.className = 'mcq-option';
+                        button.textContent = choice;
+                        const isCorrect = choice === correctAnswer;
+                        button.onclick = () => checkActionAnswer(button, isCorrect);
+                        mcqContainer.appendChild(button);
+                    });
+                    fieldEl.appendChild(mcqContainer);
+                } else { // For 'region', 'origin', 'insertion'
                     const input = document.createElement('input');
-                    input.type = 'text';
-                    input.id = `input-${key}`;
-                    input.className = 'field-input';
+                    input.type = 'text'; input.id = `input-${key}`; input.className = 'field-input';
                     input.placeholder = 'Type the answer here...';
                     input.oninput = () => checkAnswer(key, input);
-                    input.onfocus = () => previewHighlight(key);
-                    input.onblur = () => clearAllPreviews();
-                    
-                    const hintDisplay = document.createElement('div');
-                    hintDisplay.id = `hint-display-${key}`;
-                    hintDisplay.className = 'hint-display';
-                    
+                    input.onfocus = () => previewHighlight(key); input.onblur = () => clearAllPreviews();
                     fieldEl.appendChild(input);
-                    fieldEl.appendChild(hintDisplay);
                 }
+                
+                // Add a hint display for all field types
+                const hintDisplay = document.createElement('div');
+                hintDisplay.id = `hint-display-${key}`;
+                hintDisplay.className = 'hint-display';
+                fieldEl.appendChild(hintDisplay);
+
                 container.appendChild(fieldEl);
             }
         }
 
         function requestHint(key) {
-            if (currentCardState.solvedFields.has(key) || currentCardState.hintLevels[key] >= 3) return;
-            previewHighlight(key); // Add preview highlight on hint click
-
+            if (currentCardState.solvedFields.has(key)) return;
+            previewHighlight(key);
+        
+            const maxHints = (key === 'action') ? 1 : 3;
+            if (currentCardState.hintLevels[key] >= maxHints) return;
+        
             currentCardState.hintLevels[key]++;
             const level = currentCardState.hintLevels[key];
             const hintBtn = document.getElementById(`hint-btn-${key}`);
-            hintBtn.innerText = `Hint (${level}/3)`;
-
+            hintBtn.innerText = `Hint (${level}/${maxHints})`;
+        
+            if (level >= maxHints) {
+                hintBtn.disabled = true;
+            }
+        
             const answer = (currentItem.t === 'b') ? (key === 'region' ? currentItem.r : currentItem.l) : (key === 'origin' ? currentItem.o : (key === 'insertion' ? currentItem.i : currentItem.a));
-
+        
             if (key === 'landmarks') {
                 const { answers, solved } = currentCardState.landmarks;
                 const landmarkInputs = document.querySelectorAll('#landmark-container .field-input');
-
                 switch (level) {
-                    case 1: // Hint 1: Dictionary highlight AND underscores
+                    case 1:
                         highlightDictionaryTerms(key, answer);
-                        answers.forEach((ans, i) => {
-                            if (!solved[i]) landmarkInputs[i].placeholder = ans.replace(/[a-zA-Z0-9]/g, '_');
-                        });
+                        answers.forEach((ans, i) => { if (!solved[i]) landmarkInputs[i].placeholder = ans.replace(/[a-zA-Z0-9]/g, '_'); });
                         break;
-                    case 2: // Hint 2: Show first/last letter of each word
+                    case 2:
                         answers.forEach((ans, i) => {
                             if (!solved[i]) {
-                                const hintText = ans.split(' ').map(word => {
-                                    if (word.length <= 2) return word;
-                                    const chars = word.split('');
-                                    return chars.map((char, index) => {
-                                        if (index === 0 || index === chars.length - 1 || !/[a-zA-Z0-9]/.test(char)) return char;
-                                        return '_';
-                                    }).join('');
-                                }).join(' ');
-                                landmarkInputs[i].placeholder = hintText;
+                                landmarkInputs[i].placeholder = ans.split(' ').map(word => word.length <= 2 ? word : word[0] + '_'.repeat(word.length - 2) + word.slice(-1)).join(' ');
                             }
                         });
                         break;
-                    case 3: // Hint 3: Reveal all and solve
+                    case 3:
                         answers.forEach((ans, i) => {
-                            if (!solved[i]) {
-                                landmarkInputs[i].value = ans;
-                                landmarkInputs[i].classList.add('revealed');
-                                currentCardState.landmarks.solved[i] = true;
-                            }
+                            if (!solved[i]) { landmarkInputs[i].value = ans; landmarkInputs[i].classList.add('revealed'); currentCardState.landmarks.solved[i] = true; }
                         });
-                        markFieldAsSolved(key); // Solves and disables everything at once.
+                        markFieldAsSolved(key);
                         break;
                 }
-            } else {
+            } else if (key === 'action') {
+                document.getElementById(`hint-display-${key}`).textContent = generateActionHint();
+            } else { // Standard text fields
                 const hintDisplay = document.getElementById(`hint-display-${key}`);
                 const inputEl = document.getElementById(`input-${key}`);
                 switch (level) {
-                    case 1: // Hint 1: Dictionary highlight AND underscores
+                    case 1:
                         highlightDictionaryTerms(key, answer);
                         hintDisplay.textContent = answer.replace(/[a-zA-Z0-9]/g, '_');
                         break;
-                    case 2: // Hint 2: Show first/last letter of each word
-                        const hintText = answer.split(' ').map(word => {
-                            if (word.length <= 2) return word;
-                            const chars = word.split('');
-                            return chars.map((char, index) => {
-                                if (index === 0 || index === chars.length - 1 || !/[a-zA-Z0-9]/.test(char)) return char;
-                                return '_';
-                            }).join('');
-                        }).join(' ');
-                        hintDisplay.textContent = hintText;
+                    case 2:
+                        hintDisplay.textContent = answer.split(' ').map(word => word.length <= 2 ? word : word[0] + '_'.repeat(word.length - 2) + word.slice(-1)).join(' ');
                         break;
-                    case 3: // Hint 3: Reveal and solve
+                    case 3:
                         hintDisplay.textContent = '';
                         inputEl.value = answer;
                         inputEl.classList.add('revealed');
@@ -893,10 +926,40 @@
                         break;
                 }
             }
+        }
 
-            if (level >= 3) {
-                hintBtn.disabled = true;
+        function generateActionHint() {
+            const origin = currentItem.o.toLowerCase();
+            const insertion = currentItem.i.toLowerCase();
+            
+            const originBones = boneNames.filter(b => origin.includes(b)).map(b => b.charAt(0).toUpperCase() + b.slice(1)).join(' & ');
+            const insertionBones = boneNames.filter(b => insertion.includes(b)).map(b => b.charAt(0).toUpperCase() + b.slice(1)).join(' & ');
+
+            if (insertionBones && originBones) {
+                return `This muscle pulls the ${insertionBones} toward the ${originBones}. What movement would that cause?`;
             }
+            return "Consider what happens when this muscle contracts, pulling its insertion point towards its origin point."; // Fallback
+        }
+
+        function checkActionAnswer(buttonEl, isCorrect) {
+            const container = buttonEl.parentElement;
+            const allOptions = container.querySelectorAll('.mcq-option');
+            allOptions.forEach(btn => btn.disabled = true);
+
+            currentCardState.hintLevels['action'] = currentCardState.hintLevels['action'] || 0;
+
+            if (isCorrect) {
+                buttonEl.classList.add('correct');
+            } else {
+                buttonEl.classList.add('incorrect');
+                // Treat a wrong answer as a "reveal" for SRS purposes.
+                currentCardState.hintLevels['action'] = 3; 
+                
+                const correctAnswerText = currentItem.a;
+                const correctButton = Array.from(allOptions).find(opt => opt.textContent === correctAnswerText);
+                if(correctButton) correctButton.classList.add('correct');
+            }
+            markFieldAsSolved('action');
         }
 
         function highlightDictionaryTerms(key, text) {
@@ -936,7 +999,7 @@
         }
 
         function checkAnswer(key, element) {
-            if (currentCardState.solvedFields.has(key)) return;
+            if (currentCardState.solvedFields.has(key) || key === 'action') return;
 
             if (key === 'landmarks') {
                 const index = parseInt(element.dataset.index, 10);
@@ -1068,6 +1131,7 @@
         window.onload = () => {
             const init = async () => {
                 buildToc(); // Build the Table of Contents list
+                boneNames = rawDB.filter(i => i.t === 'b').map(i => i.n.toLowerCase().replace(/ \(.+\)/, ''));
                 loadState();
                 buildQueue();
                 await nextCard();
