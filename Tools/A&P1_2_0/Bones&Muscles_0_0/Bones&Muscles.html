@@ -407,7 +407,14 @@
             font-family: var(--font-family-mono);
             flex-shrink: 0;
         }
-        .toc-list-container { overflow-y: auto; flex-grow: 1; padding: 0.5rem; }
+        .toc-list-container { 
+            overflow-y: auto; 
+            flex-grow: 1; 
+            padding: 0.5rem; 
+            /* Firefox Scrollbar Styling */
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent) var(--bg-color);
+        }
         .toc-item {
             padding: 0.6rem 0.8rem;
             border-radius: 4px;
@@ -438,6 +445,23 @@
         .toc-item-type { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; }
         .toc-item-type.bone { color: var(--success); }
         .toc-item-type.muscle { color: var(--accent); }
+
+        /* Custom Scrollbar for TOC */
+        .toc-list-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .toc-list-container::-webkit-scrollbar-track {
+            background: var(--bg-color);
+            border-radius: 4px;
+        }
+        .toc-list-container::-webkit-scrollbar-thumb {
+            background-color: var(--accent);
+            border-radius: 4px;
+            border: 2px solid var(--bg-color);
+        }
+        .toc-list-container::-webkit-scrollbar-thumb:hover {
+            background-color: var(--text-main);
+        }
 
         /* Error Overlay */
         .error-overlay {
