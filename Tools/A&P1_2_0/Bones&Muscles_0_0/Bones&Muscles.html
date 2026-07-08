@@ -264,10 +264,54 @@
             right: 1.5rem;
         }
 
-        @media (max-width: 600px) {
-            .details-grid { grid-template-columns: 1fr; gap: 0.3rem; }
-            .detail-label { text-align: left; }
-            .detail-value { margin-bottom: 0.8rem; }
+        .turntable-container {
+            position: fixed;
+            left: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 200px;
+            z-index: 20;
+            background: var(--panel-bg);
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+            border: 1px solid var(--text-muted);
+            overflow: hidden;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .turntable-container.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .turntable-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+            background: #000; /* Dark background for transparent GIFs */
+        }
+        .turntable-label {
+            padding: 0.5rem;
+            font-size: 0.8rem;
+            text-align: center;
+            color: var(--text-muted);
+            background: var(--hover-bg);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: var(--font-family-mono);
+        }
+
+        @media (max-width: 1400px) {
+            .turntable-container {
+                display: none;
+            }
+        }
+
+        @media (max-width: 950px) { /* Make card arena full-width on smaller screens */
+            .card-arena {
+                grid-template-columns: 1fr;
+                padding: 1.5rem;
+            }
         }
 
         /* Table of Contents Modal */
@@ -345,6 +389,10 @@
 <body>
     <div id="dynamic-script-loader"></div>
     <canvas id="background-canvas"></canvas>
+    <div id="turntable-container" class="turntable-container">
+        <img id="turntable-gif" src="" alt="Turntable Animation">
+        <div class="turntable-label" id="turntable-label"></div>
+    </div>
     <img src="../../../Global/SVGs/logo.svg" alt="Study Hub Logo" class="corner-logo">
     <img src="../../../Global/SVGs/avatar.svg" alt="Avatar" class="corner-avatar">
 
@@ -741,12 +789,14 @@
         async function nextCard() {
             clearHighlights();
             clearAllPreviews();
-            // Rebuild dictionary to reset highlights and ordering for the new card
             buildDictionaryUI();
+
+            const turntableContainer = document.getElementById('turntable-container');
 
             if (queue.length === 0) {
                 document.getElementById('arena').style.display = 'none';
                 document.getElementById('end-screen').style.display = 'block';
+                turntableContainer.classList.remove('visible');
                 return;
             }
 
@@ -782,6 +832,27 @@
                 "Identify the Region and major Landmarks." : 
                 "Identify the Origin, Insertion, and Action.";
             document.getElementById('card-prompt').innerHTML = promptText;
+            
+            // --- Turntable GIF Logic ---
+            const turntableGif = document.getElementById('turntable-gif');
+            const turntableLabel = document.getElementById('turntable-label');
+            
+            // Hide container while loading new GIF to prevent flicker
+            turntableContainer.classList.remove('visible');
+            
+            const gifPath = `Turntables/${currentItem.svg_id}.gif`;
+            turntableGif.src = gifPath;
+            turntableLabel.textContent = currentItem.n;
+
+            turntableGif.onload = () => {
+                turntableContainer.classList.add('visible');
+            };
+            turntableGif.onerror = () => {
+                // If the GIF fails to load, keep the container hidden.
+                turntableContainer.classList.remove('visible');
+                // console.warn(`Turntable GIF not found at: ${gifPath}`);
+            };
+            // --- End Turntable Logic ---
 
             buildInteractiveFields();
         }
