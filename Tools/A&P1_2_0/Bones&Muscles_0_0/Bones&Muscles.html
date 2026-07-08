@@ -388,7 +388,13 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            opacity: 0; /* Hide by default */
+            pointer-events: none; /* Disable interaction while hidden */
             transition: opacity 0.3s;
+        }
+        .toc-container.visible {
+            opacity: 1;
+            pointer-events: auto;
         }
         .toc-header {
             padding: 0.8rem;
@@ -1672,6 +1678,7 @@
                 window.addEventListener('keydown', handleKeydown);
                 positionTurntable();
                 positionToc();
+                document.getElementById('toc-container').classList.add('visible'); // Fade in the TOC
                 window.addEventListener('resize', () => {
                     positionTurntable();
                     positionToc();
