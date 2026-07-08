@@ -63,6 +63,7 @@ const svgDB = [
     "muscle_scalenes",
     "muscle_serratus_anterior",
     "muscle_pectoralis_minor",
+    "muscle_teres_minor",
     "muscle_peroneus_fibularis_longus",
     "muscle_semimembranosus",
     "muscle_flexor_digitorum_longus",
