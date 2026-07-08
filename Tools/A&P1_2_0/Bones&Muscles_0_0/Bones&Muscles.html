@@ -154,6 +154,12 @@
             white-space: pre-wrap; /* Allow wrapping for long landmark text */
             word-break: break-all;
         }
+        .landmark-field-container {
+            margin-top: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
         .btn-next-card {
             background: var(--accent); color: var(--bg-color); border: none; padding: 1rem 2rem; font-size: 1.1rem; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.2s; width: 100%; font-family: var(--font-family-mono); margin-top: 1rem;
         }
@@ -383,6 +389,14 @@
             "abduct": "To move away from midline",
             "acetabulum": "Hip socket (vinegar cup)",
             "adduct": "To move toward midline",
+            "appendicular": "Relating to the limbs and their attachments to the axis",
+            "axial": "Relating to the central part of the body (head, neck, and trunk)",
+            "cranial": "Relating to the cranium or skull",
+            "facial": "Relating to the face",
+            "pectoral": "Relating to the chest or breast",
+            "pelvic": "Relating to the pelvis",
+            "thoracic": "Relating to the thorax or chest",
+            "vertebrae": "Bones forming the spinal column",
             "alba": "White",
             "aspera": "Rough",
             "bi": "Two (heads)",
@@ -656,10 +670,8 @@
 
         async function nextCard() {
             clearHighlights();
-            // Clear dictionary highlights from previous card
-            document.querySelectorAll('.dict-card').forEach(c => {
-                c.classList.remove('glow-region', 'glow-landmarks', 'glow-origin', 'glow-insertion', 'glow-action');
-            });
+            // Rebuild dictionary to reset highlights and ordering for the new card
+            buildDictionaryUI();
 
             if (queue.length === 0) {
                 document.getElementById('arena').style.display = 'none';
@@ -728,14 +740,58 @@
                 currentCardState.hintLevels[key] = 0;
                 const fieldEl = document.createElement('div');
                 fieldEl.className = `interactive-field field-${key}`;
-                fieldEl.innerHTML = `
-                    <div class="field-header">
-                        <span class="field-title">${value.title}</span>
-                        <button id="hint-btn-${key}" class="btn-hint" onclick="requestHint('${key}')">Hint (0/4)</button>
-                    </div>
-                    <input type="text" id="input-${key}" class="field-input" oninput="checkAnswer('${key}', this)" placeholder="Type the answer here...">
-                    <div id="hint-display-${key}" class="hint-display"></div>
+                
+                const header = document.createElement('div');
+                header.className = 'field-header';
+                header.innerHTML = `
+                    <span class="field-title">${value.title}</span>
+                    <button id="hint-btn-${key}" class="btn-hint" onclick="requestHint('${key}')">Hint (0/4)</button>
                 `;
+                fieldEl.appendChild(header);
+
+                if (key === 'landmarks') {
+                    const landmarks = value.answer.split(', ').map(l => l.trim()).filter(l => l);
+                    currentCardState.landmarks = {
+                        answers: landmarks,
+                        solved: Array(landmarks.length).fill(false)
+                    };
+
+                    const landmarkContainer = document.createElement('div');
+                    landmarkContainer.className = 'landmark-field-container';
+                    landmarkContainer.id = 'landmark-container';
+
+                    landmarks.forEach((landmark, index) => {
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.id = `input-landmarks-${index}`;
+                        input.className = 'field-input';
+                        input.dataset.index = index;
+                        input.placeholder = `Landmark #${index + 1}`;
+                        input.oninput = () => checkAnswer(key, input);
+                        landmarkContainer.appendChild(input);
+                    });
+                    fieldEl.appendChild(landmarkContainer);
+                    
+                    const hintDisplay = document.createElement('div');
+                    hintDisplay.id = `hint-display-${key}`;
+                    hintDisplay.className = 'hint-display';
+                    fieldEl.appendChild(hintDisplay);
+
+                } else {
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.id = `input-${key}`;
+                    input.className = 'field-input';
+                    input.placeholder = 'Type the answer here...';
+                    input.oninput = () => checkAnswer(key, input);
+                    
+                    const hintDisplay = document.createElement('div');
+                    hintDisplay.id = `hint-display-${key}`;
+                    hintDisplay.className = 'hint-display';
+                    
+                    fieldEl.appendChild(input);
+                    fieldEl.appendChild(hintDisplay);
+                }
                 container.appendChild(fieldEl);
             }
         }
@@ -749,32 +805,67 @@
             hintBtn.innerText = `Hint (${level}/4)`;
             
             const answer = (currentItem.t === 'b') ? (key === 'region' ? currentItem.r : currentItem.l) : (key === 'origin' ? currentItem.o : (key === 'insertion' ? currentItem.i : currentItem.a));
-            const hintDisplay = document.getElementById(`hint-display-${key}`);
-            const inputEl = document.getElementById(`input-${key}`);
+            
+            if (key === 'landmarks') {
+                const { answers, solved } = currentCardState.landmarks;
+                const landmarkInputs = document.querySelectorAll('#landmark-container .field-input');
 
-            switch(level) {
-                case 1:
-                    highlightDictionaryTerms(key, answer);
-                    break;
-                case 2:
-                    hintDisplay.textContent = answer.replace(/[a-zA-Z0-9]/g, '_');
-                    break;
-                case 3:
-                    const chars = answer.split('');
-                    const hintText = chars.map((char, index) => {
-                        if (index === 0 || index === chars.length - 1 || !/[a-zA-Z0-9]/.test(char)) {
-                            return char;
-                        }
-                        return '_';
-                    }).join('');
-                    hintDisplay.textContent = hintText;
-                    break;
-                case 4:
-                    hintDisplay.textContent = '';
-                    inputEl.value = answer;
-                    inputEl.classList.add('revealed');
-                    markFieldAsSolved(key);
-                    break;
+                switch(level) {
+                    case 1:
+                        highlightDictionaryTerms(key, answer);
+                        break;
+                    case 2: // Show underscores
+                        answers.forEach((ans, i) => {
+                            if (!solved[i]) landmarkInputs[i].placeholder = ans.replace(/[a-zA-Z0-9]/g, '_');
+                        });
+                        break;
+                    case 3: // Show first/last letter
+                        answers.forEach((ans, i) => {
+                            if (!solved[i]) {
+                                const chars = ans.split('');
+                                const hintText = chars.map((char, index) => {
+                                    if (index === 0 || index === chars.length - 1 || !/[a-zA-Z0-9]/.test(char)) return char;
+                                    return '_';
+                                }).join('');
+                                landmarkInputs[i].placeholder = hintText;
+                            }
+                        });
+                        break;
+                    case 4: // Reveal all
+                        answers.forEach((ans, i) => {
+                            if (!solved[i]) {
+                                landmarkInputs[i].value = ans;
+                                landmarkInputs[i].classList.add('revealed');
+                                checkAnswer('landmarks', landmarkInputs[i]); // Trigger solve for each
+                            }
+                        });
+                        break;
+                }
+            } else {
+                const hintDisplay = document.getElementById(`hint-display-${key}`);
+                const inputEl = document.getElementById(`input-${key}`);
+                switch(level) {
+                    case 1:
+                        highlightDictionaryTerms(key, answer);
+                        break;
+                    case 2:
+                        hintDisplay.textContent = answer.replace(/[a-zA-Z0-9]/g, '_');
+                        break;
+                    case 3:
+                        const chars = answer.split('');
+                        const hintText = chars.map((char, index) => {
+                            if (index === 0 || index === chars.length - 1 || !/[a-zA-Z0-9]/.test(char)) return char;
+                            return '_';
+                        }).join('');
+                        hintDisplay.textContent = hintText;
+                        break;
+                    case 4:
+                        hintDisplay.textContent = '';
+                        inputEl.value = answer;
+                        inputEl.classList.add('revealed');
+                        markFieldAsSolved(key);
+                        break;
+                }
             }
             if (level >= 4) {
                 hintBtn.disabled = true;
@@ -783,6 +874,10 @@
 
         function highlightDictionaryTerms(key, text) {
             const textLower = text.toLowerCase();
+            const highlightedContainer = document.getElementById('highlighted-dict-terms');
+            const divider = document.getElementById('dict-divider');
+            let hasHighlighted = highlightedContainer.children.length > 0;
+
             for (const root of Object.keys(dictionary)) {
                 if (textLower.includes(root)) {
                     const card = document.getElementById('dict-card-' + root);
@@ -791,8 +886,22 @@
                         if (!card.classList.contains(glowClass)) {
                             card.classList.add(glowClass);
                         }
+                        
+                        if (card.parentElement.id !== 'highlighted-dict-terms') {
+                            highlightedContainer.appendChild(card);
+                            hasHighlighted = true;
+                        }
                     }
                 }
+            }
+
+            if (hasHighlighted) {
+                divider.style.display = 'block';
+                const details = document.getElementById('dict-toggle');
+                if (!details.open) {
+                    details.open = true;
+                }
+                details.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
         }
 
@@ -803,11 +912,27 @@
         function checkAnswer(key, element) {
             if (currentCardState.solvedFields.has(key)) return;
 
-            const answer = (currentItem.t === 'b') ? (key === 'region' ? currentItem.r : currentItem.l) : (key === 'origin' ? currentItem.o : (key === 'insertion' ? currentItem.i : currentItem.a));
-            
-            if (normalizeAnswer(element.value) === normalizeAnswer(answer)) {
-                element.classList.add('correct');
-                markFieldAsSolved(key);
+            if (key === 'landmarks') {
+                const index = parseInt(element.dataset.index, 10);
+                const { answers, solved } = currentCardState.landmarks;
+                
+                if (normalizeAnswer(element.value) === normalizeAnswer(answers[index])) {
+                    element.classList.add('correct');
+                    element.disabled = true;
+                    solved[index] = true;
+                    
+                    // Check if all landmarks are solved
+                    if (solved.every(s => s === true)) {
+                        markFieldAsSolved(key);
+                    }
+                }
+            } else {
+                const answer = (currentItem.t === 'b') ? (key === 'region' ? currentItem.r : currentItem.l) : (key === 'origin' ? currentItem.o : (key === 'insertion' ? currentItem.i : currentItem.a));
+                
+                if (normalizeAnswer(element.value) === normalizeAnswer(answer)) {
+                    element.classList.add('correct');
+                    markFieldAsSolved(key);
+                }
             }
         }
 
@@ -889,23 +1014,26 @@
 
         function buildDictionaryUI() {
             const grid = document.getElementById('dict-grid');
-            grid.innerHTML = '';
-            // Sort alphabetically
+            grid.innerHTML = `
+                <div id="highlighted-dict-terms" class="dict-grid" style="grid-column: 1 / -1; padding: 0; gap: 1rem;"></div>
+                <hr id="dict-divider" style="display: none; grid-column: 1 / -1; border: 0; border-top: 1px dashed var(--text-muted); margin: 1rem 0;">
+            `;
             const sortedRoots = Object.keys(dictionary).sort();
             
+            const fragment = document.createDocumentFragment();
             for (const root of sortedRoots) {
                 const card = document.createElement('div');
                 card.className = 'dict-card';
                 card.id = 'dict-card-' + root;
                 card.innerHTML = `<div class="dict-root">${root.charAt(0).toUpperCase() + root.slice(1)}</div><div class="dict-def">${dictionary[root]}</div>`;
-                grid.appendChild(card);
+                fragment.appendChild(card);
             }
+            grid.appendChild(fragment);
         }
 
         // --- INIT ---
         window.onload = () => {
             const init = async () => {
-                buildDictionaryUI();
                 buildToc(); // Build the Table of Contents list
                 loadState();
                 buildQueue();
