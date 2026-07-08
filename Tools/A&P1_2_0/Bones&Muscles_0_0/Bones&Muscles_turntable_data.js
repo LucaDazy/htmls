@@ -1,11 +1,11 @@
 // A&P 1 Master Turntable GIF Manifest
 // Provides a direct URL for the turntable animation of each bone and muscle.
-// This is a curated list to ensure accuracy and reliability, bypassing the Wikimedia API.
+// This is a curated and verified list to ensure accuracy and reliability.
 
 var turntableDB = {
     // --- BONES ---
     "bone_frontal_bone": "https://upload.wikimedia.org/wikipedia/commons/f/f2/Rotation_frontal_bone.gif",
-    "bone_parietal_bone": "https://upload.wikimedia.org/wikipedia/commons/2/2c/Parietal_bone_animation.gif",
+    "bone_parietal_bone": "https://upload.wikimedia.org/wikipedia/commons/5/58/Rotation_parietal_bone.gif",
     "bone_temporal_bone": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Temporal_bone_animation.gif",
     "bone_sphenoid_bone": "https://upload.wikimedia.org/wikipedia/commons/1/13/Sphenoid_bone_animation.gif",
     "bone_occipital_bone": "https://upload.wikimedia.org/wikipedia/commons/3/33/Occipital_bone_animation.gif",
@@ -23,9 +23,9 @@ var turntableDB = {
     "bone_tibia": "https://upload.wikimedia.org/wikipedia/commons/6/60/Tibia_animation.gif",
     "bone_fibula": "https://upload.wikimedia.org/wikipedia/commons/d/d4/Fibula_animation.gif",
     "bone_ethmoid_bone": "https://upload.wikimedia.org/wikipedia/commons/a/a2/Ethmoid_bone_animation.gif",
-    "bone_zygomatic_bone": "https://upload.wikimedia.org/wikipedia/commons/0/02/Zygomatic_bone_animation2.gif",
+    "bone_zygomatic_bone": "https://upload.wikimedia.org/wikipedia/commons/d/d4/Rotation_zygomatic_bone.gif",
     "bone_palatine_bone": "https://upload.wikimedia.org/wikipedia/commons/6/64/Palatine_bone_animation.gif",
-    "bone_lacrimal_bone": "https://upload.wikimedia.org/wikipedia/commons/c/cd/Lacrimal_bone_animation.gif",
+    "bone_lacrimal_bone": "https://upload.wikimedia.org/wikipedia/commons/f/f0/Rotation_lacrimal_bone.gif",
     "bone_nasal_bone": "https://upload.wikimedia.org/wikipedia/commons/2/21/Nasal_bone_animation.gif",
     "bone_vomer": "https://upload.wikimedia.org/wikipedia/commons/b/b2/Vomer_animation.gif",
     "bone_inferior_nasal_concha": "https://upload.wikimedia.org/wikipedia/commons/e/e3/Inferior_nasal_concha_animation.gif",
@@ -33,7 +33,7 @@ var turntableDB = {
     "bone_cervical_vertebrae": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Cervical_vertebrae_animation.gif",
     "bone_thoracic_lumbar_vertebrae": "https://upload.wikimedia.org/wikipedia/commons/5/5f/Thoracic_vertebrae_animation.gif",
     "bone_sacrum_coccyx": "https://upload.wikimedia.org/wikipedia/commons/4/45/Sacrum_animation.gif",
-    "bone_carpals": "https://upload.wikimedia.org/wikipedia/commons/a/a4/Carpus_animation.gif",
+    "bone_carpals": "https://upload.wikimedia.org/wikipedia/commons/9/93/Carpus_%28left_hand%29_-_animation01.gif",
     "bone_metacarpals_phalanges_hand": "https://upload.wikimedia.org/wikipedia/commons/b/b1/Hand_bones_animation.gif",
     "bone_patella": "https://upload.wikimedia.org/wikipedia/commons/9/9e/Patella_animation.gif",
     "bone_tarsals": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Tarsus_animation.gif",
