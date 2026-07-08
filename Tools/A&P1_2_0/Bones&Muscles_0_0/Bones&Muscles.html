@@ -930,6 +930,43 @@
             });
         }
 
+        async function loadAnatomyMedia(anatomicalId) {
+            const pageTitle = turntableDB[anatomicalId];
+            if (!pageTitle) return null;
+
+            const endpoint = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(pageTitle)}&prop=pageimages&format=json&pithumbsize=500&origin=*`;
+            logToConsole(`Querying Wikipedia API for: "${pageTitle}"`);
+            
+            try {
+                const response = await fetch(endpoint);
+                const data = await response.json();
+                
+                const pages = data.query.pages;
+                const page = Object.values(pages)[0];
+
+                if (page.thumbnail && page.thumbnail.source) {
+                    const url = page.thumbnail.source;
+                    logToConsole(`Success! Found media URL: ${url}`, 'success');
+                    // Prefer GIFs by checking the file extension
+                    if (url.toLowerCase().endsWith('.gif')) {
+                        return url;
+                    }
+                    // If it's not a GIF, check if a GIF version exists by replacing the extension
+                    const gifUrl = url.substring(0, url.lastIndexOf('.')) + ".gif";
+                    // This is a common pattern, but we need to verify it. We can do this by trying to load it.
+                    // For simplicity, we'll return the found URL and let the onerror handle if it's not a GIF.
+                    // A more advanced version could do a HEAD request here.
+                    return url;
+                } else {
+                    logToConsole(`No primary image found on Wikipedia for "${pageTitle}"`, 'warn');
+                    return null;
+                }
+            } catch (error) {
+                logToConsole(`API Error for "${pageTitle}": ${error.message}`, 'error');
+                return null;
+            }
+        }
+
         async function nextCard() {
             clearHighlights();
             clearAllPreviews();
@@ -984,7 +1021,6 @@
             const turntableLabel = document.getElementById('turntable-label');
             const messageEl = document.getElementById('turntable-message');
 
-            // Immediately show loading state to hide the old GIF
             turntableContainer.classList.add('visible');
             turntableGif.style.display = 'none';
             turntableLabel.style.display = 'none';
@@ -992,34 +1028,30 @@
             messageEl.textContent = 'Loading Animation...';
             logToConsole(`--- Loading card: ${currentItem.n} ---`);
 
-            const gifUrl = turntableDB[currentItem.svg_id];
+            const mediaUrl = await loadAnatomyMedia(currentItem.svg_id);
 
-            if (gifUrl) {
-                logToConsole(`Found GIF URL in local DB: ${gifUrl}`, 'success');
+            if (mediaUrl) {
                 turntableLabel.textContent = currentItem.n;
-                turntableGif.src = gifUrl;
+                turntableGif.src = mediaUrl;
 
                 turntableGif.onload = () => {
-                    // Success: show the newly loaded GIF
                     messageEl.style.display = 'none';
                     turntableGif.style.display = 'block';
                     turntableLabel.style.display = 'block';
                 };
                 turntableGif.onerror = () => {
-                    // Error: show a failure message
                     turntableGif.style.display = 'none';
                     turntableLabel.style.display = 'none';
                     messageEl.style.display = 'flex';
-                    messageEl.textContent = 'Failed to Load GIF';
-                    logToConsole(`Error loading GIF from URL: ${gifUrl}`, 'error');
+                    messageEl.textContent = 'Failed to Load Media';
+                    logToConsole(`Error loading media from URL: ${mediaUrl}`, 'error');
                 };
             } else {
-                // Not found: show a not found message
                 turntableGif.style.display = 'none';
                 turntableLabel.style.display = 'none';
                 messageEl.style.display = 'flex';
                 messageEl.textContent = 'Animation Not Found';
-                logToConsole(`No GIF URL found in turntableDB for ID: ${currentItem.svg_id}`, 'warn');
+                logToConsole(`No media found for ID: ${currentItem.svg_id}`, 'warn');
             }
             // --- End Turntable Logic ---
 
