@@ -457,7 +457,7 @@
     <div id="dynamic-script-loader"></div>
     <canvas id="background-canvas"></canvas>
     <div id="turntable-container" class="turntable-container">
-        <img id="turntable-gif" src="" alt="Turntable Animation">
+        <img id="turntable-gif" src="" alt="Turntable Animation" referrerpolicy="no-referrer">
         <div class="turntable-label" id="turntable-label"></div>
         <div class="turntable-message" id="turntable-message"></div>
     </div>
@@ -932,39 +932,48 @@
                 "Identify the Origin, Insertion, and Action.";
             document.getElementById('card-prompt').innerHTML = promptText;
             
-            // --- Turntable GIF Logic ---
-            const turntableGif = document.getElementById('turntable-gif');
-            const turntableLabel = document.getElementById('turntable-label');
-            const messageEl = document.getElementById('turntable-message');
+            // --- Turntable GIF Logic (Failsafe) ---
+            try {
+                const turntableGif = document.getElementById('turntable-gif');
+                const turntableLabel = document.getElementById('turntable-label');
+                const messageEl = document.getElementById('turntable-message');
 
-            turntableContainer.classList.add('visible');
-            logToConsole(`--- Loading card: ${currentItem.n} ---`);
+                turntableContainer.classList.add('visible');
+                logToConsole(`--- Loading card: ${currentItem.n} ---`);
 
-            const gifUrl = turntableDB[currentItem.svg_id]; // Direct lookup
+                if (typeof turntableDB === 'undefined') {
+                    throw new Error('`turntableDB` is not defined. Ensure the data file is loaded.');
+                }
 
-            if (gifUrl) {
-                logToConsole(`Found GIF URL in local DB: ${gifUrl}`, 'success');
-                turntableLabel.textContent = currentItem.n;
-                turntableGif.src = gifUrl;
-                messageEl.style.display = 'none';
-                turntableGif.style.display = 'block';
-                turntableLabel.style.display = 'block';
+                const gifUrl = turntableDB[currentItem.svg_id]; // Direct lookup
 
-                turntableGif.onerror = () => {
-                    // This handles cases where the URL is valid but the image is broken/blocked
-                    turntableGif.style.display = 'none';
-                    turntableLabel.style.display = 'none';
-                    messageEl.style.display = 'flex';
-                    messageEl.textContent = 'Failed to Load GIF';
-                    logToConsole(`Error loading GIF from URL: ${gifUrl}`, 'error');
-                };
-            } else {
-                // The svg_id was not found in our curated database
+                if (gifUrl) {
+                    logToConsole(`Found GIF URL in local DB: ${gifUrl}`, 'success');
+                    turntableLabel.textContent = currentItem.n;
+                    turntableGif.src = gifUrl;
+                    messageEl.style.display = 'none';
+                    turntableGif.style.display = 'block';
+                    turntableLabel.style.display = 'block';
+
+                    turntableGif.onerror = () => {
+                        turntableGif.style.display = 'none';
+                        turntableLabel.style.display = 'none';
+                        messageEl.style.display = 'flex';
+                        messageEl.textContent = 'Failed to Load GIF';
+                        logToConsole(`Error loading GIF from URL: ${gifUrl}`, 'error');
+                    };
+                } else {
+                    throw new Error(`No GIF URL found in turntableDB for ID: ${currentItem.svg_id}`);
+                }
+            } catch (error) {
+                logToConsole(error.message, 'error');
+                const turntableGif = document.getElementById('turntable-gif');
+                const turntableLabel = document.getElementById('turntable-label');
+                const messageEl = document.getElementById('turntable-message');
                 turntableGif.style.display = 'none';
                 turntableLabel.style.display = 'none';
                 messageEl.style.display = 'flex';
                 messageEl.textContent = 'Animation Not Found';
-                logToConsole(`No GIF URL found in turntableDB for ID: ${currentItem.svg_id}`, 'warn');
             }
             // --- End Turntable Logic ---
 
