@@ -601,7 +601,15 @@
                 'svgDB': 'Bones&Muscles_svg_data.js',
                 'turntableDB': 'Bones&Muscles_turntable_data.js'
             };
-            const missing = Object.keys(requiredData).filter(db => typeof window[db] === 'undefined');
+            const missing = Object.keys(requiredData).filter(dbName => {
+                try {
+                    // Use eval to check for the variable in the global scope, regardless of declaration type
+                    return typeof eval(dbName) === 'undefined';
+                } catch (e) {
+                    // If eval throws an error (e.g., ReferenceError), the variable doesn't exist
+                    return true;
+                }
+            });
 
             if (missing.length > 0) {
                 document.getElementById('error-overlay').style.display = 'flex';
@@ -941,7 +949,8 @@
             
             // The revealed content area is now permanently visible and contains our interactive fields
             document.getElementById('revealed-content').classList.add('visible');
-            document.getElementById('interactive-fields-container').innerHTML = '';
+            const fieldsContainer = document.getElementById('interactive-fields-container');
+            fieldsContainer.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding: 2rem 0; font-family: var(--font-family-mono);">Loading card details...</p>';
 
             currentItem = queue[0];
 
@@ -970,24 +979,34 @@
             document.getElementById('card-prompt').innerHTML = promptText;
             
             // --- Turntable GIF Logic ---
+            const turntableContainer = document.getElementById('turntable-container');
             const turntableGif = document.getElementById('turntable-gif');
             const turntableLabel = document.getElementById('turntable-label');
             const messageEl = document.getElementById('turntable-message');
 
+            // Immediately show loading state to hide the old GIF
             turntableContainer.classList.add('visible');
+            turntableGif.style.display = 'none';
+            turntableLabel.style.display = 'none';
+            messageEl.style.display = 'flex';
+            messageEl.textContent = 'Loading Animation...';
             logToConsole(`--- Loading card: ${currentItem.n} ---`);
 
-            const gifUrl = turntableDB[currentItem.svg_id]; // Direct lookup
+            const gifUrl = turntableDB[currentItem.svg_id];
 
             if (gifUrl) {
                 logToConsole(`Found GIF URL in local DB: ${gifUrl}`, 'success');
                 turntableLabel.textContent = currentItem.n;
                 turntableGif.src = gifUrl;
-                messageEl.style.display = 'none';
-                turntableGif.style.display = 'block';
-                turntableLabel.style.display = 'block';
 
+                turntableGif.onload = () => {
+                    // Success: show the newly loaded GIF
+                    messageEl.style.display = 'none';
+                    turntableGif.style.display = 'block';
+                    turntableLabel.style.display = 'block';
+                };
                 turntableGif.onerror = () => {
+                    // Error: show a failure message
                     turntableGif.style.display = 'none';
                     turntableLabel.style.display = 'none';
                     messageEl.style.display = 'flex';
@@ -995,6 +1014,7 @@
                     logToConsole(`Error loading GIF from URL: ${gifUrl}`, 'error');
                 };
             } else {
+                // Not found: show a not found message
                 turntableGif.style.display = 'none';
                 turntableLabel.style.display = 'none';
                 messageEl.style.display = 'flex';
