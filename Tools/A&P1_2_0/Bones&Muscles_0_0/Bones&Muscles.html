@@ -433,6 +433,7 @@
             padding: 1rem;
             font-family: var(--font-family-mono);
             font-size: 0.9rem;
+            min-height: 0; /* Fix for flexbox scrolling bug */
         }
         .console-log {
             padding: 0.2rem 0;
@@ -450,6 +451,7 @@
     <!-- Load the external data files BEFORE the main script -->
     <script src="Bones&Muscles_data.js"></script>
     <script src="Bones&Muscles_svg_data.js"></script>
+    <script src="Bones&Muscles_turntable_data.js"></script>
 </head>
 <body>
     <div id="dynamic-script-loader"></div>
@@ -856,68 +858,6 @@
             }
         }
 
-        async function findTurntableGifUrl(itemName) {
-            // A sequence of search terms from most likely to succeed to broadest fallback
-            const searchTerms = [
-                `Rotation ${itemName}`, // Catches files like "Rotation_frontal_bone.gif"
-                `${itemName} animation`, // Catches files like "Serratus_anterior_muscle_animation.gif"
-                `${itemName} rotation animation`, // More descriptive search
-                itemName // Broadest fallback
-            ];
-
-            for (const searchTerm of searchTerms) {
-                logToConsole(`Attempting search with term: "${searchTerm}"`);
-                const searchUrl = `https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json&origin=*`;
-
-                try {
-                    const searchResponse = await fetch(searchUrl);
-                    const searchData = await searchResponse.json();
-
-                    // Log the full API response directly to the console
-                    logToConsole(`API Response for "${searchTerm}":`, 'data');
-                    logToConsole(JSON.stringify(searchData, null, 2), 'data');
-
-                    if (!searchData.query || !searchData.query.search || searchData.query.search.length === 0) {
-                        logToConsole('Term yielded no results. Trying next term...', 'warn');
-                        continue; // Move to the next search term in the loop
-                    }
-                    
-                    const gifResult = searchData.query.search.find(result => result.title.toLowerCase().endsWith('.gif'));
-
-                    if (!gifResult) {
-                        logToConsole('No .gif file found in results for this term. Trying next term...', 'warn');
-                        continue; // Move to the next search term
-                    }
-                    
-                    const fileTitle = gifResult.title;
-                    logToConsole(`Found matching GIF file: "${fileTitle}"`);
-
-                    // If a GIF is found, get its direct URL
-                    const fileUrl = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(fileTitle)}&prop=imageinfo&iiprop=url&format=json&origin=*`;
-                    const fileResponse = await fetch(fileUrl);
-                    const fileData = await fileResponse.json();
-
-                    const pages = fileData.query.pages;
-                    const pageId = Object.keys(pages)[0];
-                    
-                    if (pageId === "-1" || !pages[pageId].imageinfo) {
-                        logToConsole('Could not retrieve image info for the found file title. Trying next term...', 'error');
-                        continue; // If this fails, something is wrong with the file; try the next search.
-                    }
-
-                    const finalUrl = pages[pageId].imageinfo[0].url;
-                    logToConsole(`Successfully retrieved GIF URL: ${finalUrl}`, 'success');
-                    return finalUrl; // Success! Exit the function with the URL.
-
-                } catch (error) {
-                    logToConsole(`Network or API error during search for "${searchTerm}": ${error.message}`, 'error');
-                }
-            }
-
-            // If the loop completes without finding and returning a URL, all attempts have failed.
-            logToConsole('All search attempts failed to find a suitable GIF.', 'error');
-            return null;
-        }
 
         // Helper function to dynamically load an SVG's .js file
         function loadSvgData(svgId) {
@@ -997,39 +937,34 @@
             const turntableLabel = document.getElementById('turntable-label');
             const messageEl = document.getElementById('turntable-message');
 
-            // Immediately show container with a "loading" message
             turntableContainer.classList.add('visible');
             logToConsole(`--- Loading card: ${currentItem.n} ---`);
-            turntableGif.style.display = 'none';
-            turntableLabel.style.display = 'none';
-            messageEl.style.display = 'flex';
-            messageEl.textContent = 'Searching...';
-            
-            const gifUrl = await findTurntableGifUrl(currentItem.n);
+
+            const gifUrl = turntableDB[currentItem.svg_id]; // Direct lookup
 
             if (gifUrl) {
+                logToConsole(`Found GIF URL in local DB: ${gifUrl}`, 'success');
                 turntableLabel.textContent = currentItem.n;
                 turntableGif.src = gifUrl;
+                messageEl.style.display = 'none';
+                turntableGif.style.display = 'block';
+                turntableLabel.style.display = 'block';
 
-                turntableGif.onload = () => {
-                    // Success: show image and label, hide message
-                    messageEl.style.display = 'none';
-                    turntableGif.style.display = 'block';
-                    turntableLabel.style.display = 'block';
-                };
                 turntableGif.onerror = () => {
-                    // Error during image load: show specific error message
+                    // This handles cases where the URL is valid but the image is broken/blocked
                     turntableGif.style.display = 'none';
                     turntableLabel.style.display = 'none';
                     messageEl.style.display = 'flex';
                     messageEl.textContent = 'Failed to Load GIF';
+                    logToConsole(`Error loading GIF from URL: ${gifUrl}`, 'error');
                 };
             } else {
-                // API found no GIF: show specific error message
+                // The svg_id was not found in our curated database
                 turntableGif.style.display = 'none';
                 turntableLabel.style.display = 'none';
                 messageEl.style.display = 'flex';
                 messageEl.textContent = 'Animation Not Found';
+                logToConsole(`No GIF URL found in turntableDB for ID: ${currentItem.svg_id}`, 'warn');
             }
             // --- End Turntable Logic ---
 
