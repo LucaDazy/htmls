@@ -33,7 +33,7 @@ const turntableDB = {
     "bone_cervical_vertebrae": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Cervical_vertebrae_animation.gif",
     "bone_thoracic_lumbar_vertebrae": "https://upload.wikimedia.org/wikipedia/commons/5/5f/Thoracic_vertebrae_animation.gif",
     "bone_sacrum_coccyx": "https://upload.wikimedia.org/wikipedia/commons/4/45/Sacrum_animation.gif",
-    "bone_carpals": "https://upload.wikimedia.org/wikipedia/commons/a/a4/Carpus_animation.gif",
+    "bone_carpals": "https://upload.wikimedia.org/wikipedia/commons/9/93/Carpus_%28left_hand%29_-_animation01.gif",
     "bone_metacarpals_phalanges_hand": "https://upload.wikimedia.org/wikipedia/commons/b/b1/Hand_bones_animation.gif",
     "bone_patella": "https://upload.wikimedia.org/wikipedia/commons/9/9e/Patella_animation.gif",
     "bone_tarsals": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Tarsus_animation.gif",
