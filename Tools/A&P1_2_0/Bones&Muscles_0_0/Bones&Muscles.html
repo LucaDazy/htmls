@@ -1024,6 +1024,10 @@
 
         async function loadAnatomyMedia(anatomicalId) {
             // Orchestrator for the three-stage media search.
+            if (!navigator.onLine) {
+                logToConsole('Offline: Cannot fetch media from APIs.', 'warn');
+                return { url: null, isFallback: false, error: 'offline' };
+            }
             const pageTitle = turntableDB[anatomicalId];
             if (!pageTitle) {
                 logToConsole(`No Wikipedia page title in DB for ID: ${anatomicalId}`, 'warn');
@@ -1131,8 +1135,14 @@
                 turntableGif.style.display = 'none';
                 turntableLabel.style.display = 'none';
                 messageEl.style.display = 'flex';
-                messageEl.textContent = 'Animation Not Found';
-                logToConsole(`All media search stages failed for ID: ${currentItem.svg_id}`, 'warn');
+
+                let message = 'Animation Not Found';
+                if (mediaResult && mediaResult.error === 'offline') {
+                    message = 'Internet Required';
+                } else {
+                    logToConsole(`All media search stages failed for ID: ${currentItem.svg_id}`, 'warn');
+                }
+                messageEl.textContent = message;
             }
             // --- End Turntable Logic ---
 
