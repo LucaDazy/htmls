@@ -324,6 +324,19 @@
             box-sizing: border-box;
             background: var(--panel-bg);
         }
+        .turntable-disclaimer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 0.3rem;
+            font-size: 0.75rem;
+            text-align: center;
+            color: var(--hard);
+            background: rgba(226, 125, 96, 0.8);
+            backdrop-filter: blur(2px);
+            font-family: var(--font-family-mono);
+        }
 
         @media (max-width: 1400px) {
             .turntable-container {
@@ -484,6 +497,7 @@
         <img id="turntable-gif" src="" alt="Turntable Animation" referrerpolicy="no-referrer">
         <div class="turntable-label" id="turntable-label"></div>
         <div class="turntable-message" id="turntable-message"></div>
+        <div class="turntable-disclaimer" id="turntable-disclaimer" style="display: none;"></div>
     </div>
     <img src="../../../Global/SVGs/logo.svg" alt="Study Hub Logo" class="corner-logo">
     <img src="../../../Global/SVGs/avatar.svg" alt="Avatar" class="corner-avatar">
@@ -931,84 +945,98 @@
         }
 
         async function findTurntableGif(itemName) {
-            const searchTerms = [
-                `Rotation ${itemName}`,
-                `${itemName} animation`,
-                itemName
-            ];
-            logToConsole(`Stage 1: Searching for a GIF on Wikimedia Commons for "${itemName}"...`);
+            // Stage 1: Hunt for a high-quality GIF on Wikimedia Commons.
+            const searchTerms = [`Rotation ${itemName}`, `${itemName} animation`, itemName];
+            logToConsole(`Stage 1: Searching for GIF on Commons for "${itemName}"...`);
 
             for (const searchTerm of searchTerms) {
-                // srnamespace=6 limits search to the "File:" namespace
                 const searchUrl = `https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&srnamespace=6&format=json&origin=*`;
                 try {
                     const response = await fetch(searchUrl);
                     const data = await response.json();
+                    if (!data.query || !data.query.search) continue;
                     
-                    if (data.query && data.query.search.length > 0) {
-                        const gifResult = data.query.search.find(result => result.title.toLowerCase().endsWith('.gif'));
-                        if (gifResult) {
-                            const fileTitle = gifResult.title;
-                            logToConsole(`Found potential GIF file: "${fileTitle}"`);
-
-                            const fileUrlApi = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(fileTitle)}&prop=imageinfo&iiprop=url&format=json&origin=*`;
-                            const fileResponse = await fetch(fileUrlApi);
-                            const fileData = await fileResponse.json();
-                            
-                            const page = Object.values(fileData.query.pages)[0];
-                            if (page.imageinfo && page.imageinfo[0].url) {
-                                const finalUrl = page.imageinfo[0].url;
-                                logToConsole(`Successfully verified GIF URL: ${finalUrl}`, 'success');
-                                return finalUrl;
-                            }
+                    const gifResult = data.query.search.find(r => r.title.toLowerCase().endsWith('.gif'));
+                    if (gifResult) {
+                        const fileTitle = gifResult.title;
+                        const fileUrlApi = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(fileTitle)}&prop=imageinfo&iiprop=url&format=json&origin=*`;
+                        const fileResponse = await fetch(fileUrlApi);
+                        const fileData = await fileResponse.json();
+                        const page = Object.values(fileData.query.pages)[0];
+                        if (page.imageinfo && page.imageinfo[0].url) {
+                            const finalUrl = page.imageinfo[0].url;
+                            logToConsole(`Stage 1 Success: Found GIF URL: ${finalUrl}`, 'success');
+                            return { url: finalUrl, isFallback: false };
                         }
                     }
-                } catch (error) {
-                    logToConsole(`Error searching Commons for "${searchTerm}": ${error.message}`, 'error');
-                }
+                } catch (error) { logToConsole(`Error in Stage 1 search for "${searchTerm}": ${error.message}`, 'error'); }
             }
-            logToConsole(`No GIF found on Wikimedia Commons for "${itemName}".`, 'warn');
+            logToConsole(`Stage 1 Failed: No suitable GIF found on Commons.`, 'warn');
             return null;
         }
 
         async function fetchWikipediaPageImage(pageTitle) {
+            // Stage 2: Fallback to the canonical static page image from Wikipedia.
+            logToConsole(`Stage 2: Querying Wikipedia for static page image of "${pageTitle}"`);
             const endpoint = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(pageTitle)}&prop=pageimages&format=json&pithumbsize=500&origin=*`;
-            logToConsole(`Stage 2 Fallback: Querying Wikipedia for static page image of "${pageTitle}"`);
             try {
                 const response = await fetch(endpoint);
                 const data = await response.json();
                 const page = Object.values(data.query.pages)[0];
-
                 if (page.thumbnail && page.thumbnail.source) {
                     const url = page.thumbnail.source;
-                    logToConsole(`Success! Found fallback static media URL: ${url}`, 'success');
-                    return url;
-                } else {
-                    logToConsole(`No primary image found on Wikipedia for "${pageTitle}"`, 'warn');
-                    return null;
+                    logToConsole(`Stage 2 Success: Found static media URL: ${url}`, 'success');
+                    return { url: url, isFallback: false };
                 }
-            } catch (error) {
-                logToConsole(`API Error fetching page image for "${pageTitle}": ${error.message}`, 'error');
-                return null;
-            }
+            } catch (error) { logToConsole(`API Error in Stage 2 for "${pageTitle}": ${error.message}`, 'error'); }
+            logToConsole(`Stage 2 Failed: No primary image found for "${pageTitle}".`, 'warn');
+            return null;
+        }
+        
+        async function findCommonsImageFallback(itemName) {
+            // Stage 3: Best-effort broad image search on Wikimedia Commons.
+            logToConsole(`Stage 3: Performing broad image search on Commons for "${itemName}"...`);
+            const endpoint = `https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(itemName)}&srnamespace=6&format=json&origin=*`;
+            try {
+                const response = await fetch(endpoint);
+                const data = await response.json();
+                if (data.query && data.query.search.length > 0) {
+                    const imageResult = data.query.search.find(r => r.title.toLowerCase().endsWith('.svg')) || data.query.search.find(r => r.title.toLowerCase().endsWith('.png')) || data.query.search.find(r => r.title.toLowerCase().endsWith('.jpg')) || data.query.search.find(r => r.title.toLowerCase().endsWith('.jpeg'));
+                    if (imageResult) {
+                        const fileTitle = imageResult.title;
+                        const fileUrlApi = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(fileTitle)}&prop=imageinfo&iiprop=url&format=json&origin=*`;
+                        const fileResponse = await fetch(fileUrlApi);
+                        const fileData = await fileResponse.json();
+                        const page = Object.values(fileData.query.pages)[0];
+                        if (page.imageinfo && page.imageinfo[0].url) {
+                            const finalUrl = page.imageinfo[0].url;
+                            logToConsole(`Stage 3 Success: Found best-effort image: ${finalUrl}`, 'success');
+                            return { url: finalUrl, isFallback: true };
+                        }
+                    }
+                }
+            } catch (error) { logToConsole(`API Error in Stage 3: ${error.message}`, 'error');}
+            logToConsole(`Stage 3 Failed: No suitable images found.`, 'error');
+            return null;
         }
 
         async function loadAnatomyMedia(anatomicalId) {
+            // Orchestrator for the three-stage media search.
             const pageTitle = turntableDB[anatomicalId];
             if (!pageTitle) {
-                logToConsole(`No Wikipedia page title found in DB for ID: ${anatomicalId}`, 'warn');
+                logToConsole(`No Wikipedia page title in DB for ID: ${anatomicalId}`, 'warn');
                 return null;
             }
-
             const searchName = pageTitle.replace(/_/g, ' ').replace(/\s\(.+\)/, '');
 
-            const gifUrl = await findTurntableGif(searchName);
-            if (gifUrl) {
-                return gifUrl;
-            }
+            const stage1Result = await findTurntableGif(searchName);
+            if (stage1Result) return stage1Result;
 
-            const staticImageUrl = await fetchWikipediaPageImage(pageTitle);
-            return staticImageUrl;
+            const stage2Result = await fetchWikipediaPageImage(pageTitle);
+            if (stage2Result) return stage2Result;
+            
+            const stage3Result = await findCommonsImageFallback(searchName);
+            return stage3Result;
         }
 
         async function nextCard() {
@@ -1060,22 +1088,30 @@
             document.getElementById('card-prompt').innerHTML = promptText;
             
             // --- Turntable GIF Logic ---
+            const turntableContainer = document.getElementById('turntable-container');
             const turntableGif = document.getElementById('turntable-gif');
             const turntableLabel = document.getElementById('turntable-label');
             const messageEl = document.getElementById('turntable-message');
+            const disclaimerEl = document.getElementById('turntable-disclaimer');
 
             turntableContainer.classList.add('visible');
             turntableGif.style.display = 'none';
             turntableLabel.style.display = 'none';
+            disclaimerEl.style.display = 'none'; // Hide disclaimer by default
             messageEl.style.display = 'flex';
             messageEl.textContent = 'Loading Animation...';
             logToConsole(`--- Loading card: ${currentItem.n} ---`);
 
-            const mediaUrl = await loadAnatomyMedia(currentItem.svg_id);
+            const mediaResult = await loadAnatomyMedia(currentItem.svg_id);
 
-            if (mediaUrl) {
+            if (mediaResult && mediaResult.url) {
                 turntableLabel.textContent = currentItem.n;
-                turntableGif.src = mediaUrl;
+                turntableGif.src = mediaResult.url;
+
+                if (mediaResult.isFallback) {
+                    disclaimerEl.textContent = "Best guess image. Use judgment.";
+                    disclaimerEl.style.display = 'block';
+                }
 
                 turntableGif.onload = () => {
                     messageEl.style.display = 'none';
@@ -1087,14 +1123,14 @@
                     turntableLabel.style.display = 'none';
                     messageEl.style.display = 'flex';
                     messageEl.textContent = 'Failed to Load Media';
-                    logToConsole(`Error loading media from URL: ${mediaUrl}`, 'error');
+                    logToConsole(`Error loading media from URL: ${mediaResult.url}`, 'error');
                 };
             } else {
                 turntableGif.style.display = 'none';
                 turntableLabel.style.display = 'none';
                 messageEl.style.display = 'flex';
                 messageEl.textContent = 'Animation Not Found';
-                logToConsole(`No media found for ID: ${currentItem.svg_id}`, 'warn');
+                logToConsole(`All media search stages failed for ID: ${currentItem.svg_id}`, 'warn');
             }
             // --- End Turntable Logic ---
 
