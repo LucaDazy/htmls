@@ -374,7 +374,7 @@
         /* Floating Table of Contents */
         .toc-container {
             position: fixed;
-            right: 0; /* JS will handle horizontal positioning */
+            left: 0; /* JS will handle horizontal positioning */
             top: 50%;
             transform: translateY(-50%);
             width: 300px;
@@ -626,8 +626,13 @@
             const spaceRight = window.innerWidth - arenaRect.right;
             const tocWidth = toc.offsetWidth;
 
-            const targetX = arenaRect.right + (spaceRight / 2) - (tocWidth / 2);
-            toc.style.transform = `translate(${Math.min(window.innerWidth - tocWidth - 24, targetX)}px, -50%)`;
+            // Calculate the desired LEFT coordinate for the TOC, centered in the space to the right of the arena.
+            let targetX = arenaRect.right + (spaceRight / 2) - (tocWidth / 2);
+            
+            // Ensure it doesn't go off-screen, with a minimum margin of 24px.
+            targetX = Math.min(targetX, window.innerWidth - tocWidth - 24);
+
+            toc.style.transform = `translate(${targetX}px, -50%)`;
         }
 
         function jumpToRandomCard() {
