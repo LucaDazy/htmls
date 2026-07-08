@@ -37,6 +37,10 @@
         .btn:hover { border-color: var(--accent); color: var(--accent); }
         .btn.active { border-color: var(--accent); background: var(--hover-bg); color: var(--accent); }
         .btn-danger:hover { border-color: var(--error); color: var(--error); }
+        .row-space-between {
+            justify-content: space-between;
+            align-items: center;
+        }
 
         details.primer-details { width: 100%; background: var(--hover-bg); border-radius: 6px; padding: 0.5rem 1rem; box-sizing: border-box; border: 1px solid var(--text-muted); }
         details.primer-details summary { font-weight: bold; color: var(--accent); cursor: pointer; padding: 0.5rem 0; outline: none; }
@@ -503,8 +507,7 @@
     <img src="../../../Global/SVGs/avatar.svg" alt="Avatar" class="corner-avatar">
 
     <div class="content-wrapper">
-        <h1>A&P 1 Mastery Engine</h1>
-    <div class="subtitle">Bones &amp; Muscles - Anatomical Decoder &amp; Spaced Repetition Cache</div>
+        <h1>Bones & Muscles</h1>
 
     <div class="container">
         
@@ -520,13 +523,13 @@
                 </div>
             </details>
 
-            <div class="row" id="filter-btns">
-                <button class="btn active" data-filter="all" onclick="setFilter('all')">All Cards</button>
-                <button class="btn" data-filter="bone" onclick="setFilter('bone')">Bones Only</button>
-                <button class="btn" data-filter="muscle" onclick="setFilter('muscle')">Muscles Only</button>
-            </div>
-            <div class="row" style="border-top: 1px dashed var(--text-muted); padding-top: 1rem;">
-                <button class="btn btn-danger" onclick="wipeCache()">⚠️ Reset Progress Cache</button>
+            <div class="row row-space-between" id="filter-btns">
+                <div>
+                    <button class="btn active" data-filter="all" onclick="setFilter('all')">All Cards</button>
+                    <button class="btn" data-filter="bone" onclick="setFilter('bone')">Bones Only</button>
+                    <button class="btn" data-filter="muscle" onclick="setFilter('muscle')">Muscles Only</button>
+                </div>
+                <button class="btn btn-danger" onclick="wipeCache()">Reset Memory</button>
             </div>
         </div>
 
