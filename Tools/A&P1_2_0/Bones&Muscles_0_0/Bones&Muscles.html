@@ -85,6 +85,14 @@
         
         .card-type { font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.5rem; }
         .card-title { font-size: 1.8rem; font-weight: bold; color: var(--accent); margin-bottom: 1rem; text-transform: uppercase; }
+        .card-description {
+            font-size: 1rem;
+            color: var(--text-main);
+            font-style: italic;
+            line-height: 1.6;
+            margin: 0 0 1.5rem 0;
+            opacity: 0.9;
+        }
 
         #revealed-content { display: block; } /* This is now always visible */
 
@@ -550,6 +558,7 @@
             <div class="info-column">
                 <div class="card-type" id="card-type"></div>
                 <div class="card-title" id="card-title"></div>
+                <p class="card-description" id="card-description"></p>
                 <div id="card-prompt"></div>
 
                 <!-- This content is shown AFTER reveal -->
@@ -735,6 +744,120 @@
             "Body Regions": ["brachii", "carpi", "cleido", "cnemius", "cranial", "facial", "femoris", "gastro", "glosso", "gluteus", "ilio", "mastoid", "oculi", "oris", "palmaris", "pectoral", "pelvic", "peroneus", "popliteus", "radialis", "sterno", "thoracic", "tibialis", "ulnaris"],
             "Descriptive Terms & Prefixes": ["alba", "aspera", "bi", "brevis", "ceps", "digitorum", "fascia", "latae", "linea", "longus", "maximus", "minimus", "oblique", "rectus", "sartor", "semi", "tensor", "tri", "vastus"]
         };
+
+        const descriptionsDB = {
+            "bone_frontal_bone": "A bone of the skull that forms the forehead.",
+            "bone_parietal_bone": "A paired bone forming the upper and side parts of the skull.",
+            "bone_temporal_bone": "A paired bone situated on the sides and base of the skull.",
+            "bone_sphenoid_bone": "A butterfly-shaped bone at the base of the skull, behind the eyes.",
+            "bone_occipital_bone": "A bone at the lower, back part of the skull, containing a large opening for the spinal cord.",
+            "bone_maxilla": "The upper jawbone, which also forms part of the nose and eye socket.",
+            "bone_mandible": "The lower jawbone, the largest and strongest bone of the face.",
+            "bone_sternum": "A flat bone in the anterior midline of the chest, commonly known as the breastbone.",
+            "bone_ribs": "A set of long curved bones which form the cage-like structure of the thorax.",
+            "bone_clavicle": "A slender bone that connects the shoulder blade to the breastbone, also known as the collarbone.",
+            "bone_scapula": "A large triangular bone in the upper back, commonly known as the shoulder blade.",
+            "bone_humerus": "The long bone of the upper arm, extending from the shoulder to the elbow.",
+            "bone_radius": "The shorter of the two forearm bones, located on the thumb side.",
+            "bone_ulna": "The longer of the two forearm bones, located on the pinky-finger side.",
+            "bone_os_coxa_pelvis": "A large, paired bone that forms the main structure of the pelvis, also known as the hip bone.",
+            "bone_femur": "The thigh bone; it is the longest, heaviest, and strongest bone in the human body.",
+            "bone_tibia": "The larger of the two bones in the lower leg, commonly known as the shin bone.",
+            "bone_fibula": "The slender bone located on the lateral side of the tibia in the lower leg.",
+            "bone_ethmoid_bone": "A light, spongy bone located between the eye sockets, forming part of the nasal cavity.",
+            "bone_zygomatic_bone": "A paired bone which articulates with the maxilla, sphenoid, and frontal bones, known as the cheekbone.",
+            "bone_palatine_bone": "A paired L-shaped bone forming the posterior part of the hard palate and floor of the nasal cavity.",
+            "bone_lacrimal_bone": "A small, thin bone located in the front part of the medial wall of the orbit.",
+            "bone_nasal_bone": "A pair of small, oblong bones that form the bridge of the nose.",
+            "bone_vomer": "A thin, flat bone that forms the postero-inferior part of the nasal septum.",
+            "bone_inferior_nasal_concha": "A thin, scroll-like bone that forms the lower part of the lateral wall of the nasal cavity.",
+            "bone_hyoid_bone": "A U-shaped bone in the neck that supports the tongue, not articulated with any other bone.",
+            "bone_cervical_vertebrae": "The seven vertebrae of the neck, forming the upper part of the spinal column.",
+            "bone_thoracic_lumbar_vertebrae": "The vertebrae that make up the middle and lower sections of the spine.",
+            "bone_sacrum_coccyx": "The triangular bone at the base of the spine and the tailbone, formed from fused vertebrae.",
+            "bone_carpals": "A cluster of eight small bones that make up the wrist.",
+            "bone_metacarpals_phalanges_hand": "The bones of the palm and the fingers.",
+            "bone_patella": "A small, flat, triangular bone in front of the knee joint, commonly known as the kneecap.",
+            "bone_tarsals": "A cluster of seven articulating bones in each foot situated between the lower leg and the metatarsals.",
+            "bone_metatarsals_phalanges_foot": "The bones of the mid-foot and the toes.",
+            "muscle_masseter": "A powerful muscle of the human jaw used primarily for chewing.",
+            "muscle_sternocleidomastoid": "A long, paired muscle in the superficial layers of the side of the neck.",
+            "muscle_pectoralis_major": "A large, fan-shaped muscle covering the upper portion of the chest.",
+            "muscle_latissimus_dorsi": "A large, flat muscle on the back that stretches to the sides, behind the arm.",
+            "muscle_deltoid": "A rounded, triangular muscle located on the uppermost part of the arm and the top of the shoulder.",
+            "muscle_biceps_brachii": "A prominent two-headed muscle on the front of the upper arm.",
+            "muscle_triceps_brachii": "A large three-headed muscle on the back of the upper arm.",
+            "muscle_rectus_abdominis": "A paired muscle running vertically on each side of the anterior wall of the abdomen.",
+            "muscle_diaphragm": "A large, dome-shaped muscle at the base of the lungs that is the primary muscle of respiration.",
+            "muscle_gluteus_maximus": "The largest and most superficial of the three gluteal muscles, forming the bulk of the buttocks.",
+            "muscle_rectus_femoris": "One of the four quadriceps muscles, located in the middle of the front of the thigh.",
+            "muscle_biceps_femoris": "A two-headed muscle located on the back of the thigh, part of the hamstrings.",
+            "muscle_gastrocnemius": "A superficial two-headed muscle that is in the back part of the lower leg, forming the calf.",
+            "muscle_trapezius": "A large, triangular muscle extending over the back of the neck and shoulders.",
+            "muscle_frontalis": "A thin, quadrilateral muscle of the forehead, responsible for facial expressions.",
+            "muscle_orbicularis_oculi": "A muscle in the face that surrounds the eye socket.",
+            "muscle_zygomaticus": "A muscle of facial expression which draws the angle of the mouth, involved in smiling.",
+            "muscle_orbicularis_oris": "A complex of muscles in the lips that encircles the mouth.",
+            "muscle_buccinator": "A thin, quadrilateral muscle occupying the interval between the maxilla and the mandible.",
+            "muscle_temporalis": "A broad, fan-shaped muscle on each side of the head that fills the temporal fossa.",
+            "muscle_platysma": "A broad sheet of muscle fibers extending from the collarbone to the angle of the jaw.",
+            "muscle_digastric": "A small, paired muscle located in the anterior compartment of the neck.",
+            "muscle_stylohyoid": "A slender muscle, lying anterior and superior to the posterior belly of the digastric muscle.",
+            "muscle_mylohyoid": "A paired, flat, triangular muscle that forms the floor of the oral cavity.",
+            "muscle_sternohyoid": "A thin, narrow muscle attaching the hyoid bone to the sternum.",
+            "muscle_sternothyroid": "A muscle in the neck that acts to depress the larynx and hyoid bone.",
+            "muscle_scalenes": "A group of three pairs of muscles in the lateral neck.",
+            "muscle_serratus_anterior": "A muscle that originates on the surface of the first to eighth ribs at the side of the chest.",
+            "muscle_pectoralis_minor": "A thin, triangular muscle, situated at the upper part of the chest, beneath the pectoralis major.",
+            "muscle_teres_major": "A thick, flattened muscle of the shoulder, sometimes called the 'lats' little helper'.",
+            "muscle_teres_minor": "A narrow, elongated muscle of the rotator cuff.",
+            "muscle_subscapularis": "A large triangular muscle which fills the subscapular fossa of the scapula.",
+            "muscle_levator_scapulae": "A muscle at the back and side of the neck.",
+            "muscle_infraspinatus": "A thick triangular muscle, which occupies the chief part of the infraspinatous fossa of the scapula.",
+            "muscle_supraspinatus": "A relatively small muscle of the upper back that runs from the supraspinatous fossa of the scapula.",
+            "muscle_rhomboid_major": "A skeletal muscle on the back that connects the scapula with the vertebrae of the spinal column.",
+            "muscle_rhomboid_minor": "A small skeletal muscle on the back that connects the scapula with the vertebrae of the spinal column.",
+            "muscle_erector_spinae": "A large group of muscles that run the length of the spine on both sides.",
+            "muscle_external_oblique": "The largest and the most superficial of the three flat muscles of the lateral anterior abdomen.",
+            "muscle_internal_oblique": "An abdominal muscle in the abdominal wall that lies below the external oblique.",
+            "muscle_transversus_abdominis": "A muscle layer of the anterior and lateral abdominal wall which is deep to the internal oblique.",
+            "muscle_external_intercostals": "A group of muscles that run between the ribs and are involved in breathing.",
+            "muscle_internal_intercostals": "A group of muscles situated between the ribs, deep to the external intercostals.",
+            "muscle_quadratus_lumborum": "A muscle of the posterior abdominal wall, located deep inside the abdomen.",
+            "muscle_brachialis": "A muscle in the upper arm that lies deeper than the biceps brachii.",
+            "muscle_brachioradialis": "A muscle of the forearm that is prominent on the thumb side.",
+            "muscle_supinator": "A broad muscle in the posterior compartment of the forearm, curved around the upper third of the radius.",
+            "muscle_pronator_teres": "A muscle of the human forearm that, along with the pronator quadratus, serves to pronate the forearm.",
+            "muscle_flexor_carpi_radialis": "A muscle of the human forearm that acts to flex and abduct the wrist.",
+            "muscle_flexor_carpi_ulnaris": "A muscle of the human forearm that acts to flex and adduct the wrist.",
+            "muscle_extensor_carpi_radialis_longus": "One of the five main muscles that control movements at the wrist.",
+            "muscle_extensor_carpi_ulnaris": "A skeletal muscle located on the ulnar side of the forearm.",
+            "muscle_flexor_digitorum_superficialis": "A muscle in the anterior compartment of the forearm responsible for flexing the fingers.",
+            "muscle_extensor_digitorum": "A muscle of the posterior forearm that extends the medial four digits.",
+            "muscle_iliopsoas": "A large compound muscle of the inner hip.",
+            "muscle_gluteus_medius": "A broad, thick, radiating muscle, situated on the outer surface of the pelvis.",
+            "muscle_gluteus_minimus": "The smallest of the three gluteal muscles, situated immediately beneath the gluteus medius.",
+            "muscle_tensor_fasciae_latae": "A muscle of the thigh that works with the gluteus medius and minimus.",
+            "muscle_adductor_longus": "A large, fan-shaped muscle located in the medial aspect of the thigh.",
+            "muscle_adductor_brevis": "A muscle in the thigh situated immediately deep to the pectineus and adductor longus.",
+            "muscle_adductor_magnus": "A large triangular muscle, situated on the medial side of the thigh.",
+            "muscle_vastus_medialis": "An extensor muscle located medially in the thigh that is part of the quadriceps group.",
+            "muscle_vastus_lateralis": "The largest part of the quadriceps femoris, located on the side of the thigh.",
+            "muscle_vastus_intermedius": "A muscle located along the upper portion of the femur, deep to the rectus femoris.",
+            "muscle_semimembranosus": "The most medial of the three hamstring muscles, found in the back of the thigh.",
+            "muscle_semitendinosus": "One of three hamstring muscles, located at the back of the thigh.",
+            "muscle_gracilis": "The most superficial and medial of the muscles at the medial compartment of the thigh.",
+            "muscle_sartorius": "The longest muscle in the human body, it is a long, thin, superficial muscle that runs down the length of the thigh.",
+            "muscle_soleus": "A powerful muscle in the back part of the lower leg (the calf).",
+            "muscle_popliteus": "A thin, flat, triangular muscle in the back of the knee.",
+            "muscle_peroneus_fibularis_longus": "A superficial muscle in the lateral compartment of the leg.",
+            "muscle_peroneus_fibularis_brevis": "A muscle that lies under cover of the fibularis longus in the leg.",
+            "muscle_tibialis_anterior": "A muscle in humans that originates in the upper two-thirds of the lateral surface of the tibia.",
+            "muscle_tibialis_posterior": "The most central of all the leg muscles, located in the deep posterior compartment of the leg.",
+            "muscle_flexor_digitorum_longus": "A muscle of the human leg, situated on the tibial side of the leg.",
+            "muscle_extensor_digitorum_longus": "A pennate muscle, situated at the anterior part of the leg."
+        };
+
         let boneNames = [];
 
         // --- 2. STATE MANAGEMENT ---
@@ -1091,6 +1214,7 @@
 
             document.getElementById('card-type').innerText = `${currentItem.t === 'b' ? 'Bone' : 'Muscle'}`;
             document.getElementById('card-title').innerText = currentItem.n;
+            document.getElementById('card-description').innerText = descriptionsDB[currentItem.svg_id] || '';
             
             let promptText = currentItem.t === 'b' ? 
                 "Identify the Region and major Landmarks." : 
