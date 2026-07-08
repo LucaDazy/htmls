@@ -11,6 +11,7 @@
         :root {
             --hard: var(--accent);
             --glow: var(--success);
+            --info: #5b95b8; /* Muted Blue for 'Action' */
         }
 
         h1 { color: var(--accent); margin-bottom: 0.5rem; text-align: center; }
@@ -75,36 +76,88 @@
         .card-type { font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.5rem; }
         .card-title { font-size: 1.8rem; font-weight: bold; color: var(--accent); margin-bottom: 1rem; text-transform: uppercase; }
 
-        .btn-reveal { background: var(--accent); color: var(--bg-color); border: none; padding: 1rem 2rem; font-size: 1.1rem; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.2s; width: 100%; font-family: var(--font-family-mono); margin-top: 2rem;}
-        .btn-reveal:hover { opacity: 0.9; }
+        #revealed-content { display: block; } /* This is now always visible */
 
-        /* Revealed Card Content */
-        #revealed-content { display: none; }
-        #revealed-content.visible { display: block; }
-        .info-card {
+        .interactive-field {
+            margin-bottom: 1.5rem;
+            --field-color: var(--text-muted); /* Default color */
+        }
+        .interactive-field.field-region, .interactive-field.field-origin { --field-color: var(--success); }
+        .interactive-field.field-landmarks, .interactive-field.field-insertion { --field-color: var(--accent); }
+        .interactive-field.field-action { --field-color: var(--info); }
+
+        .field-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .field-title {
+            font-size: 0.85rem;
+            text-transform: lowercase;
+            color: var(--field-color);
+            font-weight: bold;
+        }
+        .btn-hint {
             background: transparent;
-            border-left: 3px solid var(--text-muted);
-            padding: 1rem 1.2rem;
-            margin-bottom: 0.8rem;
+            border: 1px solid var(--field-color);
+            color: var(--field-color);
+            padding: 0.3rem 0.8rem;
+            font-size: 0.8rem;
             border-radius: 4px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.2s;
+            font-family: var(--font-family-mono);
         }
-        .info-card.active, .info-card:hover { background: var(--hover-bg); border-left-color: var(--accent); }
-        .info-card-title { font-size: 0.85rem; text-transform: lowercase; margin-bottom: 0.5rem; color: var(--text-muted); transition: color 0.2s ease; }
-        .info-card.active .info-card-title, .info-card:hover .info-card-title { color: var(--accent); }
-        .info-card-body { font-size: 0.95rem; line-height: 1.6; color: var(--text-main); opacity: 0.8; transition: opacity 0.2s ease; }
-        .info-card.active .info-card-body, .info-card:hover .info-card-body { opacity: 1; }
-
-        /* SRS Buttons */
-        .controls { display: flex; gap: 1rem; width: 100%; justify-content: center; flex-wrap: wrap; margin-top: 1rem;}
-        .srs-btn { padding: 0.8rem 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-family: var(--font-family-mono); transition: 0.2s; flex: 1; min-width: 80px; text-align: center;}
-        .btn-again { background: rgba(202, 71, 84, 0.2); color: var(--error); border: 1px solid var(--error); }
-        .btn-hard { background: rgba(226, 125, 96, 0.2); color: var(--hard); border: 1px solid var(--hard); }
-        .btn-good { background: rgba(140, 200, 75, 0.2); color: var(--success); border: 1px solid var(--success); }
-        .btn-easy { background: rgba(100, 102, 105, 0.2); color: var(--text-main); border: 1px solid var(--text-muted); }
-        .srs-btn:hover { filter: brightness(1.2); }
-        .srs-sub { display: block; font-size: 0.75rem; font-weight: normal; margin-top: 0.2rem; }
+        .btn-hint:hover {
+            background: var(--field-color);
+            color: var(--bg-color);
+        }
+        .btn-hint:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: transparent;
+            color: var(--field-color);
+        }
+        .field-input {
+            width: 100%;
+            padding: 0.8rem;
+            font-family: var(--font-family-mono);
+            background: var(--bg-color);
+            border: 2px solid var(--text-muted);
+            color: var(--text-main);
+            border-radius: 4px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .field-input:focus {
+            outline: none;
+            border-color: var(--field-color);
+        }
+        .field-input.correct {
+            border-color: var(--success);
+            background-color: rgba(77, 182, 172, 0.1);
+        }
+        .field-input.revealed {
+             border-color: var(--hard);
+             background-color: rgba(226, 125, 96, 0.1);
+        }
+        .field-input:disabled {
+            opacity: 0.7;
+        }
+        .hint-display {
+            margin-top: 0.5rem;
+            font-family: var(--font-family-mono);
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            min-height: 1.2em; /* Reserve space to prevent layout shift */
+            white-space: pre-wrap; /* Allow wrapping for long landmark text */
+            word-break: break-all;
+        }
+        .btn-next-card {
+            background: var(--accent); color: var(--bg-color); border: none; padding: 1rem 2rem; font-size: 1.1rem; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.2s; width: 100%; font-family: var(--font-family-mono); margin-top: 1rem;
+        }
+        .btn-next-card:hover { opacity: 0.9; }
 
         .deck-stats { margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted); text-align: center;}
 
@@ -271,19 +324,10 @@
 
                 <!-- This content is shown AFTER reveal -->
                 <div id="revealed-content">
-                    <div id="info-cards-container">
-                        <!-- Info cards will be injected here -->
-                    </div>
-
-                    <div class="controls">
-                        <button class="srs-btn btn-again" onclick="rateCard(0)">Again <span class="srs-sub">&lt; 1 min</span></button>
-                        <button class="srs-btn btn-hard" onclick="rateCard(1)">Hard <span class="srs-sub" id="time-hard"></span></button>
-                        <button class="srs-btn btn-good" onclick="rateCard(2)">Good <span class="srs-sub" id="time-good"></span></button>
-                        <button class="srs-btn btn-easy" onclick="rateCard(3)">Easy <span class="srs-sub" id="time-easy"></span></button>
+                    <div id="interactive-fields-container">
+                        <!-- Interactive fields will be injected here -->
                     </div>
                 </div>
-
-                <button class="btn-reveal" id="btn-reveal" onclick="revealCard()">Reveal Answer</button>
             </div>
         </div>
 
@@ -388,6 +432,12 @@
         let appState = {
             settings: { filter: 'all' },
             srs: {} 
+        };
+
+        let currentCardState = {
+            solvedFields: new Set(),
+            hintLevels: {},
+            totalFields: 0
         };
 
         function loadState() {
@@ -538,20 +588,20 @@
 
         // SVG Interaction Handlers
         function activateHighlight(targetKey) {
-            clearHighlights();
+            // We don't call clearHighlights here anymore, as multiple fields can be solved.
             const svg = document.querySelector('#svg-container svg');
             if (!svg) return;
 
-            svg.querySelectorAll('.interactive-layer').forEach(el => el.classList.add('subdued'));
+            // Make all layers subdued only if this is the first highlight
+            if (currentCardState.solvedFields.size === 1) {
+                svg.querySelectorAll('.interactive-layer').forEach(el => el.classList.add('subdued'));
+            }
             
             const targetElement = svg.querySelector(`#${targetKey}-layer`);
             if (targetElement) {
                 targetElement.classList.remove('subdued');
                 targetElement.classList.add('highlight');
             }
-            
-            const cardElement = document.getElementById(`info-card-${targetKey}`);
-            if(cardElement) cardElement.classList.add('active');
         }
 
         function clearHighlights() {
@@ -562,7 +612,6 @@
                     el.classList.remove('highlight');
                 });
             }
-            document.querySelectorAll('.info-card').forEach(card => card.classList.remove('active'));
         }
 
         // Helper function to dynamically load an SVG's .js file
@@ -593,6 +642,10 @@
 
         async function nextCard() {
             clearHighlights();
+            // Clear dictionary highlights from previous card
+            document.querySelectorAll('.dict-card').forEach(c => {
+                c.classList.remove('glow-region', 'glow-landmarks', 'glow-origin', 'glow-insertion', 'glow-action');
+            });
 
             if (queue.length === 0) {
                 document.getElementById('arena').style.display = 'none';
@@ -602,9 +655,10 @@
 
             document.getElementById('arena').style.display = 'grid';
             document.getElementById('end-screen').style.display = 'none';
-            document.getElementById('btn-reveal').style.display = 'block';
-            document.getElementById('revealed-content').classList.remove('visible');
-            document.getElementById('info-cards-container').innerHTML = '';
+            
+            // The revealed content area is now permanently visible and contains our interactive fields
+            document.getElementById('revealed-content').classList.add('visible');
+            document.getElementById('interactive-fields-container').innerHTML = '';
 
             currentItem = queue[0];
 
@@ -632,49 +686,153 @@
                 "Identify the Origin, Insertion, and Action.";
             document.getElementById('card-prompt').innerHTML = promptText;
 
-            // Calculate and display SRS times
-            const cardData = appState.srs[currentItem.id] || { int: 0, ease: 2.5 };
-            let iHard = Math.max(1, Math.round(cardData.int * 1.2));
-            let iGood = Math.max(1, Math.round((cardData.int === 0 ? 1 : cardData.int * cardData.ease)));
-            let iEasy = Math.max(1, Math.round((cardData.int === 0 ? 4 : cardData.int * cardData.ease * 1.3)));
-
-            document.getElementById('time-hard').innerText = iHard + "d";
-            document.getElementById('time-good').innerText = iGood + "d";
-            document.getElementById('time-easy').innerText = iEasy + "d";
+            buildInteractiveFields();
         }
 
-        function revealCard() {
-            document.getElementById('btn-reveal').style.display = 'none';
-            document.getElementById('revealed-content').classList.add('visible');
+        function buildInteractiveFields() {
+            const container = document.getElementById('interactive-fields-container');
+            container.innerHTML = '';
+            currentCardState = { solvedFields: new Set(), hintLevels: {}, totalFields: 0 };
 
-            const infoContainer = document.getElementById('info-cards-container');
-            infoContainer.innerHTML = ''; // Clear previous cards
-
-            let infoMap;
+            let fields;
             if (currentItem.t === 'b') {
-                infoMap = {
-                    region: { title: "Region", body: currentItem.r },
-                    landmarks: { title: "Landmarks", body: currentItem.l }
+                fields = {
+                    region: { title: "Region", answer: currentItem.r },
+                    landmarks: { title: "Landmarks", answer: currentItem.l }
                 };
             } else {
-                infoMap = {
-                    origin: { title: "Origin", body: currentItem.o },
-                    insertion: { title: "Insertion", body: currentItem.i },
-                    action: { title: "Action", body: currentItem.a }
+                fields = {
+                    origin: { title: "Origin", answer: currentItem.o },
+                    insertion: { title: "Insertion", answer: currentItem.i },
+                    action: { title: "Action", answer: currentItem.a }
                 };
             }
+            
+            currentCardState.totalFields = Object.keys(fields).length;
 
-            for (const [key, value] of Object.entries(infoMap)) {
-                const cardEl = document.createElement('div');
-                cardEl.className = 'info-card';
-                cardEl.id = `info-card-${key}`;
-                cardEl.innerHTML = `<div class="info-card-title">${value.title}</div><div class="info-card-body">${value.body}</div>`;
-                
-                cardEl.onmouseenter = () => activateHighlight(key);
-                cardEl.onmouseleave = () => clearHighlights();
-                
-                infoContainer.appendChild(cardEl);
+            for (const [key, value] of Object.entries(fields)) {
+                currentCardState.hintLevels[key] = 0;
+                const fieldEl = document.createElement('div');
+                fieldEl.className = `interactive-field field-${key}`;
+                fieldEl.innerHTML = `
+                    <div class="field-header">
+                        <span class="field-title">${value.title}</span>
+                        <button id="hint-btn-${key}" class="btn-hint" onclick="requestHint('${key}')">Hint (0/4)</button>
+                    </div>
+                    <input type="text" id="input-${key}" class="field-input" oninput="checkAnswer('${key}', this)" placeholder="Type the answer here...">
+                    <div id="hint-display-${key}" class="hint-display"></div>
+                `;
+                container.appendChild(fieldEl);
             }
+        }
+
+        function requestHint(key) {
+            if (currentCardState.solvedFields.has(key)) return;
+
+            currentCardState.hintLevels[key]++;
+            const level = currentCardState.hintLevels[key];
+            const hintBtn = document.getElementById(`hint-btn-${key}`);
+            hintBtn.innerText = `Hint (${level}/4)`;
+            
+            const answer = (currentItem.t === 'b') ? (key === 'region' ? currentItem.r : currentItem.l) : (key === 'origin' ? currentItem.o : (key === 'insertion' ? currentItem.i : currentItem.a));
+            const hintDisplay = document.getElementById(`hint-display-${key}`);
+            const inputEl = document.getElementById(`input-${key}`);
+
+            switch(level) {
+                case 1:
+                    highlightDictionaryTerms(key, answer);
+                    break;
+                case 2:
+                    hintDisplay.textContent = answer.replace(/[a-zA-Z0-9]/g, '_');
+                    break;
+                case 3:
+                    const chars = answer.split('');
+                    const hintText = chars.map((char, index) => {
+                        if (index === 0 || index === chars.length - 1 || !/[a-zA-Z0-9]/.test(char)) {
+                            return char;
+                        }
+                        return '_';
+                    }).join('');
+                    hintDisplay.textContent = hintText;
+                    break;
+                case 4:
+                    hintDisplay.textContent = '';
+                    inputEl.value = answer;
+                    inputEl.classList.add('revealed');
+                    markFieldAsSolved(key);
+                    break;
+            }
+            if (level >= 4) {
+                hintBtn.disabled = true;
+            }
+        }
+
+        function highlightDictionaryTerms(key, text) {
+            const textLower = text.toLowerCase();
+            for (const root of Object.keys(dictionary)) {
+                if (textLower.includes(root)) {
+                    const card = document.getElementById('dict-card-' + root);
+                    if (card) {
+                        const glowClass = `glow-${key}`;
+                        if (!card.classList.contains(glowClass)) {
+                            card.classList.add(glowClass);
+                        }
+                    }
+                }
+            }
+        }
+
+        function normalizeAnswer(str) {
+            return str.toLowerCase().replace(/[^a-z0-9]/g, '');
+        }
+
+        function checkAnswer(key, element) {
+            if (currentCardState.solvedFields.has(key)) return;
+
+            const answer = (currentItem.t === 'b') ? (key === 'region' ? currentItem.r : currentItem.l) : (key === 'origin' ? currentItem.o : (key === 'insertion' ? currentItem.i : currentItem.a));
+            
+            if (normalizeAnswer(element.value) === normalizeAnswer(answer)) {
+                element.classList.add('correct');
+                markFieldAsSolved(key);
+            }
+        }
+
+        function markFieldAsSolved(key) {
+            if (currentCardState.solvedFields.has(key)) return;
+
+            const inputEl = document.getElementById(`input-${key}`);
+            const hintBtn = document.getElementById(`hint-btn-${key}`);
+            
+            inputEl.disabled = true;
+            hintBtn.disabled = true;
+            currentCardState.solvedFields.add(key);
+
+            activateHighlight(key);
+
+            if (currentCardState.solvedFields.size === currentCardState.totalFields) {
+                completeCard();
+            }
+        }
+
+        function completeCard() {
+            let totalHints = 0;
+            for (const key in currentCardState.hintLevels) {
+                totalHints += currentCardState.hintLevels[key];
+            }
+            const avgHints = totalHints / currentCardState.totalFields;
+
+            let ratingCode;
+            if (avgHints <= 1) { ratingCode = 3; } // Easy (Used dictionary or less)
+            else if (avgHints <= 2) { ratingCode = 2; } // Good (Used underscores)
+            else if (avgHints < 4) { ratingCode = 1; }  // Hard (Used first/last letter)
+            else { ratingCode = 0; } // Again (Revealed one or more answers)
+            
+            const container = document.getElementById('interactive-fields-container');
+            const nextButton = document.createElement('button');
+            nextButton.className = 'btn-next-card';
+            nextButton.textContent = 'Next Card';
+            nextButton.onclick = () => rateCard(ratingCode);
+            container.appendChild(nextButton);
         }
 
         async function rateCard(ratingCode) {
