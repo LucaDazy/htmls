@@ -1,0 +1,62 @@
+svgDataStore['bone_thoracic_lumbar_vertebrae'] = `<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+        
+        <g class="svg-bg" fill="url(#bone-shading)" opacity="0.4">
+            <path d="M 105, 30 Q 140, 25 175, 35 L 175, 80 Q 140, 85 100, 75 Z" />
+            <path d="M 175, 40 L 200, 20 Q 210, 25 205, 40 L 215, 45 Q 260, 60 270, 80 Q 260, 90 225, 65 L 210, 70 L 205, 85 Q 195, 90 190, 75 L 175, 70 Z" />
+            
+            <path d="M 100, 75 Q 140, 85 175, 80 L 180, 105 Q 140, 95 100, 100 Z" />
+            
+            <path d="M 170, 115 C 130, 80 50, 110 30, 170 C 25, 185 35, 195 45, 185 C 60, 130 130, 100 170, 130 Z" />
+            
+            <path d="M 85, 395 Q 140, 390 195, 405 L 195, 460 Q 140, 465 85, 450 Z" />
+            <path d="M 195, 405 L 220, 375 Q 230, 380 225, 395 L 240, 405 Q 295, 405 310, 415 L 310, 435 Q 295, 445 240, 440 L 225, 465 Q 215, 470 210, 455 L 195, 455 Z" />
+            
+            <path d="M 90, 360 Q 140, 370 190, 370 L 195, 405 Q 140, 390 85, 395 Z" />
+            
+            <text x="310" y="40" fill="var(--text-muted)" font-size="12" font-style="italic">Superior View</text>
+            <text x="20" y="250" fill="var(--text-muted)" font-size="12" font-style="italic" transform="rotate(-90 20,250)">Lateral View</text>
+        </g>
+        
+        <g id="region-layer" class="interactive-layer">
+            <path d="M 100,100 Q 140,95 180,105 Q 175,130 180,155 Q 140,165 100,150 Q 105,125 100,100 Z" fill="url(#bone-shading)" />
+            <path d="M 180, 110 L 205, 90 Q 215, 95 210, 110 L 220, 115 Q 270, 140 280, 160 Q 270, 170 230, 140 L 215, 145 L 210, 165 Q 200, 170 195, 155 L 180, 145 Z" fill="url(#bone-shading)" />
+            <path d="M 185, 120 C 195, 110 210, 115 205, 130 C 200, 140 185, 135 185, 120 Z" fill="url(#bone-shading)" /> <path d="M 98,160 Q 140, 155 182,165 L 182,185 Q 140, 175 98,180 Z" fill="url(#bone-shading)" />
+
+            <path d="M 95,190 Q 140, 185 185,195 L 185,255 Q 140, 265 95,250 Q 100, 220 95,190 Z" fill="url(#bone-shading)" />
+            <path d="M 185, 205 L 210, 175 Q 220, 180 215, 195 L 230, 205 Q 280, 205 295, 215 L 295, 230 Q 280, 240 230, 235 L 215, 255 Q 205, 260 200, 245 L 185, 245 Z" fill="url(#bone-shading)" />
+            <path d="M 195, 215 C 205, 205 220, 210 215, 225 C 210, 235 195, 230 195, 215 Z" fill="url(#bone-shading)" /> <path d="M 93,260 Q 140, 255 187,265 L 187,285 Q 140, 275 93,280 Z" fill="url(#bone-shading)" />
+
+            <path d="M 90,290 Q 140, 285 190,295 L 190,365 Q 140, 375 90,360 Q 95, 325 90,290 Z" fill="url(#bone-shading)" />
+            <path d="M 190, 305 L 215, 275 Q 225, 280 220, 295 L 235, 305 Q 290, 305 305, 315 L 305, 335 Q 290, 345 235, 340 L 220, 365 Q 210, 370 205, 355 L 190, 355 Z" fill="url(#bone-shading)" />
+            <path d="M 200, 315 C 210, 305 225, 310 220, 325 C 215, 335 200, 330 200, 315 Z" fill="url(#bone-shading)" /> <path d="M 270,70 C 270,45 330,45 330,70 C 330,85 315,95 300,90 C 285,95 270,85 270,70 Z" fill="url(#bone-shading)" />
+            <path d="M 275,85 L 245,100 L 255,115 C 275,115 290,135 295,160 L 305,160 C 310,135 325,115 345,115 L 355,100 L 325,85 C 315,95 310,105 300,105 C 290,105 285,95 275,85 Z" fill="url(#bone-shading)" />
+        </g>
+        
+        <g id="landmarks-layer" class="interactive-layer">
+            <path d="M 100,195 Q 140, 190 180,200 L 180,248 Q 140, 258 100,243 Q 105, 220 100,195 Z" fill="var(--accent)" />
+            
+            <path d="M 225, 122 Q 265, 142 275, 158 Q 265, 165 232, 140 Z" fill="var(--accent)" />
+            <path d="M 240, 312 Q 285, 312 298, 320 L 298, 330 Q 285, 338 240, 335 Z" fill="var(--accent)" />
+            
+            <path d="M 197, 217 C 205, 209 216, 213 213, 223 C 209, 231 198, 228 197, 217 Z" fill="var(--accent)" />
+            
+            <path d="M 205, 155 L 210, 165 Q 205, 175 195, 165 Z" fill="var(--accent)" />
+            <path d="M 210, 175 Q 220, 180 215, 195 L 205, 190 Q 210, 180 200, 175 Z" fill="var(--accent)" />
+
+            <path d="M 95,262 Q 140, 257 185,267 L 185,283 Q 140, 273 95,278 Z" fill="var(--accent)" />
+
+            <path d="M 282,90 C 290,82 310,82 318,90 C 315,105 285,105 282,90 Z" fill="var(--accent)" opacity="0.8" />
+        </g>
+    </svg>`;

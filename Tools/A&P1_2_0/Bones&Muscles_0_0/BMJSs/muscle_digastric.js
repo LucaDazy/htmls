@@ -1,0 +1,57 @@
+svgDataStore['muscle_digastric'] = `<svg viewBox="0 0 350 400" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#94a3b8" /><stop offset="25%" stop-color="#f1f5f9" /><stop offset="75%" stop-color="#cbd5e1" /><stop offset="100%" stop-color="#475569" /></linearGradient>
+            <linearGradient id="muscle-shading" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#7f1d1d" /><stop offset="35%" stop-color="#ef4444" /><stop offset="80%" stop-color="#b91c1c" /><stop offset="100%" stop-color="#450a0a" /></linearGradient>
+            <linearGradient id="tendon-shading" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#64748b" /><stop offset="50%" stop-color="#f8fafc" /><stop offset="100%" stop-color="#334155" /></linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter>
+        </defs>
+        
+        <g class="svg-bg" fill="url(#bone-shading)" opacity="0.4">
+            <path d="M 180,20 C 230,20 280,40 310,80 C 330,110 320,160 290,170 C 270,180 260,140 240,130 C 220,120 190,120 170,110 Z" />
+            <circle cx="260" cy="115" r="8" fill="#1a121c" opacity="0.5" />
+            <path d="M 255,125 L 235,175 L 245,175 Z" />
+            
+            <path d="M 220,120 C 230,160 220,220 200,240 C 180,250 150,245 100,235 C 60,225 40,210 50,195 C 60,180 90,215 130,220 C 160,225 180,210 190,160 C 195,140 205,120 220,120 Z" />
+            
+            <path d="M 120,285 C 130,305 170,305 180,285 C 175,275 165,280 150,285 C 135,280 125,275 120,285 Z" />
+            
+            <path d="M 250,160 Q 230,220 230,300 L 310,300 Q 310,220 320,160 Z" />
+            <path d="M 230,180 L 210,190 L 230,200 Z" />
+            <path d="M 230,220 L 210,230 L 230,240 Z" />
+            <path d="M 230,260 L 210,270 L 230,280 Z" />
+        </g>
+        
+        <g id="origin-layer" class="interactive-layer">
+            <circle cx="275" cy="155" r="7" fill="var(--success)" />
+            <circle cx="60" cy="205" r="6" fill="var(--success)" />
+        </g>
+        
+        <g id="action-layer" class="interactive-layer">
+            <g id="action-belly">
+                <path d="M 45,215 Q 90,280 135,288 Q 110,240 50,205 Z" fill="url(#muscle-shading)" />
+                <path d="M 275,150 Q 230,230 165,285 Q 215,200 285,160 Z" fill="url(#muscle-shading)" />
+                
+                <g stroke="#450a0a" stroke-width="1.5" opacity="0.4" fill="none">
+                    <path d="M 65,215 Q 95,255 125,280" />
+                    <path d="M 60,205 Q 90,245 120,270" />
+                    <path d="M 70,225 Q 100,265 130,285" />
+                    
+                    <path d="M 265,160 Q 215,225 175,275" />
+                    <path d="M 275,150 Q 225,215 185,265" />
+                    <path d="M 255,170 Q 205,235 165,285" />
+                </g>
+            </g>
+            
+            <g id="action-tendon">
+                <path d="M 130,286 Q 150,305 170,284" fill="none" stroke="url(#tendon-shading)" stroke-width="6" stroke-linecap="round" />
+                <path d="M 130,286 Q 150,305 170,284" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" opacity="0.4" />
+                
+                <path d="M 148,288 C 140,305 160,305 152,288" fill="none" stroke="url(#tendon-shading)" stroke-width="4" stroke-linecap="round" />
+                <path d="M 148,288 C 140,305 160,305 152,288" fill="none" stroke="#ffffff" stroke-width="1" stroke-linecap="round" opacity="0.5" />
+            </g>
+        </g>
+        
+        <g id="insertion-layer" class="interactive-layer">
+            <path d="M 140,290 C 150,295 160,295 170,290 C 165,285 145,285 140,290 Z" fill="var(--accent)" />
+        </g>
+    </svg>`;

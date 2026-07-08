@@ -1,0 +1,77 @@
+svgDataStore['bone_cervical_vertebrae'] = `<svg viewBox="50 0 300 480" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+        
+        <g class="svg-bg" fill="url(#bone-shading)" opacity="0.4">
+            <path d="M 50,0 Q 130,90 170,80 Q 240,60 300,0 Z" />
+            
+            <path d="M 131,141 Q 142,150 153,141 L 157,159 Q 146,150 135,159 Z" opacity="0.7" />
+            <path d="M 139,191 Q 150,200 161,191 L 161,209 Q 150,200 139,209 Z" opacity="0.7" />
+            <path d="M 143,241 Q 154,250 165,241 L 165,259 Q 154,250 143,259 Z" opacity="0.7" />
+            <path d="M 143,291 Q 154,300 165,291 L 161,309 Q 150,300 139,309 Z" opacity="0.7" />
+            <path d="M 139,341 Q 150,350 161,341 L 153,359 Q 142,350 131,359 Z" opacity="0.7" />
+            <path d="M 131,391 Q 142,400 153,391 L 143,409 Q 132,400 121,409 Z" opacity="0.7" />
+            
+            <path d="M 120,410 C 140,408 145,442 120,440 C 112,425 112,415 120,410 Z" />
+            <path d="M 138,410 C 165,408 170,447 138,445 C 134,430 134,420 138,410 Z" />
+            <path d="M 163,420 C 190,430 270,455 280,460 C 255,465 180,445 163,430 Z" />
+        </g>
+        
+        <g id="region-layer" class="interactive-layer">
+            <path d="M 125,85 C 135,80 142,90 135,100 C 122,105 118,95 125,85 Z" fill="url(#bone-shading)" />
+            <path d="M 173,90 C 190,85 215,95 220,100 C 210,105 180,105 173,95 Z" fill="url(#bone-shading)" />
+            
+            <path d="M 134,95 C 134,60 146,60 146,95 Z" fill="url(#bone-shading)" />
+            <path d="M 130,110 C 150,108 155,142 130,140 C 122,125 122,115 130,110 Z" fill="url(#bone-shading)" />
+            <path d="M 148,110 C 175,108 180,147 148,145 C 144,130 144,120 148,110 Z" fill="url(#bone-shading)" />
+            <path d="M 173,120 C 190,122 225,133 235,140 C 215,145 185,140 173,130 Z" fill="url(#bone-shading)" />
+            
+            <path d="M 138,160 C 158,158 163,192 138,190 C 130,175 130,165 138,160 Z" fill="url(#bone-shading)" />
+            <path d="M 156,160 C 183,158 188,197 156,195 C 152,180 152,170 156,160 Z" fill="url(#bone-shading)" />
+            <path d="M 181,170 C 198,172 230,183 240,190 C 220,195 193,190 181,180 Z" fill="url(#bone-shading)" />
+            
+            <path d="M 142,210 C 162,208 167,242 142,240 C 134,225 134,215 142,210 Z" fill="url(#bone-shading)" />
+            <path d="M 160,210 C 187,208 192,247 160,245 C 156,230 156,220 160,210 Z" fill="url(#bone-shading)" />
+            <path d="M 185,220 C 202,222 235,233 245,240 C 225,245 197,240 185,230 Z" fill="url(#bone-shading)" />
+            
+            <path d="M 142,260 C 162,258 167,292 142,290 C 134,275 134,265 142,260 Z" fill="url(#bone-shading)" />
+            <path d="M 160,260 C 187,258 192,297 160,295 C 156,280 156,270 160,260 Z" fill="url(#bone-shading)" />
+            <path d="M 185,270 C 202,272 240,283 250,290 C 230,295 197,290 185,280 Z" fill="url(#bone-shading)" />
+            
+            <path d="M 138,310 C 158,308 163,342 138,340 C 130,325 130,315 138,310 Z" fill="url(#bone-shading)" />
+            <path d="M 156,310 C 183,308 188,347 156,345 C 152,330 152,320 156,310 Z" fill="url(#bone-shading)" />
+            <path d="M 181,320 C 198,322 250,343 260,350 C 240,355 193,340 181,330 Z" fill="url(#bone-shading)" />
+            
+            <path d="M 130,360 C 150,358 155,392 130,390 C 122,375 122,365 130,360 Z" fill="url(#bone-shading)" />
+            <path d="M 148,360 C 175,358 180,397 148,395 C 144,380 144,370 148,360 Z" fill="url(#bone-shading)" />
+            <path d="M 173,370 C 200,380 280,405 290,410 C 265,415 190,395 173,380 Z" fill="url(#bone-shading)" />
+        </g>
+        
+        <g id="landmarks-layer" class="interactive-layer">
+            <path d="M 125,85 C 135,80 142,90 135,100 C 122,105 118,95 125,85 Z" fill="var(--accent)" />
+            <path d="M 173,90 C 190,85 215,95 220,100 C 210,105 180,105 173,95 Z" fill="var(--accent)" />
+            
+            <path d="M 130,110 C 150,108 155,142 130,140 C 122,125 122,115 130,110 Z" fill="var(--accent)" />
+            
+            <path d="M 134,95 C 134,60 146,60 146,95 Z" fill="var(--accent)" />
+            
+            <path d="M 173,370 C 200,380 280,405 290,410 C 265,415 190,395 173,380 Z" fill="var(--accent)" />
+            
+            <ellipse cx="163" cy="128" rx="3.5" ry="5" fill="var(--accent)" />
+            <ellipse cx="171" cy="178" rx="3.5" ry="5" fill="var(--accent)" />
+            <ellipse cx="175" cy="228" rx="3.5" ry="5" fill="var(--accent)" />
+            <ellipse cx="175" cy="278" rx="3.5" ry="5" fill="var(--accent)" />
+            <ellipse cx="171" cy="328" rx="3.5" ry="5" fill="var(--accent)" />
+            <ellipse cx="163" cy="378" rx="2.5" ry="4" fill="var(--accent)" />
+        </g>
+    </svg>`;

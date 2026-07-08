@@ -1,0 +1,162 @@
+svgDataStore['muscle_tibialis_posterior'] = `<svg viewBox="0 0 450 850" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <linearGradient id="muscle-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#7f1d1d" />
+                <stop offset="35%" stop-color="#ef4444" />
+                <stop offset="80%" stop-color="#b91c1c" />
+                <stop offset="100%" stop-color="#450a0a" />
+            </linearGradient>
+            <linearGradient id="tendon-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#64748b" />
+                <stop offset="50%" stop-color="#f8fafc" />
+                <stop offset="100%" stop-color="#334155" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+
+        <g class="svg-bg" opacity="0.4">
+            
+            <path d="M 80,50 L 80,800" stroke="#475569" stroke-width="2" stroke-dasharray="5,5" opacity="0.3" />
+
+            <path d="M 180,50 
+                     L 240,50 
+                     C 240,80 260,100 250,130 
+                     C 220,130 200,130 170,130 
+                     C 160,100 180,80 180,50 Z" 
+                  fill="url(#bone-shading)"/>
+            <path d="M 170,120 C 170,140 200,140 205,120 C 205,100 190,90 180,100" fill="var(--bg-color)" opacity="0.5"/>
+            <path d="M 250,120 C 250,140 220,140 215,120 C 215,100 230,90 240,100" fill="var(--bg-color)" opacity="0.5"/>
+            <path d="M 205,120 C 210,100 210,100 215,120" fill="url(#bone-shading)"/>
+
+            <path d="M 175,135 
+                     C 200,135 220,135 235,140 
+                     L 220,670 
+                     C 210,700 195,700 180,670 
+                     L 170,140 Z" 
+                  fill="url(#bone-shading)" />
+            <path d="M 180,670 C 160,680 160,700 175,700 L 195,680 Z" fill="url(#bone-shading)" />
+            <path d="M 230,165 C 210,195 190,230 175,260" fill="none" stroke="#475569" stroke-width="2" opacity="0.6"/>
+
+            <path d="M 240,145 
+                     C 260,145 265,160 255,175 
+                     L 245,670 
+                     L 230,670 
+                     L 240,175 Z" 
+                  fill="url(#bone-shading)" />
+            <path d="M 245,670 C 265,685 265,715 250,720 L 235,680 Z" fill="url(#bone-shading)" />
+
+            <path d="M 220,160 L 245,170 L 235,660 L 210,660 Z" fill="#94a3b8" opacity="0.3" />
+
+            <path d="M 175,710 
+                     C 170,760 185,790 215,790 
+                     C 245,790 260,760 250,710 
+                     C 230,700 190,700 175,710 Z" 
+                  fill="url(#bone-shading)" opacity="0.8" />
+            <path d="M 175,710 C 160,715 155,730 170,735 Z" fill="url(#bone-shading)" />
+            
+            <path d="M 160,740 C 145,745 140,760 155,765 C 165,765 170,750 160,740 Z" fill="url(#bone-shading)" />
+            
+            <path d="M 150,770 C 135,775 130,800 145,800 C 155,800 160,780 150,770 Z" fill="url(#bone-shading)" />
+            <path d="M 140,800 C 120,805 120,830 140,830 L 150,810 Z" fill="url(#bone-shading)" />
+
+        </g>
+
+        <g id="origin-layer" class="interactive-layer">
+            <path d="M 185,240 
+                     C 210,210 240,210 248,250 
+                     L 242,420 
+                     C 235,480 220,500 210,500 
+                     C 195,500 180,450 185,420 Z" 
+                  fill="var(--success)" />
+        </g>
+        
+        <g id="insertion-layer" class="interactive-layer">
+            <ellipse cx="152" cy="755" rx="6" ry="10" transform="rotate(-15 152 755)" fill="var(--accent)" />
+            <ellipse cx="145" cy="780" rx="5" ry="8" transform="rotate(-25 145 780)" fill="var(--accent)" />
+            <ellipse cx="138" cy="805" rx="4" ry="7" transform="rotate(-35 138 805)" fill="var(--accent)" />
+            <ellipse cx="170" cy="775" rx="4" ry="7" transform="rotate(10 170 775)" fill="var(--accent)" />
+        </g>
+        
+        <g id="action-layer" class="interactive-layer">
+            
+            <g id="action-belly">
+                <path d="M 185,240 
+                         C 210,210 240,210 248,250 
+                         C 255,300 250,400 242,450 
+                         C 235,500 225,520 210,540 
+                         C 195,520 180,450 182,350 
+                         C 183,300 180,260 185,240 Z" 
+                      fill="url(#muscle-shading)" />
+                      
+                <g stroke="#450a0a" stroke-width="1.5" opacity="0.45" fill="none" stroke-linecap="round">
+                    <path d="M 185,250 Q 200,300 215,350" />
+                    <path d="M 183,290 Q 200,340 212,390" />
+                    <path d="M 181,330 Q 195,380 210,430" />
+                    <path d="M 180,370 Q 195,420 208,470" />
+                    <path d="M 182,410 Q 195,450 208,510" />
+                    
+                    <path d="M 246,260 Q 230,310 217,360" />
+                    <path d="M 248,300 Q 230,350 215,400" />
+                    <path d="M 247,340 Q 230,390 213,440" />
+                    <path d="M 245,380 Q 225,430 210,480" />
+                    <path d="M 243,420 Q 225,470 208,520" />
+                </g>
+            </g>
+            
+            <g id="action-tendon">
+                <path d="M 215,350 
+                         C 220,400 215,500 210,540 
+                         C 200,600 185,650 165,680 
+                         C 155,695 150,710 152,735 
+                         C 153,745 145,760 135,780 
+                         C 135,790 148,810 152,805 
+                         C 165,770 170,750 165,735 
+                         C 160,715 175,690 190,670 
+                         C 205,640 215,550 220,450 
+                         C 225,400 220,360 215,350 Z" 
+                      fill="url(#tendon-shading)" opacity="0.95" />
+                      
+                <path d="M 148,775 C 158,770 165,775 172,775 C 170,770 160,765 148,775 Z" fill="url(#tendon-shading)" opacity="0.8" />
+                      
+                <g stroke="#f8fafc" stroke-width="1.2" opacity="0.5" fill="none">
+                    <path d="M 217,400 Q 215,500 205,580" />
+                    <path d="M 205,580 Q 185,640 170,680" />
+                    <path d="M 165,690 Q 155,715 150,750" />
+                    <path d="M 175,685 Q 165,715 155,750" />
+                </g>
+            </g>
+            
+        </g>
+        
+        <g style="pointer-events: none;" opacity="0.6">
+            <path d="M 170,660 C 190,665 200,685 185,710 C 170,695 155,670 170,660 Z" fill="#94a3b8"/>
+            <path d="M 175,665 C 185,675 190,690 180,705" fill="none" stroke="#cbd5e1" stroke-width="1.5" opacity="0.7"/>
+        </g>
+
+        <g style="pointer-events: none;" opacity="0.5">
+            <path d="M 190,280 C 180,400 185,500 195,600" fill="none" stroke="#9c82a1" stroke-width="2" stroke-dasharray="4,4" />
+            <text x="110" y="320" fill="#9c82a1" font-size="10" font-family="sans-serif" style="text-shadow: 1px 1px 2px #000;">F. Digitorum Longus (cut)</text>
+            <path d="M 180,315 L 165,315" stroke="#9c82a1" stroke-width="1" stroke-dasharray="2,2" opacity="0.8" />
+        </g>
+
+        <g style="pointer-events: none;" opacity="0.5">
+            <path d="M 235,400 C 240,480 230,550 215,620" fill="none" stroke="#9c82a1" stroke-width="2" stroke-dasharray="4,4" />
+            <text x="250" y="450" fill="#9c82a1" font-size="10" font-family="sans-serif" style="text-shadow: 1px 1px 2px #000;">F. Hallucis Longus (cut)</text>
+            <path d="M 235,445 L 250,445" stroke="#9c82a1" stroke-width="1" stroke-dasharray="2,2" opacity="0.8" />
+        </g>
+
+        <g style="pointer-events: none;" opacity="0.3">
+            <path d="M 160,260 C 130,350 140,500 190,650 C 200,680 220,680 230,650 C 280,500 290,350 260,260" fill="none" stroke="#9c82a1" stroke-width="1" stroke-dasharray="6,4" />
+            <text x="280" y="260" fill="#9c82a1" font-size="11" font-family="sans-serif" style="text-shadow: 1px 1px 2px #000;">Soleus (cut)</text>
+        </g>
+
+    </svg>`;

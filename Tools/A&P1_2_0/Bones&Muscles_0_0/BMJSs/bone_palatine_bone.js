@@ -1,0 +1,35 @@
+svgDataStore['bone_palatine_bone'] = `<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+        
+        <g class="svg-bg" fill="url(#bone-shading)" opacity="0.4">
+            <path d="M 60,180 C 80,180 110,200 130,250 L 200,250 L 200,265 L 120,265 C 110,300 90,320 70,320 C 60,320 50,300 60,265 C 40,260 30,240 40,210 Z" />
+            <path d="M 130,250 C 140,210 160,180 200,180 L 200,250 Z" />
+            
+            <path d="M 230,120 C 260,100 300,110 320,140 C 300,160 280,170 250,170 L 255,290 C 260,320 280,330 290,300 L 280,170 C 310,180 330,170 350,160 L 330,120 Z" />
+        </g>
+        
+        <g id="region-layer" class="interactive-layer">
+            <path d="M 200,250 L 235,250 L 235,140 C 235,130 240,125 245,125 C 250,125 250,135 250,145 L 250,260 C 255,265 260,280 250,295 C 240,285 240,270 235,265 L 200,265 Z" fill="url(#bone-shading)" />
+        </g>
+        
+        <g id="landmarks-layer" class="interactive-layer">
+            <ellipse cx="218" cy="257.5" rx="12" ry="3" fill="var(--accent)" />
+            
+            <ellipse cx="242.5" cy="200" rx="3" ry="20" fill="var(--accent)" />
+            
+            <circle cx="243" cy="135" r="3.5" fill="var(--accent)" />
+            
+            <circle cx="245" cy="280" r="3.5" fill="var(--accent)" />
+        </g>
+    </svg>`;

@@ -1,0 +1,155 @@
+svgDataStore['muscle_orbicularis_oris'] = `<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <linearGradient id="muscle-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#7f1d1d" />
+                <stop offset="35%" stop-color="#ef4444" />
+                <stop offset="80%" stop-color="#b91c1c" />
+                <stop offset="100%" stop-color="#450a0a" />
+            </linearGradient>
+            <linearGradient id="tendon-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#64748b" />
+                <stop offset="50%" stop-color="#f8fafc" />
+                <stop offset="100%" stop-color="#334155" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+
+        <!-- Background Context (Maxilla, Mandible, Teeth, and converging muscles) -->
+        <g class="svg-bg" opacity="0.4">
+            <!-- Maxilla & Mandible Bones -->
+            <path d="M 60,60 C 150,80 250,80 340,60 C 370,160 370,240 330,340 C 270,380 130,380 70,340 C 30,240 30,160 60,60 Z" fill="url(#bone-shading)" />
+            
+            <!-- Nasal Cavity Aperture -->
+            <path d="M 180,90 C 180,70 220,70 220,90 C 225,120 215,140 200,145 C 185,140 175,120 180,90 Z" fill="var(--bg-color)" opacity="0.8" />
+            
+            <!-- Mental Foramina (Mandible landmarks) -->
+            <circle cx="120" cy="300" r="4" fill="var(--bg-color)" opacity="0.6" />
+            <circle cx="280" cy="300" r="4" fill="var(--bg-color)" opacity="0.6" />
+
+            <!-- Teeth & Oral Cavity (Visible through the mouth opening) -->
+            <!-- Oral cavity depth -->
+            <path d="M 140,205 C 150,190 180,185 200,190 C 220,185 250,190 260,205 C 250,220 220,225 200,220 C 180,225 150,220 140,205 Z" fill="var(--bg-color)" opacity="0.9" />
+            
+            <!-- Upper Teeth Row -->
+            <path d="M 155,198 C 170,193 185,190 200,193 C 215,190 230,193 245,198 C 245,204 200,207 200,207 C 200,207 155,204 155,198 Z" fill="url(#bone-shading)" opacity="0.8" />
+            <g stroke="#475569" stroke-width="1.5" opacity="0.6" fill="none">
+                <line x1="170" y1="195" x2="170" y2="204" />
+                <line x1="185" y1="192" x2="185" y2="206" />
+                <line x1="200" y1="192" x2="200" y2="207" />
+                <line x1="215" y1="192" x2="215" y2="206" />
+                <line x1="230" y1="195" x2="230" y2="204" />
+            </g>
+
+            <!-- Lower Teeth Row -->
+            <path d="M 160,210 C 175,208 185,206 200,208 C 215,206 225,208 240,210 C 240,215 200,218 200,218 C 200,218 160,215 160,210 Z" fill="url(#bone-shading)" opacity="0.8" />
+            <g stroke="#475569" stroke-width="1.5" opacity="0.6" fill="none">
+                <line x1="172" y1="210" x2="172" y2="215" />
+                <line x1="186" y1="208" x2="186" y2="216" />
+                <line x1="200" y1="208" x2="200" y2="217" />
+                <line x1="214" y1="208" x2="214" y2="216" />
+                <line x1="228" y1="210" x2="228" y2="215" />
+            </g>
+
+            <!-- Faint silhouettes of converging muscles (Zygomaticus, Depressor Anguli Oris, Buccinator) -->
+            <!-- Zygomaticus Major -->
+            <path d="M 110,195 Q 60,110 50,80 Q 70,80 120,185 Z" fill="url(#muscle-shading)" opacity="0.3" />
+            <path d="M 290,195 Q 340,110 350,80 Q 330,80 280,185 Z" fill="url(#muscle-shading)" opacity="0.3" />
+            
+            <!-- Depressor Anguli Oris -->
+            <path d="M 110,215 Q 110,280 80,330 Q 120,330 130,225 Z" fill="url(#muscle-shading)" opacity="0.3" />
+            <path d="M 290,215 Q 290,280 320,330 Q 280,330 270,225 Z" fill="url(#muscle-shading)" opacity="0.3" />
+            
+            <!-- Buccinator (Lateral to modiolus) -->
+            <path d="M 105,190 Q 60,190 50,160 Q 50,250 105,220 Z" fill="url(#muscle-shading)" opacity="0.2" />
+            <path d="M 295,190 Q 340,190 350,160 Q 350,250 295,220 Z" fill="url(#muscle-shading)" opacity="0.2" />
+        </g>
+
+        <!-- INTERACTIVE LAYERS -->
+        
+        <!-- Origin Layer: Maxillary bone & mandible -->
+        <g id="origin-layer" class="interactive-layer">
+            <!-- Maxillary origins (Incisive fossae of maxilla) -->
+            <ellipse cx="185" cy="165" rx="6" ry="3" fill="var(--success)" />
+            <ellipse cx="215" cy="165" rx="6" ry="3" fill="var(--success)" />
+            
+            <!-- Mandibular origins (Incisive fossae of mandible) -->
+            <ellipse cx="185" cy="245" rx="6" ry="3" fill="var(--success)" />
+            <ellipse cx="215" cy="245" rx="6" ry="3" fill="var(--success)" />
+        </g>
+        
+        <!-- Insertion Layer: Lips (Skin and mucous membrane boundary) -->
+        <g id="insertion-layer" class="interactive-layer">
+            <!-- Outer lip boundary (Vermilion border) to inner mouth opening -->
+            <path fill-rule="evenodd" d="
+                M 135,205 
+                C 150,185 180,180 200,185 
+                C 220,180 250,185 265,205 
+                C 250,225 220,230 200,225 
+                C 180,230 150,225 135,205 Z
+                M 145,205 
+                C 155,198 180,195 200,198 
+                C 220,195 245,198 255,205 
+                C 245,212 220,215 200,212 
+                C 180,215 155,212 145,205 Z
+            " fill="var(--accent)" opacity="0.85" />
+        </g>
+        
+        <!-- Action Layer: Main Muscle Belly and Tendons -->
+        <g id="action-layer" class="interactive-layer">
+            
+            <!-- Muscle Belly -->
+            <g id="action-belly">
+                <!-- Circular Sphincter Muscle Belly -->
+                <!-- Uses evenodd to create the hole for the lips -->
+                <path fill-rule="evenodd" d="
+                    M 100,205 
+                    C 100,140 150,125 200,125 
+                    C 250,125 300,140 300,205 
+                    C 300,270 250,285 200,285 
+                    C 150,285 100,270 100,205 Z
+                    M 135,205 
+                    C 150,225 180,230 200,225 
+                    C 220,230 250,225 265,205 
+                    C 250,185 220,180 200,185 
+                    C 180,180 150,185 135,205 Z
+                " fill="url(#muscle-shading)" />
+
+                <!-- Muscle Fiber Striations (Concentric rings) -->
+                <g stroke="#450a0a" stroke-width="1.5" opacity="0.45" fill="none">
+                    <!-- Outer ring fibers -->
+                    <path d="M 110,205 C 110,150 155,135 200,135 C 245,135 290,150 290,205 C 290,260 245,275 200,275 C 155,275 110,260 110,205 Z" />
+                    <!-- Middle ring fibers -->
+                    <path d="M 120,205 C 120,165 160,150 200,150 C 240,150 280,165 280,205 C 280,245 240,260 200,260 C 160,260 120,245 120,205 Z" />
+                    <!-- Inner ring fibers -->
+                    <path d="M 130,205 C 130,175 170,165 200,165 C 230,165 270,175 270,205 C 270,235 230,245 200,245 C 170,245 130,235 130,205 Z" />
+                    
+                    <!-- Nasolabial crease integration lines -->
+                    <path d="M 160,125 Q 140,160 120,180" />
+                    <path d="M 240,125 Q 260,160 280,180" />
+                </g>
+            </g>
+            
+            <!-- Tendons & Aponeuroses (Modiolus and Connective Tissue) -->
+            <g id="action-tendon">
+                <!-- Left Modiolus (Fibromuscular node at the corner of the mouth) -->
+                <path d="M 90,205 C 95,190 115,190 120,205 C 115,220 95,220 90,205 Z" fill="url(#tendon-shading)" opacity="0.85" />
+                
+                <!-- Right Modiolus -->
+                <path d="M 310,205 C 305,190 285,190 280,205 C 285,220 305,220 310,205 Z" fill="url(#tendon-shading)" opacity="0.85" />
+                
+                <!-- Philtrum (Central superior connective tissue depression) -->
+                <path d="M 195,125 Q 192,160 195,185 L 205,185 Q 208,160 205,125 Z" fill="var(--bg-color)" opacity="0.15" />
+                <path d="M 195,185 L 205,185" stroke="url(#tendon-shading)" stroke-width="2" opacity="0.5" />
+            </g>
+            
+        </g>
+    </svg>`;

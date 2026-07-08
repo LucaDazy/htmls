@@ -1,0 +1,183 @@
+svgDataStore['muscle_internal_intercostals'] = `<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <linearGradient id="muscle-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#7f1d1d" />
+                <stop offset="35%" stop-color="#ef4444" />
+                <stop offset="80%" stop-color="#b91c1c" />
+                <stop offset="100%" stop-color="#450a0a" />
+            </linearGradient>
+            <linearGradient id="tendon-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#64748b" />
+                <stop offset="50%" stop-color="#f8fafc" />
+                <stop offset="100%" stop-color="#334155" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+
+        <!-- Background Context (Sternum and Ribs 2-7) -->
+        <g class="svg-bg" opacity="0.4">
+            <!-- Sternum (Manubrium, Body, Xiphoid) -->
+            <path d="M 235,50 L 265,50 L 260,80 L 240,80 Z" fill="url(#bone-shading)" />
+            <path d="M 240,80 L 260,80 L 255,200 L 245,200 Z" fill="url(#bone-shading)" />
+            <path d="M 245,200 L 255,200 L 250,220 Z" fill="url(#bone-shading)" />
+
+            <!-- Costal Cartilages and Bony Ribs Combined -->
+            <g stroke="url(#bone-shading)" stroke-width="12" stroke-linecap="round" fill="none">
+                <!-- Right Ribs (Anatomical Left / SVG Right) -->
+                <path d="M 260,110 L 290,110 C 340,110 390,130 410,150" /> <!-- Rib 2 -->
+                <path d="M 258,135 L 300,135 C 360,140 410,170 430,200" /> <!-- Rib 3 -->
+                <path d="M 257,160 L 310,165 C 380,175 430,210 450,250" /> <!-- Rib 4 -->
+                <path d="M 256,185 L 320,195 C 400,210 450,260 465,310" /> <!-- Rib 5 -->
+                <path d="M 255,210 L 330,230 C 410,250 460,310 470,370" /> <!-- Rib 6 -->
+                <path d="M 255,235 L 330,270 C 410,290 460,360 465,420" /> <!-- Rib 7 -->
+                
+                <!-- Left Ribs (Anatomical Right / SVG Left) -->
+                <path d="M 240,110 L 210,110 C 160,110 110,130 90,150" /> <!-- Rib 2 -->
+                <path d="M 242,135 L 200,135 C 140,140 90,170 70,200" /> <!-- Rib 3 -->
+                <path d="M 243,160 L 190,165 C 120,175 70,210 50,250" /> <!-- Rib 4 -->
+                <path d="M 244,185 L 180,195 C 100,210 50,260 35,310" /> <!-- Rib 5 -->
+                <path d="M 245,210 L 170,230 C 90,250 40,310 30,370" /> <!-- Rib 6 -->
+                <path d="M 245,235 L 170,270 C 90,290 40,360 35,420" /> <!-- Rib 7 -->
+            </g>
+        </g>
+
+        <!-- INTERACTIVE LAYERS -->
+        
+        <!-- Origin Layer: Superior border of each rib -->
+        <g id="origin-layer" class="interactive-layer">
+            <!-- Right Origins -->
+            <path d="M 258,131 L 300,131 C 360,136 410,166 430,196" fill="none" stroke="var(--success)" stroke-width="4" stroke-linecap="round" />
+            <path d="M 257,156 L 310,161 C 380,171 430,206 450,246" fill="none" stroke="var(--success)" stroke-width="4" stroke-linecap="round" />
+            <path d="M 256,181 L 320,191 C 400,206 450,256 465,306" fill="none" stroke="var(--success)" stroke-width="4" stroke-linecap="round" />
+            <path d="M 255,206 L 330,226 C 410,246 460,306 470,366" fill="none" stroke="var(--success)" stroke-width="4" stroke-linecap="round" />
+            <path d="M 255,231 L 330,266 C 410,286 460,356 465,416" fill="none" stroke="var(--success)" stroke-width="4" stroke-linecap="round" />
+            
+            <!-- Left Origins -->
+            <path d="M 242,131 L 200,131 C 140,136 90,166 70,196" fill="none" stroke="var(--success)" stroke-width="4" stroke-linecap="round" />
+            <path d="M 243,156 L 190,161 C 120,171 70,206 50,246" fill="none" stroke="var(--success)" stroke-width="4" stroke-linecap="round" />
+            <path d="M 244,181 L 180,191 C 100,206 50,256 35,306" fill="none" stroke="var(--success)" stroke-width="4" stroke-linecap="round" />
+            <path d="M 245,206 L 170,226 C 90,246 40,306 30,366" fill="none" stroke="var(--success)" stroke-width="4" stroke-linecap="round" />
+            <path d="M 245,231 L 170,266 C 90,286 40,356 35,416" fill="none" stroke="var(--success)" stroke-width="4" stroke-linecap="round" />
+        </g>
+        
+        <!-- Insertion Layer: Inferior border of rib above -->
+        <g id="insertion-layer" class="interactive-layer">
+            <!-- Right Insertions -->
+            <path d="M 260,114 L 290,114 C 340,114 390,134 410,154" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" />
+            <path d="M 258,139 L 300,139 C 360,144 410,174 430,204" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" />
+            <path d="M 257,164 L 310,169 C 380,179 430,214 450,254" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" />
+            <path d="M 256,189 L 320,199 C 400,214 450,264 465,314" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" />
+            <path d="M 255,214 L 330,234 C 410,254 460,314 470,374" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" />
+            
+            <!-- Left Insertions -->
+            <path d="M 240,114 L 210,114 C 160,114 110,134 90,154" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" />
+            <path d="M 242,139 L 200,139 C 140,144 90,174 70,204" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" />
+            <path d="M 243,164 L 190,169 C 120,179 70,214 50,254" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" />
+            <path d="M 244,189 L 180,199 C 100,214 50,264 35,314" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" />
+            <path d="M 245,214 L 170,234 C 90,254 40,314 30,374" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" />
+        </g>
+        
+        <!-- Action Layer: Main Muscle Belly and Tendons -->
+        <g id="action-layer" class="interactive-layer">
+            
+            <!-- Muscle Belly -->
+            <g id="action-belly">
+                <!-- Right Internal Intercostal Bellies -->
+                <path d="M 260,114 L 290,114 C 340,114 390,134 410,154 L 430,196 C 410,166 360,136 300,131 L 258,131 Z" fill="url(#muscle-shading)" />
+                <path d="M 258,139 L 300,139 C 360,144 410,174 430,204 L 450,246 C 430,206 380,171 310,161 L 257,156 Z" fill="url(#muscle-shading)" />
+                <path d="M 257,164 L 310,169 C 380,179 430,214 450,254 L 465,306 C 450,256 400,206 320,191 L 256,181 Z" fill="url(#muscle-shading)" />
+                <path d="M 256,189 L 320,199 C 400,214 450,264 465,314 L 470,366 C 460,306 410,246 330,226 L 255,206 Z" fill="url(#muscle-shading)" />
+                <path d="M 255,214 L 330,234 C 410,254 460,314 470,374 L 465,416 C 460,356 410,286 330,266 L 255,231 Z" fill="url(#muscle-shading)" />
+                
+                <!-- Left Internal Intercostal Bellies -->
+                <path d="M 240,114 L 210,114 C 160,114 110,134 90,154 L 70,196 C 90,166 140,136 200,131 L 242,131 Z" fill="url(#muscle-shading)" />
+                <path d="M 242,139 L 200,139 C 140,144 90,174 70,204 L 50,246 C 70,206 120,171 190,161 L 243,156 Z" fill="url(#muscle-shading)" />
+                <path d="M 243,164 L 190,169 C 120,179 70,214 50,254 L 35,306 C 50,256 100,206 180,191 L 244,181 Z" fill="url(#muscle-shading)" />
+                <path d="M 244,189 L 180,199 C 100,214 50,264 35,314 L 30,366 C 40,306 90,246 170,226 L 245,206 Z" fill="url(#muscle-shading)" />
+                <path d="M 245,214 L 170,234 C 90,254 40,314 30,374 L 35,416 C 40,356 90,286 170,266 L 245,231 Z" fill="url(#muscle-shading)" />
+
+                <!-- Muscle Fiber Striations (Running Superomedially - up and medial) -->
+                <g stroke="#450a0a" stroke-width="1.5" opacity="0.6" fill="none" stroke-linecap="round">
+                    <!-- Right Side (\ direction) -->
+                    <line x1="280" y1="131" x2="270" y2="114" />
+                    <line x1="320" y1="132" x2="305" y2="114" />
+                    <line x1="360" y1="138" x2="345" y2="120" />
+                    <line x1="400" y1="152" x2="385" y2="132" />
+                    
+                    <line x1="285" y1="156" x2="275" y2="139" />
+                    <line x1="330" y1="162" x2="315" y2="140" />
+                    <line x1="375" y1="170" x2="360" y2="147" />
+                    <line x1="420" y1="196" x2="405" y2="170" />
+                    
+                    <line x1="285" y1="181" x2="275" y2="164" />
+                    <line x1="340" y1="193" x2="325" y2="171" />
+                    <line x1="390" y1="206" x2="375" y2="183" />
+                    <line x1="440" y1="242" x2="425" y2="210" />
+                    
+                    <line x1="285" y1="206" x2="275" y2="189" />
+                    <line x1="345" y1="228" x2="330" y2="201" />
+                    <line x1="395" y1="248" x2="380" y2="219" />
+                    <line x1="450" y1="295" x2="435" y2="255" />
+                    
+                    <line x1="285" y1="231" x2="275" y2="214" />
+                    <line x1="345" y1="268" x2="330" y2="236" />
+                    <line x1="395" y1="295" x2="380" y2="257" />
+                    <line x1="450" y1="350" x2="435" y2="300" />
+                    
+                    <!-- Left Side (/ direction) -->
+                    <line x1="220" y1="131" x2="230" y2="114" />
+                    <line x1="180" y1="132" x2="195" y2="114" />
+                    <line x1="140" y1="138" x2="155" y2="120" />
+                    <line x1="100" y1="152" x2="115" y2="132" />
+                    
+                    <line x1="215" y1="156" x2="225" y2="139" />
+                    <line x1="170" y1="162" x2="185" y2="140" />
+                    <line x1="125" y1="170" x2="140" y2="147" />
+                    <line x1="80" y1="196" x2="95" y2="170" />
+                    
+                    <line x1="215" y1="181" x2="225" y2="164" />
+                    <line x1="160" y1="193" x2="175" y2="171" />
+                    <line x1="110" y1="206" x2="125" y2="183" />
+                    <line x1="60" y1="242" x2="75" y2="210" />
+                    
+                    <line x1="215" y1="206" x2="225" y2="189" />
+                    <line x1="155" y1="228" x2="170" y2="201" />
+                    <line x1="105" y1="248" x2="120" y2="219" />
+                    <line x1="50" y1="295" x2="65" y2="255" />
+                    
+                    <line x1="215" y1="231" x2="225" y2="214" />
+                    <line x1="155" y1="268" x2="170" y2="236" />
+                    <line x1="105" y1="295" x2="120" y2="257" />
+                    <line x1="50" y1="350" x2="65" y2="300" />
+                </g>
+            </g>
+            
+            <!-- Tendons & Aponeuroses -->
+            <g id="action-tendon">
+                <!-- Faint connective tissue attaching to the lateral sternum (Internal intercostals lack the large anterior membrane of the external intercostals, inserting directly) -->
+                <g stroke="#f8fafc" stroke-width="1.2" opacity="0.4" fill="none">
+                    <path d="M 258,118 Q 255,122 258,128" />
+                    <path d="M 256,143 Q 253,148 256,153" />
+                    <path d="M 255,168 Q 252,173 255,178" />
+                    <path d="M 254,193 Q 251,198 254,203" />
+                    <path d="M 253,218 Q 250,223 253,228" />
+                    
+                    <path d="M 242,118 Q 245,122 242,128" />
+                    <path d="M 244,143 Q 247,148 244,153" />
+                    <path d="M 245,168 Q 248,173 245,178" />
+                    <path d="M 246,193 Q 249,198 246,203" />
+                    <path d="M 247,218 Q 250,223 247,228" />
+                </g>
+            </g>
+            
+        </g>
+    </svg>`;

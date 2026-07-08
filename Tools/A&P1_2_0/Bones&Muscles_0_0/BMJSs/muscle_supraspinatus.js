@@ -1,0 +1,136 @@
+svgDataStore['muscle_supraspinatus'] = `<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <linearGradient id="muscle-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#7f1d1d" />
+                <stop offset="35%" stop-color="#ef4444" />
+                <stop offset="80%" stop-color="#b91c1c" />
+                <stop offset="100%" stop-color="#450a0a" />
+            </linearGradient>
+            <linearGradient id="tendon-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#64748b" />
+                <stop offset="50%" stop-color="#f8fafc" />
+                <stop offset="100%" stop-color="#334155" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+
+        <!-- Background Context (Ribs, Clavicle, Scapula, Humerus) -->
+        <g class="svg-bg" opacity="0.4">
+            
+            <!-- Deep Ribcage Context (Faintly visible behind scapula) -->
+            <g stroke="url(#bone-shading)" stroke-width="12" fill="none" stroke-linecap="round" opacity="0.5">
+                <path d="M 100,120 C 50,140 30,180 20,220" />
+                <path d="M 100,160 C 50,180 30,220 20,260" />
+                <path d="M 100,200 C 50,220 30,260 20,300" />
+                <path d="M 100,240 C 50,260 30,300 20,340" />
+                <path d="M 110,280 C 60,300 40,340 30,380" />
+            </g>
+
+            <!-- Right Scapula (Posterior View) -->
+            <path d="M 120,150 
+                     L 125,220 
+                     L 150,420 
+                     L 290,260 
+                     L 320,200 
+                     L 280,140 Z" 
+                  fill="url(#bone-shading)" />
+                  
+            <!-- Right Clavicle (Posterior view, extending medially from acromion) -->
+            <path d="M 350,155 C 340,130 250,90 120,90 L 120,70 C 250,70 360,110 375,145 Z" fill="url(#bone-shading)" />
+                  
+            <!-- Spine of Scapula & Acromion (Prominent ridge) -->
+            <path d="M 125,220 
+                     Q 230,190 320,160 
+                     Q 340,150 360,160 
+                     Q 350,180 330,180 
+                     Q 230,210 125,240 Z" 
+                  fill="url(#bone-shading)" />
+                  
+            <!-- Coracoid Process (Peeking over the superior border) -->
+            <path d="M 290,135 C 295,115 315,115 320,130 C 315,140 305,140 290,135 Z" fill="url(#bone-shading)" />
+
+            <!-- Right Humerus (Posterior View) -->
+            <path d="M 320,200 
+                     C 320,150 380,150 395,180 
+                     C 405,200 405,250 385,270 
+                     L 380,450 
+                     L 340,450 
+                     L 350,270 
+                     C 340,240 320,220 320,200 Z" 
+                  fill="url(#bone-shading)" />
+            <!-- Humerus Head / Greater Tubercle Contours -->
+            <path d="M 380,170 C 395,170 405,185 395,210" stroke="#475569" stroke-width="2" fill="none" opacity="0.5"/>
+
+            <!-- Contextual Muscle: Infraspinatus (Fills fossa inferior to the spine) -->
+            <path d="M 135,245 C 200,225 280,210 320,210 C 330,230 350,260 360,280 C 320,320 220,400 155,410 Z" fill="url(#muscle-shading)" opacity="0.3" />
+
+        </g>
+
+        <!-- INTERACTIVE LAYERS -->
+        
+        <!-- Origin Layer: Supraspinous fossa of scapula -->
+        <g id="origin-layer" class="interactive-layer">
+            <path d="M 125,160 
+                     C 170,148 220,148 250,152 
+                     C 245,165 240,175 235,180 
+                     C 200,190 160,205 130,215 
+                     C 125,200 120,175 125,160 Z" 
+                  fill="var(--success)" />
+        </g>
+        
+        <!-- Insertion Layer: Greater tubercle of humerus -->
+        <g id="insertion-layer" class="interactive-layer">
+            <!-- Superior facet of the greater tubercle -->
+            <ellipse cx="385" cy="180" rx="6" ry="10" transform="rotate(15 385 180)" fill="var(--accent)" />
+        </g>
+        
+        <!-- Action Layer: Main Muscle Belly and Tendons -->
+        <g id="action-layer" class="interactive-layer">
+            
+            <!-- Muscle Belly -->
+            <g id="action-belly">
+                <!-- Muscle belly filling the supraspinous fossa -->
+                <path d="M 125,160 
+                         C 180,145 250,145 290,158 
+                         C 290,168 288,178 285,185 
+                         C 250,190 190,205 130,215 
+                         C 125,200 120,175 125,160 Z" 
+                      fill="url(#muscle-shading)" />
+                      
+                <!-- Muscle Fiber Striations (Running horizontally/laterally towards the acromion) -->
+                <g stroke="#450a0a" stroke-width="1.5" opacity="0.5" fill="none">
+                    <path d="M 130,170 Q 210,155 290,163" />
+                    <path d="M 128,185 Q 210,170 288,173" />
+                    <path d="M 128,200 Q 210,185 285,180" />
+                </g>
+            </g>
+            
+            <!-- Tendons & Aponeuroses -->
+            <g id="action-tendon">
+                <!-- Distal Tendon (Passing under the acromion to insert on the greater tubercle) -->
+                <path d="M 290,158 
+                         C 320,160 355,165 382,170 
+                         C 388,172 390,182 385,188 
+                         C 355,185 320,185 285,185 
+                         C 288,178 290,168 290,158 Z" 
+                      fill="url(#tendon-shading)" opacity="0.95" />
+                
+                <!-- Tendon Striations & Glints -->
+                <g stroke="#f8fafc" stroke-width="1.2" opacity="0.5" fill="none">
+                    <path d="M 295,165 Q 335,168 375,175" />
+                    <path d="M 295,175 Q 335,175 375,182" />
+                    <path d="M 300,180 Q 330,180 365,185" />
+                </g>
+            </g>
+            
+        </g>
+    </svg>`;

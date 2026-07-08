@@ -1,0 +1,49 @@
+svgDataStore['bone_clavicle'] = `<svg viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+        
+        <g class="svg-bg" fill="url(#bone-shading)" opacity="0.4">
+            <path d="M 135,170 L 135,215 C 120,230 100,240 80,240 L 80,160 C 100,160 120,165 135,170 Z" />
+            
+            <path d="M 120,225 C 150,255 220,275 270,235 C 290,215 300,185 300,185 L 280,180 C 280,180 270,205 250,220 C 200,255 140,235 115,205 Z" />
+            
+            <path d="M 405,150 C 420,145 440,160 435,180 C 415,190 400,170 400,150 Z" />
+            
+            <path d="M 340,185 C 350,205 370,200 380,180 C 370,170 350,175 340,185 Z" />
+        </g>
+        
+        <g id="region-layer" class="interactive-layer">
+            <path d="M 140, 205 
+                     C 190, 225 270, 225 320, 185 
+                     C 350, 160 380, 155 400, 155 
+                     L 395, 135 
+                     C 370, 135 340, 145 310, 165 
+                     C 260, 205 190, 195 140, 175 Z" 
+                  fill="url(#bone-shading)" />
+                  
+            <g stroke="#475569" stroke-width="2" opacity="0.4" fill="none">
+                <path d="M 145, 180 Q 160, 190 180, 185" />
+                <path d="M 350, 170 Q 365, 160 380, 155" />
+                <path d="M 220, 198 Q 260, 205 300, 178" stroke-width="1.5" opacity="0.3" />
+            </g>
+        </g>
+        
+        <g id="landmarks-layer" class="interactive-layer">
+            <circle cx="155" cy="190" r="8" fill="var(--accent)" />
+            <circle cx="155" cy="190" r="3" fill="#ffffff" opacity="0.4" />
+            
+            <ellipse cx="385" cy="147" rx="9" ry="5" transform="rotate(-15 385 147)" fill="var(--accent)" />
+            <ellipse cx="385" cy="147" rx="3.5" ry="2" transform="rotate(-15 385 147)" fill="#ffffff" opacity="0.4" />
+        </g>
+        
+    </svg>`;

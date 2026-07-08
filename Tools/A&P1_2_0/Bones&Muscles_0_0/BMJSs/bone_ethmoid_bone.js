@@ -1,0 +1,48 @@
+svgDataStore['bone_ethmoid_bone'] = `<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+        
+        <g class="svg-bg" fill="url(#bone-shading)" opacity="0.4">
+            <path d="M 80,110 C 150,60 250,60 320,110 L 250,115 C 220,112 180,112 150,115 Z" />
+            
+            <path d="M 60,140 C 130,120 145,150 145,200 C 145,240 100,260 50,240 C 30,220 20,170 60,140 M 70,150 C 40,180 50,220 80,230 C 120,240 135,210 130,170 C 120,140 90,140 70,150" fill-rule="evenodd" />
+            
+            <path d="M 340,140 C 270,120 255,150 255,200 C 255,240 300,260 350,240 C 370,220 380,170 340,140 M 330,150 C 360,180 350,220 320,230 C 280,240 265,210 270,170 C 280,140 310,140 330,150" fill-rule="evenodd" />
+            
+            <path d="M 160,260 C 160,250 180,255 200,255 C 220,255 240,250 240,260 L 260,330 C 260,350 210,360 200,360 C 190,360 140,350 140,330 Z M 175,270 C 190,265 210,265 225,270 C 235,320 220,340 200,340 C 180,340 165,320 175,270" fill-rule="evenodd" />
+        </g>
+        
+        <g id="region-layer" class="interactive-layer">
+            <path d="M 197,125 L 200,75 L 203,125 L 250,125 C 255,125 255,133 250,133 L 204,133 L 202,265 C 202,268 198,268 198,265 L 196,133 L 150,133 C 145,133 145,125 150,125 Z" fill="url(#bone-shading)" />
+            
+            <path d="M 152,136 L 192,136 L 192,185 C 180,185 175,170 175,160 C 175,165 168,185 182,205 C 188,215 185,230 172,230 C 150,230 145,190 145,155 Z" fill="url(#bone-shading)" />
+            
+            <path d="M 248,136 L 208,136 L 208,185 C 220,185 225,170 225,160 C 225,165 232,185 218,205 C 212,215 215,230 228,230 C 250,230 255,190 255,155 Z" fill="url(#bone-shading)" />
+        </g>
+        
+        <g id="landmarks-layer" class="interactive-layer">
+            <path d="M 198,110 L 200,77 L 202,110 Z" fill="var(--accent)" />
+            
+            <path d="M 198,160 L 202,160 L 201,260 L 199,260 Z" fill="var(--accent)" />
+            
+            <path d="M 172,230 C 185,230 188,215 182,205 C 178,198 172,205 172,215 Z" fill="var(--accent)" />
+            <path d="M 228,230 C 215,230 212,215 218,205 C 222,198 228,205 228,215 Z" fill="var(--accent)" />
+            
+            <circle cx="160" cy="129" r="2" fill="var(--accent)" />
+            <circle cx="170" cy="129" r="2" fill="var(--accent)" />
+            <circle cx="180" cy="129" r="2" fill="var(--accent)" />
+            <circle cx="220" cy="129" r="2" fill="var(--accent)" />
+            <circle cx="230" cy="129" r="2" fill="var(--accent)" />
+            <circle cx="240" cy="129" r="2" fill="var(--accent)" />
+        </g>
+    </svg>`;

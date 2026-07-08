@@ -1,0 +1,92 @@
+svgDataStore['muscle_flexor_digitorum_superficialis'] = `<svg viewBox="20 20 320 680" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <linearGradient id="muscle-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#7f1d1d" />
+                <stop offset="35%" stop-color="#ef4444" />
+                <stop offset="80%" stop-color="#b91c1c" />
+                <stop offset="100%" stop-color="#450a0a" />
+            </linearGradient>
+            <linearGradient id="tendon-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#64748b" />
+                <stop offset="50%" stop-color="#f8fafc" />
+                <stop offset="100%" stop-color="#334155" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+        
+        <g class="svg-bg" fill="url(#bone-shading)" opacity="0.4">
+            <path d="M 140,40 C 140,80 150,110 145,130 C 135,140 125,150 140,155 C 165,150 190,150 215,155 C 235,150 240,135 225,125 C 215,110 205,70 205,40 Z" />
+            
+            <path d="M 145,165 C 160,165 165,175 155,185 C 155,195 140,220 125,350 L 115,440 C 105,455 125,465 135,450 L 150,350 C 165,220 170,195 165,185 C 155,175 140,165 145,165 Z" />
+            
+            <path d="M 170,165 C 180,160 205,160 210,175 C 210,190 200,220 190,350 L 180,440 C 175,455 195,465 200,450 L 210,350 C 220,220 220,190 210,175 C 215,165 190,150 170,165 Z" />
+            
+            <path d="M 105,460 C 120,450 190,450 205,460 C 215,475 210,490 200,500 L 110,500 C 100,490 95,475 105,460 Z" />
+            
+            <path d="M 105,490 L 65,540 L 55,530 L 95,480 Z" /> <path d="M 120,500 L 110,560 L 95,560 L 105,500 Z" /> <path d="M 145,500 L 140,565 L 125,565 L 130,500 Z" /> <path d="M 170,500 L 170,560 L 155,560 L 155,500 Z" /> <path d="M 195,495 L 200,550 L 185,550 L 180,495 Z" /> <path d="M 62,543 L 42,575 L 32,568 L 52,536 Z" />
+            <path d="M 39,578 L 22,600 L 14,592 L 31,570 Z" />
+            
+            <path d="M 108,565 L 103,605 L 93,605 L 98,565 Z" /> <path d="M 102,608 L 98,638 L 90,638 L 94,608 Z" /> <path d="M 97,641 L 95,665 L 89,665 L 91,641 Z" /> <path d="M 139,570 L 137,615 L 127,615 L 129,570 Z" /> <path d="M 136,618 L 134,650 L 126,650 L 128,618 Z" /> <path d="M 133,653 L 132,680 L 126,680 L 127,653 Z" /> <path d="M 169,565 L 171,610 L 161,610 L 159,565 Z" /> <path d="M 172,613 L 174,645 L 166,645 L 164,613 Z" /> <path d="M 175,648 L 177,675 L 171,675 L 169,648 Z" /> <path d="M 199,555 L 204,590 L 194,590 L 189,555 Z" /> <path d="M 205,593 L 209,620 L 201,620 L 197,593 Z" /> <path d="M 210,623 L 213,645 L 207,645 L 204,623 Z" /> </g>
+        
+        <g id="origin-layer" class="interactive-layer">
+            <path d="M 223,135 C 230,138 232,150 225,155 C 218,154 215,142 223,135 Z" fill="var(--success)" />
+            <ellipse cx="195" cy="180" rx="6" ry="10" transform="rotate(-20 195 180)" fill="var(--success)" />
+            
+            <path d="M 145,185 C 152,182 160,195 152,205 C 145,215 138,225 132,230 C 128,225 138,195 145,185 Z" fill="var(--success)" />
+        </g>
+        
+        <g id="action-layer" class="interactive-layer">
+            <g id="action-belly">
+                <path d="M 225,145 C 240,180 220,280 185,340 L 135,340 C 120,280 115,220 145,190 C 155,180 190,170 195,180 C 205,170 215,150 225,145 Z" fill="url(#muscle-shading)" />
+                
+                <g stroke="#450a0a" stroke-width="1.2" opacity="0.4" fill="none">
+                    <path d="M 220,155 Q 210,240 180,320" />
+                    <path d="M 212,165 Q 195,240 170,330" />
+                    <path d="M 200,185 Q 185,250 160,335" />
+                    <path d="M 148,195 Q 155,250 145,330" />
+                    <path d="M 135,215 Q 145,260 140,320" />
+                    <path d="M 130,230 Q 135,270 135,310" />
+                </g>
+            </g>
+            
+            <g id="action-tendon">
+                <path d="M 140,340 C 135,400 120,460 102,565 C 102,570 98,580 94,580 L 98,585 L 102,575 L 106,585 L 110,580 C 105,580 105,570 105,565 C 125,460 142,400 146,340 Z" fill="url(#tendon-shading)" />
+                
+                <path d="M 152,340 C 148,400 138,460 132,570 C 132,575 128,585 124,585 L 128,590 L 132,580 L 136,590 L 140,585 C 136,585 135,575 135,570 C 142,460 154,400 158,340 Z" fill="url(#tendon-shading)" />
+                
+                <path d="M 166,340 C 162,400 162,460 166,565 C 166,570 162,580 158,580 L 162,585 L 166,575 L 170,585 L 174,580 C 170,580 169,570 169,565 C 166,460 168,400 172,340 Z" fill="url(#tendon-shading)" />
+                
+                <path d="M 178,340 C 175,400 185,460 198,555 C 198,560 194,570 190,570 L 194,575 L 198,565 L 202,575 L 206,570 C 202,570 201,560 201,555 C 189,460 180,400 184,340 Z" fill="url(#tendon-shading)" />
+                
+                <g fill="none" stroke="#ffffff" stroke-width="1" stroke-linecap="round" opacity="0.3">
+                    <path d="M 143,350 Q 130,450 103,550" />
+                    <path d="M 155,350 Q 145,450 133,560" />
+                    <path d="M 169,350 Q 165,450 167,550" />
+                    <path d="M 181,350 Q 185,450 199,545" />
+                </g>
+            </g>
+        </g>
+        
+        <g id="insertion-layer" class="interactive-layer">
+            <path d="M 94,608 L 96,625 L 92,625 Z" fill="var(--accent)" />
+            <path d="M 102,608 L 100,625 L 104,625 Z" fill="var(--accent)" />
+            
+            <path d="M 126,618 L 128,635 L 124,635 Z" fill="var(--accent)" />
+            <path d="M 136,618 L 134,635 L 138,635 Z" fill="var(--accent)" />
+            
+            <path d="M 164,613 L 166,630 L 162,630 Z" fill="var(--accent)" />
+            <path d="M 174,613 L 172,630 L 176,630 Z" fill="var(--accent)" />
+            
+            <path d="M 197,593 L 199,610 L 195,610 Z" fill="var(--accent)" />
+            <path d="M 207,593 L 205,610 L 209,610 Z" fill="var(--accent)" />
+        </g>
+    </svg>`;

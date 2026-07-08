@@ -1,0 +1,72 @@
+svgDataStore['bone_carpals'] = `<svg viewBox="0 0 350 450" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+        
+        <g class="svg-bg" fill="url(#bone-shading)" stroke="#475569" stroke-width="1.5" opacity="0.4">
+            <path d="M 90, 30 L 100, 160 C 120, 175 165, 170 175, 150 L 175, 30 Z" />
+            
+            <path d="M 185, 30 L 185, 150 C 200, 160 235, 155 245, 135 L 245, 30 Z" />
+            
+            <path d="M 80, 250 C 95, 240 110, 255 110, 265 L 80, 390 L 50, 380 Z" />
+            
+            <path d="M 115, 250 C 125, 240 135, 245 140, 255 L 135, 400 L 105, 400 Z" />
+            
+            <path d="M 148, 250 C 160, 240 170, 245 175, 250 L 185, 405 L 155, 410 Z" />
+            
+            <path d="M 183, 250 C 195, 240 205, 245 210, 250 L 235, 390 L 205, 400 Z" />
+            
+            <path d="M 220, 250 C 230, 240 240, 245 240, 255 L 285, 360 L 260, 380 Z" />
+        </g>
+        
+        <g id="region-layer" class="interactive-layer">
+            
+            <path d="M 120, 175 C 140, 160 160, 170 155, 200 C 145, 215 110, 210 120, 175 Z" fill="url(#bone-shading)" stroke="#334155" stroke-width="1.5" stroke-linejoin="round" />
+            
+            <path d="M 160, 170 C 180, 160 195, 165 190, 190 C 175, 200 150, 195 160, 170 Z" fill="url(#bone-shading)" stroke="#334155" stroke-width="1.5" stroke-linejoin="round" />
+            
+            <path d="M 195, 165 C 215, 155 235, 165 225, 190 C 210, 200 190, 190 195, 165 Z" fill="url(#bone-shading)" stroke="#334155" stroke-width="1.5" stroke-linejoin="round" />
+            
+            <path d="M 215, 175 C 230, 170 240, 185 225, 195 C 210, 190 205, 180 215, 175 Z" fill="url(#bone-shading)" stroke="#1e293b" stroke-width="2" stroke-linejoin="round" />
+            
+            <path d="M 95, 210 C 115, 200 125, 220 115, 245 C 90, 255 80, 230 95, 210 Z" fill="url(#bone-shading)" stroke="#334155" stroke-width="1.5" stroke-linejoin="round" />
+            
+            <path d="M 120, 205 C 140, 195 150, 215 145, 245 C 125, 255 110, 235 120, 205 Z" fill="url(#bone-shading)" stroke="#334155" stroke-width="1.5" stroke-linejoin="round" />
+            
+            <path d="M 150, 195 C 175, 185 190, 200 185, 245 C 165, 260 145, 250 145, 225 C 140, 210 150, 195 150, 195 Z" fill="url(#bone-shading)" stroke="#334155" stroke-width="1.5" stroke-linejoin="round" />
+            
+            <path d="M 190, 195 C 215, 185 235, 205 225, 245 C 205, 260 185, 250 185, 225 C 180, 210 190, 195 190, 195 Z" fill="url(#bone-shading)" stroke="#334155" stroke-width="1.5" stroke-linejoin="round" />
+            
+            <path d="M 205, 210 C 215, 215 215, 230 205, 235" fill="none" stroke="#475569" stroke-width="2" opacity="0.6"/>
+            
+        </g>
+        
+        <g id="landmarks-layer" class="interactive-layer">
+            <circle cx="135" cy="188" r="4.5" fill="var(--accent)" />
+            
+            <circle cx="175" cy="182" r="4.5" fill="var(--accent)" />
+            
+            <circle cx="210" cy="180" r="4.5" fill="var(--accent)" />
+            
+            <circle cx="225" cy="185" r="4" fill="var(--accent)" />
+            <circle cx="225" cy="185" r="1.5" fill="#ffffff" opacity="0.4" />
+            
+            <circle cx="105" cy="230" r="4.5" fill="var(--accent)" />
+            
+            <circle cx="135" cy="230" r="4.5" fill="var(--accent)" />
+            
+            <circle cx="168" cy="225" r="5" fill="var(--accent)" />
+            
+            <circle cx="205" cy="225" r="5" fill="var(--accent)" />
+        </g>
+        
+    </svg>`;

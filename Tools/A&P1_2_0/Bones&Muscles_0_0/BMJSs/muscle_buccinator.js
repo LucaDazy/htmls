@@ -1,0 +1,106 @@
+svgDataStore['muscle_buccinator'] = `<svg viewBox="40 20 320 340" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <linearGradient id="muscle-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#7f1d1d" />
+                <stop offset="35%" stop-color="#ef4444" />
+                <stop offset="80%" stop-color="#b91c1c" />
+                <stop offset="100%" stop-color="#450a0a" />
+            </linearGradient>
+            <linearGradient id="tendon-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#64748b" />
+                <stop offset="50%" stop-color="#f8fafc" />
+                <stop offset="100%" stop-color="#334155" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+
+        <g class="svg-bg" opacity="0.4">
+            <path d="M 220,40 C 130,40 80,90 80,150 C 80,170 90,185 105,195 L 90,225 L 90,235 L 110,235 L 115,245 C 130,245 200,245 230,245 C 240,245 250,240 260,205 C 270,165 290,140 310,130 C 330,120 320,80 280,60 C 260,50 240,40 220,40 Z" fill="url(#bone-shading)" />
+            
+            <path d="M 110,255 L 95,255 L 95,265 C 95,280 110,300 130,310 C 150,320 180,330 220,330 C 260,330 280,300 290,260 C 295,240 295,200 285,170 L 260,185 C 260,200 250,250 230,255 L 110,255 Z" fill="url(#bone-shading)" />
+
+            <path d="M 120,190 C 160,195 220,195 260,185 C 270,180 285,170 285,170 C 285,180 270,205 260,205 C 220,215 160,210 120,205 Z" fill="url(#bone-shading)" />
+            
+            <ellipse cx="130" cy="165" rx="18" ry="15" fill="var(--bg-color)" opacity="0.8" />
+
+            <path d="M 105,235 L 225,235 C 225,240 220,245 215,245 L 110,245 Z" fill="url(#bone-shading)" />
+            <g stroke="#475569" stroke-width="1.5" opacity="0.6">
+                <line x1="125" y1="235" x2="125" y2="245" />
+                <line x1="140" y1="235" x2="140" y2="245" />
+                <line x1="155" y1="235" x2="155" y2="245" />
+                <line x1="170" y1="235" x2="170" y2="245" />
+                <line x1="185" y1="235" x2="185" y2="245" />
+                <line x1="200" y1="235" x2="200" y2="245" />
+                <line x1="215" y1="235" x2="215" y2="245" />
+            </g>
+
+            <path d="M 105,255 L 225,255 C 225,250 220,245 215,245 L 110,245 Z" fill="url(#bone-shading)" />
+            <g stroke="#475569" stroke-width="1.5" opacity="0.6">
+                <line x1="125" y1="255" x2="125" y2="245" />
+                <line x1="140" y1="255" x2="140" y2="245" />
+                <line x1="155" y1="255" x2="155" y2="245" />
+                <line x1="170" y1="255" x2="170" y2="245" />
+                <line x1="185" y1="255" x2="185" y2="245" />
+                <line x1="200" y1="255" x2="200" y2="245" />
+                <line x1="215" y1="255" x2="215" y2="245" />
+            </g>
+
+            <path d="M 115,225 C 130,225 135,245 135,250 C 135,255 130,275 115,275 C 90,275 80,260 80,250 C 80,240 90,225 115,225 Z" fill="url(#muscle-shading)" opacity="0.3" />
+            <path d="M 85,250 C 100,250 115,250 130,250" stroke="#221924" stroke-width="2" fill="none" opacity="0.5" />
+
+            <path d="M 210,210 C 230,210 260,205 270,220 C 280,260 280,290 265,315 C 240,320 220,310 205,280 C 195,250 200,220 210,210 Z" fill="url(#muscle-shading)" opacity="0.25" />
+            <g stroke="#450a0a" stroke-width="1.5" opacity="0.2" fill="none">
+                <line x1="220" y1="215" x2="215" y2="300" />
+                <line x1="235" y1="215" x2="230" y2="310" />
+                <line x1="250" y1="215" x2="245" y2="315" />
+            </g>
+        </g>
+
+        <g id="origin-layer" class="interactive-layer">
+            <path d="M 170,225 C 200,220 230,220 240,230 C 230,235 200,235 170,235 Z" fill="var(--success)" />
+            <path d="M 170,275 C 200,280 230,280 240,270 C 230,265 200,265 170,265 Z" fill="var(--success)" />
+        </g>
+        
+        <g id="insertion-layer" class="interactive-layer">
+            <ellipse cx="125" cy="250" rx="6" ry="12" fill="var(--accent)" />
+        </g>
+        
+        <g id="action-layer" class="interactive-layer">
+            
+            <g id="action-belly">
+                <path d="M 170,230 
+                         C 200,225 230,225 245,230 
+                         C 255,240 255,260 245,270 
+                         C 230,275 200,275 170,270 
+                         C 150,265 135,260 125,258 
+                         C 120,250 120,250 125,242 
+                         C 135,240 150,235 170,230 Z" 
+                      fill="url(#muscle-shading)" />
+                      
+                <g stroke="#450a0a" stroke-width="1.5" opacity="0.5" fill="none">
+                    <path d="M 130,245 Q 180,235 240,238" />
+                    <path d="M 125,250 Q 180,250 248,250" />
+                    <path d="M 130,255 Q 180,265 240,262" />
+                    
+                    <path d="M 132,242 L 122,252" />
+                    <path d="M 132,258 L 122,248" />
+                </g>
+            </g>
+            
+            <g id="action-tendon">
+                <path d="M 245,230 C 255,240 255,260 245,270 C 248,260 248,240 245,230 Z" fill="url(#tendon-shading)" opacity="0.9" />
+                
+                <path d="M 125,242 C 118,248 118,252 125,258 C 128,252 128,248 125,242 Z" fill="url(#tendon-shading)" opacity="0.8" />
+            </g>
+            
+        </g>
+    </svg>`;

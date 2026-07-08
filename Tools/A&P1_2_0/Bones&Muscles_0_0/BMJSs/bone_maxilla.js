@@ -1,0 +1,85 @@
+svgDataStore['bone_maxilla'] = `<svg viewBox="0 0 400 450" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+        
+        <g class="svg-bg" fill="url(#bone-shading)" opacity="0.4">
+            <path d="M 80,100 C 80,30 320,30 320,100 C 320,140 270,140 220,120 L 180,120 C 130,140 80,140 80,100 Z" />
+            
+            <path d="M 185,125 L 215,125 L 205,170 L 195,170 Z" />
+            
+            <path d="M 197,170 L 203,170 L 203,260 L 197,260 Z" fill="#475569" />
+            
+            <path d="M 95,220 C 70,210 50,170 60,140 C 80,140 100,180 95,220 Z" />
+            
+            <path d="M 305,220 C 330,210 350,170 340,140 C 320,140 300,180 305,220 Z" />
+            
+            <path d="M 110,310 C 90,360 140,430 200,430 C 260,430 310,360 290,310 C 260,340 140,340 110,310 Z" />
+            
+            <path d="M 135,295 C 140,325 150,325 155,305 
+                     M 155,305 C 160,335 170,335 175,310 
+                     M 175,310 C 180,345 195,345 198,312 
+                     M 198,312 C 200,345 202,345 202,312 
+                     M 202,312 C 205,345 220,345 225,310 
+                     M 225,310 C 230,335 240,335 245,305 
+                     M 245,305 C 250,325 260,325 265,295" 
+                  stroke="#475569" stroke-width="1.5" fill="#f8fafc" opacity="0.8" />
+                  
+            <path d="M 140,325 C 145,310 155,310 160,325 
+                     M 160,325 C 165,305 175,305 180,325 
+                     M 180,325 C 185,295 195,295 198,325 
+                     M 198,325 C 200,295 202,295 202,325 
+                     M 202,325 C 205,295 215,295 220,325 
+                     M 220,325 C 225,305 235,305 240,325 
+                     M 240,325 C 245,310 255,310 260,325" 
+                  stroke="#475569" stroke-width="1.5" fill="#f8fafc" opacity="0.6" />
+        </g>
+        
+        <g id="region-layer" class="interactive-layer">
+            <path d="M 185,125 
+                     C 170,145 155,175 145,180 
+                     C 125,185 110,200 95,220 
+                     C 105,245 125,275 135,295 
+                     C 160,310 180,315 200,310 
+                     L 200,265 
+                     C 180,250 180,180 195,145 Z" 
+                  fill="url(#bone-shading)" />
+                  
+            <path d="M 215,125 
+                     C 230,145 245,175 255,180 
+                     C 275,185 290,200 305,220 
+                     C 295,245 275,275 265,295 
+                     C 240,310 220,315 200,310 
+                     L 200,265 
+                     C 220,250 220,180 205,145 Z" 
+                  fill="url(#bone-shading)" />
+                  
+            <g stroke="#475569" stroke-width="1.5" fill="none" opacity="0.5">
+                <path d="M 185,140 C 170,165 145,185 110,210" />
+                <path d="M 215,140 C 230,165 255,185 290,210" />
+                <path d="M 175,295 C 175,270 165,250 155,230" />
+                <path d="M 225,295 C 225,270 235,250 245,230" />
+                <path d="M 200,265 L 200,310" stroke-width="2" />
+            </g>
+        </g>
+        
+        <g id="landmarks-layer" class="interactive-layer">
+            <circle cx="155" cy="205" r="4.5" fill="var(--accent)" />
+            <circle cx="245" cy="205" r="4.5" fill="var(--accent)" />
+            
+            <path d="M 135,295 C 160,310 180,315 200,310 C 220,315 240,310 265,295" 
+                  fill="none" stroke="var(--accent)" stroke-width="5" stroke-linecap="round" opacity="0.8" />
+                  
+            <polygon points="200,258 193,268 207,268" fill="var(--accent)" opacity="0.7" />
+        </g>
+        
+    </svg>`;

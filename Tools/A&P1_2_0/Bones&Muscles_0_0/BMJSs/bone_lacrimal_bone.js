@@ -1,0 +1,32 @@
+svgDataStore['bone_lacrimal_bone'] = `<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+        
+        <g class="svg-bg" fill="url(#bone-shading)" opacity="0.4">
+            <path d="M 70,100 C 150,80 250,100 320,140 L 195,160 L 150,165 C 110,145 90,120 70,100 Z" />
+            
+            <path d="M 70,300 C 90,270 120,240 140,220 L 150,165 C 110,170 80,220 70,300 Z" />
+            
+            <path d="M 195,160 C 230,155 270,155 300,170 L 290,240 C 250,235 220,230 185,225 Z" />
+            
+            <path d="M 140,220 L 185,225 C 220,230 260,235 290,240 C 240,300 150,310 70,300 C 110,260 120,240 140,220 Z" />
+        </g>
+        
+        <g id="region-layer" class="interactive-layer">
+            <path d="M 150,165 C 165,163 180,161 195,160 C 192,180 188,205 185,225 C 170,223 155,221 140,220 C 143,200 147,180 150,165 Z" fill="url(#bone-shading)" />
+        </g>
+        
+        <g id="landmarks-layer" class="interactive-layer">
+            <path d="M 155,175 Q 163,195 148,215 Q 145,195 155,175 Z" fill="var(--accent)" />
+        </g>
+    </svg>`;

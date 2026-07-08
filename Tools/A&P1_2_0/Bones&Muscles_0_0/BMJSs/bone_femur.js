@@ -1,0 +1,85 @@
+svgDataStore['bone_femur'] = `<svg viewBox="0 0 350 850" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+        
+        <g class="svg-bg" fill="url(#bone-shading)" opacity="0.4">
+            <path d="M 30,130 C 50,70 140,80 140,140 C 140,200 60,210 30,130 Z" />
+            <path d="M 40,80 C 60,30 120,40 120,90 C 100,70 60,60 40,80 Z" />
+            
+            <path d="M 125,770 C 145,760 225,760 245,770 L 230,850 L 140,850 Z" />
+            <path d="M 175,765 C 185,755 195,755 200,765 Z" /> <path d="M 245,775 C 265,775 275,790 265,810 L 260,850 L 240,850 Z" />
+        </g>
+        
+        <g id="region-layer" class="interactive-layer">
+            <path d="M 120, 115
+                     C 90, 115 85, 160 115, 170
+                     C 130, 175 145, 195 150, 205
+                     C 140, 215 135, 240 155, 255
+                     C 165, 265 170, 265 170, 290
+                     C 170, 450 170, 550 160, 640
+                     C 140, 660 125, 680 125, 715
+                     C 125, 760 170, 760 175, 720
+                     C 180, 695 195, 695 200, 720
+                     C 205, 760 250, 760 250, 715
+                     C 250, 680 235, 660 215, 640
+                     C 205, 550 205, 450 205, 290
+                     C 205, 250 220, 210 230, 180
+                     C 240, 140 210, 120 190, 140
+                     C 180, 150 170, 150 155, 135
+                     C 145, 120 135, 115 120, 115 Z" 
+                  fill="url(#bone-shading)" />
+                  
+            <g stroke="#475569" stroke-width="2" opacity="0.5" fill="none">
+                <path d="M 112, 120 C 130, 125 125, 165 110, 168" stroke-width="1.5" />
+                
+                <path d="M 152, 215 C 175, 225 195, 195 210, 155" />
+                
+                <path d="M 215, 135 C 225, 150 230, 165 220, 185" />
+                
+                <path d="M 155, 248 C 165, 240 170, 225 168, 215" />
+                
+                <path d="M 183, 290 L 183, 530" stroke-width="2.5" />
+                <path d="M 191, 290 L 191, 530" stroke-width="2.5" />
+                
+                <path d="M 183, 530 C 175, 590 145, 630 135, 660" />
+                
+                <path d="M 191, 530 C 199, 590 230, 630 240, 660" />
+                
+                <path d="M 175, 720 C 180, 710 195, 710 200, 720" stroke-width="3" />
+                <path d="M 165, 690 C 185, 675 210, 690 210, 690" stroke-width="1.5" opacity="0.4" /> </g>
+        </g>
+        
+        <g id="landmarks-layer" class="interactive-layer">
+            <circle cx="106" cy="142" r="14" fill="var(--accent)" />
+            <circle cx="106" cy="142" r="4" fill="#ffffff" opacity="0.4" />
+            
+            <ellipse cx="145" cy="175" rx="12" ry="7" transform="rotate(-35 145 175)" fill="var(--accent)" />
+            
+            <circle cx="218" cy="150" r="10" fill="var(--accent)" />
+            
+            <circle cx="150" cy="235" r="7" fill="var(--accent)" />
+            
+            <circle cx="187" cy="410" r="10" fill="var(--accent)" />
+            
+            <path d="M 187, 290 L 187, 530" fill="none" stroke="var(--accent)" stroke-width="6" opacity="0.7" stroke-linecap="round" />
+            
+            <circle cx="132" cy="695" r="7" fill="var(--accent)" />
+            
+            <circle cx="242" cy="695" r="7" fill="var(--accent)" />
+            
+            <ellipse cx="150" cy="735" rx="14" ry="16" fill="var(--accent)" />
+            
+            <ellipse cx="225" cy="735" rx="14" ry="16" fill="var(--accent)" />
+        </g>
+        
+    </svg>`;

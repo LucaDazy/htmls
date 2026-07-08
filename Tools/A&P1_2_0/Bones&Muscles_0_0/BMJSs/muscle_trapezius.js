@@ -1,0 +1,125 @@
+svgDataStore['muscle_trapezius'] = `<svg viewBox="0 0 500 600" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <linearGradient id="muscle-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#7f1d1d" />
+                <stop offset="35%" stop-color="#ef4444" />
+                <stop offset="80%" stop-color="#b91c1c" />
+                <stop offset="100%" stop-color="#450a0a" />
+            </linearGradient>
+            <linearGradient id="tendon-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#64748b" />
+                <stop offset="50%" stop-color="#f8fafc" />
+                <stop offset="100%" stop-color="#334155" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+
+        <g class="svg-bg" fill="url(#bone-shading)" opacity="0.4">
+            <path d="M 180,60 C 250,-10 320,60 300,110 C 280,130 220,130 200,110 Z" />
+            
+            <path d="M 240,110 L 260,110 L 260,520 L 240,520 Z" />
+            <g stroke="#475569" stroke-width="2" fill="none" opacity="0.6">
+                <path d="M 240,140 L 260,140" /> <path d="M 240,180 L 260,180" />
+                <path d="M 240,220 L 260,220" /> <path d="M 240,260 L 260,260" />
+                <path d="M 240,300 L 260,300" /> <path d="M 240,340 L 260,340" />
+                <path d="M 240,380 L 260,380" /> <path d="M 240,420 L 260,420" />
+                <path d="M 240,460 L 260,460" /> <path d="M 240,500 L 260,500" />
+            </g>
+
+            <path d="M 240,150 C 140,170 80,250 80,350 L 100,360 C 100,270 150,200 240,180 Z" />
+            <path d="M 260,150 C 360,170 420,250 420,350 L 400,360 C 400,270 350,200 260,180 Z" />
+
+            <path d="M 170,170 C 130,170 70,180 60,220 L 130,360 C 160,280 180,220 170,170 Z" />
+            <path d="M 175,185 L 75,195 C 65,195 55,185 65,180 L 175,175 Z" fill="none" stroke="#475569" stroke-width="4" opacity="0.8"/> <path d="M 330,170 C 370,170 430,180 440,220 L 370,360 C 340,280 320,220 330,170 Z" />
+            <path d="M 325,185 L 425,195 C 435,195 445,185 435,180 L 325,175 Z" fill="none" stroke="#475569" stroke-width="4" opacity="0.8"/> <path d="M 60,220 C 40,240 30,280 30,320 L 50,320 C 50,280 60,250 70,230 Z" />
+            <path d="M 440,220 C 460,240 470,280 470,320 L 450,320 C 450,280 440,250 430,230 Z" />
+        </g>
+
+        <g id="origin-layer" class="interactive-layer">
+            <ellipse cx="250" cy="100" rx="35" ry="8" fill="var(--success)" />
+            <rect x="246" y="100" width="8" height="390" fill="var(--success)" />
+        </g>
+        
+        <g id="insertion-layer" class="interactive-layer">
+            <polygon points="75,195 170,185 170,192 75,202" fill="var(--accent)" />
+            <polygon points="425,195 330,185 330,192 425,202" fill="var(--accent)" />
+        </g>
+        
+        <g id="action-layer" class="interactive-layer">
+            
+            <g id="action-belly">
+                <path d="M 245,100
+                         C 180,115 110,165 75,190
+                         C 65,200 70,205 85,205
+                         L 165,195
+                         C 160,250 200,400 245,490
+                         L 255,490
+                         C 300,400 340,250 335,195
+                         L 415,205
+                         C 430,205 435,200 425,190
+                         C 390,165 320,115 255,100
+                         Z" 
+                      fill="url(#muscle-shading)" />
+
+                <g stroke="#450a0a" stroke-width="1.5" opacity="0.45" fill="none">
+                    <path d="M 240,115 Q 180,140 100,190" />
+                    <path d="M 235,135 Q 170,160 110,195" />
+                    <path d="M 230,155 Q 180,175 125,200" />
+                    
+                    <path d="M 220,185 Q 180,195 145,205" />
+                    <path d="M 220,215 Q 180,215 155,210" />
+                    <path d="M 220,245 Q 190,230 160,215" />
+                    
+                    <path d="M 225,285 Q 200,250 165,220" />
+                    <path d="M 230,335 Q 210,280 168,225" />
+                    <path d="M 235,385 Q 220,310 172,230" />
+                    <path d="M 240,435 Q 230,350 175,235" />
+                    <path d="M 243,475 Q 235,380 180,240" />
+
+                    <path d="M 260,115 Q 320,140 400,190" />
+                    <path d="M 265,135 Q 330,160 390,195" />
+                    <path d="M 270,155 Q 320,175 375,200" />
+                    
+                    <path d="M 280,185 Q 320,195 355,205" />
+                    <path d="M 280,215 Q 320,215 345,210" />
+                    <path d="M 280,245 Q 310,230 340,215" />
+                    
+                    <path d="M 275,285 Q 300,250 335,220" />
+                    <path d="M 270,335 Q 290,280 332,225" />
+                    <path d="M 265,385 Q 280,310 328,230" />
+                    <path d="M 260,435 Q 270,350 325,235" />
+                    <path d="M 257,475 Q 265,380 320,240" />
+                </g>
+            </g>
+            
+            <g id="action-tendon">
+                <path d="M 250,150 C 215,190 215,240 250,280 C 285,240 285,190 250,150 Z" fill="url(#tendon-shading)" opacity="0.85" />
+                
+                <polygon points="250,490 235,400 265,400" fill="url(#tendon-shading)" opacity="0.85" />
+                
+                <polygon points="215,100 285,100 260,135 240,135" fill="url(#tendon-shading)" opacity="0.85" />
+                
+                <polygon points="170,185 145,215 175,215" fill="url(#tendon-shading)" opacity="0.85" />
+                <polygon points="330,185 355,215 325,215" fill="url(#tendon-shading)" opacity="0.85" />
+                
+                <rect x="248" y="100" width="4" height="390" fill="url(#tendon-shading)" opacity="0.9" />
+                
+                <g stroke="#f8fafc" stroke-width="1.5" opacity="0.3" fill="none">
+                    <path d="M 250,150 C 230,190 230,240 250,280" />
+                    <path d="M 250,150 C 270,190 270,240 250,280" />
+                    <path d="M 245,410 L 250,480" />
+                    <path d="M 255,410 L 250,480" />
+                </g>
+            </g>
+            
+        </g>
+    </svg>`;

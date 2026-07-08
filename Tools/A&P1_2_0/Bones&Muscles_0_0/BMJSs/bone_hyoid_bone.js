@@ -1,0 +1,40 @@
+svgDataStore['bone_hyoid_bone'] = `<svg viewBox="0 0 300 350" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+        
+        <g class="svg-bg" fill="url(#bone-shading)" opacity="0.4">
+            <path d="M 40,0 C 40,60 100,90 150,90 C 200,90 260,60 260,0 C 230,10 200,70 150,70 C 100,70 70,10 40,0 Z" />
+            
+            <path d="M 100,170 C 130,170 140,190 150,205 C 160,190 170,170 200,170 L 200,230 C 170,245 130,245 100,230 Z" />
+            
+            <path d="M 110,245 C 130,255 170,255 190,245 L 190,265 C 170,275 130,275 110,265 Z" />
+            
+            <path d="M 115,275 C 135,285 165,285 185,275 L 185,285 C 165,295 135,295 115,285 Z" />
+            <path d="M 115,295 C 135,305 165,305 185,295 L 185,305 C 165,315 135,315 115,305 Z" />
+            <path d="M 115,315 C 135,325 165,325 185,315 L 185,325 C 165,335 135,335 115,325 Z" />
+        </g>
+        
+        <g id="region-layer" class="interactive-layer">
+            <path d="M 40,80 C 50,110 80,130 100,140 C 120,160 180,160 200,140 C 220,130 250,110 260,80 C 255,75 230,100 205,120 L 215,90 L 195,125 C 170,135 130,135 105,125 L 85,90 L 95,120 C 70,100 45,75 40,80 Z" fill="url(#bone-shading)" />
+        </g>
+        
+        <g id="landmarks-layer" class="interactive-layer">
+            <path d="M 50,88 C 60,112 80,128 95,135 C 80,120 60,100 50,88 Z" fill="var(--accent)" />
+            <path d="M 250,88 C 240,112 220,128 205,135 C 220,120 240,100 250,88 Z" fill="var(--accent)" />
+            
+            <path d="M 115,140 C 130,152 170,152 185,140 C 160,135 140,135 115,140 Z" fill="var(--accent)" />
+            
+            <path d="M 88,95 L 92,108 L 98,115 C 92,105 88,95 88,95 Z" fill="var(--accent)" />
+            <path d="M 212,95 L 208,108 L 202,115 C 208,105 212,95 212,95 Z" fill="var(--accent)" />
+        </g>
+    </svg>`;
