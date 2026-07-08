@@ -763,7 +763,7 @@
                 header.className = 'field-header';
                 header.innerHTML = `
                     <span class="field-title">${value.title}</span>
-                    <button id="hint-btn-${key}" class="btn-hint" onclick="requestHint('${key}')">Hint (0/4)</button>
+                    <button id="hint-btn-${key}" class="btn-hint" onclick="requestHint('${key}')">Hint (0/3)</button>
                 `;
                 fieldEl.appendChild(header);
 
@@ -819,13 +819,13 @@
         }
 
         function requestHint(key) {
-            if (currentCardState.solvedFields.has(key)) return;
+            if (currentCardState.solvedFields.has(key) || currentCardState.hintLevels[key] >= 3) return;
             previewHighlight(key); // Add preview highlight on hint click
 
             currentCardState.hintLevels[key]++;
             const level = currentCardState.hintLevels[key];
             const hintBtn = document.getElementById(`hint-btn-${key}`);
-            hintBtn.innerText = `Hint (${level}/4)`;
+            hintBtn.innerText = `Hint (${level}/3)`;
 
             const answer = (currentItem.t === 'b') ? (key === 'region' ? currentItem.r : currentItem.l) : (key === 'origin' ? currentItem.o : (key === 'insertion' ? currentItem.i : currentItem.a));
 
@@ -834,15 +834,13 @@
                 const landmarkInputs = document.querySelectorAll('#landmark-container .field-input');
 
                 switch (level) {
-                    case 1:
+                    case 1: // Hint 1: Dictionary highlight AND underscores
                         highlightDictionaryTerms(key, answer);
-                        break;
-                    case 2: // Show underscores
                         answers.forEach((ans, i) => {
                             if (!solved[i]) landmarkInputs[i].placeholder = ans.replace(/[a-zA-Z0-9]/g, '_');
                         });
                         break;
-                    case 3: // Show first/last letter of each word
+                    case 2: // Hint 2: Show first/last letter of each word
                         answers.forEach((ans, i) => {
                             if (!solved[i]) {
                                 const hintText = ans.split(' ').map(word => {
@@ -857,7 +855,7 @@
                             }
                         });
                         break;
-                    case 4: // Reveal all and solve
+                    case 3: // Hint 3: Reveal all and solve
                         answers.forEach((ans, i) => {
                             if (!solved[i]) {
                                 landmarkInputs[i].value = ans;
@@ -872,13 +870,11 @@
                 const hintDisplay = document.getElementById(`hint-display-${key}`);
                 const inputEl = document.getElementById(`input-${key}`);
                 switch (level) {
-                    case 1:
+                    case 1: // Hint 1: Dictionary highlight AND underscores
                         highlightDictionaryTerms(key, answer);
-                        break;
-                    case 2:
                         hintDisplay.textContent = answer.replace(/[a-zA-Z0-9]/g, '_');
                         break;
-                    case 3: // Show first/last letter of each word
+                    case 2: // Hint 2: Show first/last letter of each word
                         const hintText = answer.split(' ').map(word => {
                             if (word.length <= 2) return word;
                             const chars = word.split('');
@@ -889,13 +885,17 @@
                         }).join(' ');
                         hintDisplay.textContent = hintText;
                         break;
-                    case 4:
+                    case 3: // Hint 3: Reveal and solve
                         hintDisplay.textContent = '';
                         inputEl.value = answer;
                         inputEl.classList.add('revealed');
                         markFieldAsSolved(key);
                         break;
                 }
+            }
+
+            if (level >= 3) {
+                hintBtn.disabled = true;
             }
         }
 
@@ -994,9 +994,9 @@
             const avgHints = totalHints / currentCardState.totalFields;
 
             let ratingCode;
-            if (avgHints <= 1) { ratingCode = 3; } // Easy (Used dictionary or less)
-            else if (avgHints <= 2) { ratingCode = 2; } // Good (Used underscores)
-            else if (avgHints < 4) { ratingCode = 1; }  // Hard (Used first/last letter)
+            if (avgHints <= 1) { ratingCode = 3; } // Easy (Used dictionary/underscores)
+            else if (avgHints <= 2) { ratingCode = 2; } // Good (Used first/last letter hint)
+            else if (avgHints < 3) { ratingCode = 1; }  // Hard (Needed significant hints but no reveals)
             else { ratingCode = 0; } // Again (Revealed one or more answers)
             
             const container = document.getElementById('interactive-fields-container');
