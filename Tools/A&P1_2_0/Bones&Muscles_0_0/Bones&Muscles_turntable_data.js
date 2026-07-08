@@ -2,7 +2,7 @@
 // Provides a direct URL for the turntable animation of each bone and muscle.
 // This is a curated list to ensure accuracy and reliability, bypassing the Wikimedia API.
 
-const turntableDB = {
+var turntableDB = {
     // --- BONES ---
     "bone_frontal_bone": "https://upload.wikimedia.org/wikipedia/commons/f/f2/Rotation_frontal_bone.gif",
     "bone_parietal_bone": "https://upload.wikimedia.org/wikipedia/commons/2/2c/Parietal_bone_animation.gif",

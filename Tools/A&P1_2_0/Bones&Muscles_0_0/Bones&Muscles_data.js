@@ -4,7 +4,7 @@
 // r: region (bones), l: landmarks (bones)
 // o: origin (muscles), i: insertion (muscles), a: action (muscles)
 
-const rawDB = [
+var rawDB = [
     // --- OSTEOLOGY (BONES) - PRIORITY 1 ---
     { t: 'b', p: 1, n: 'Frontal Bone', r: 'Axial (Cranial)', l: 'Supraorbital foramen' },
     { t: 'b', p: 1, n: 'Parietal Bone', r: 'Axial (Cranial)', l: 'Forms vault/roof of skull' },

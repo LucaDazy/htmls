@@ -1,6 +1,6 @@
 // A&P 1 Master SVG Manifest
 // Provides a list of available custom SVG files for the Bones & Muscles tool.
-const svgDB = [
+var svgDB = [
     "bone_frontal_bone",
     "bone_parietal_bone",
     "bone_temporal_bone",
