@@ -967,6 +967,9 @@
                 }
             } catch (error) {
                 logToConsole(error.message, 'error');
+                if (error.message.includes('turntableDB')) {
+                    logToConsole('<b>Troubleshooting:</b> Open the browser console (F12) and check for the "SUCCESS" message from the data file. If it is not there, the `Bones&Muscles_turntable_data.js` file is either missing, misspelled, or in the wrong directory.', 'info');
+                }
                 const turntableGif = document.getElementById('turntable-gif');
                 const turntableLabel = document.getElementById('turntable-label');
                 const messageEl = document.getElementById('turntable-message');
@@ -1115,7 +1118,7 @@
                     case 2:
                         answers.forEach((ans, i) => {
                             if (!solved[i]) {
-                                multiInputs[i].placeholder = ans.split(' ').map(word => word.length <= 2 ? word : word[0] + '_'.repeat(word.length - 2) + word.slice(-1)).join(' ');
+                                multiInputs[i].placeholder = ans.split(' ').map(word => word.length < 3 ? word : word[0] + '_'.repeat(word.length - 2) + word.slice(-1)).join(' ');
                             }
                         });
                         break;
@@ -1137,7 +1140,7 @@
                         hintDisplay.textContent = answer.replace(/[a-zA-Z0-9]/g, '_');
                         break;
                     case 2:
-                        hintDisplay.textContent = answer.split(' ').map(word => word.length <= 2 ? word : word[0] + '_'.repeat(word.length - 2) + word.slice(-1)).join(' ');
+                        hintDisplay.textContent = answer.split(' ').map(word => word.length < 3 ? word : word[0] + '_'.repeat(word.length - 2) + word.slice(-1)).join(' ');
                         break;
                     case 3:
                         hintDisplay.textContent = '';

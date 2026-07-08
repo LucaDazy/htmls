@@ -117,3 +117,5 @@ const turntableDB = {
     "muscle_flexor_digitorum_longus": "https://upload.wikimedia.org/wikipedia/commons/d/d5/Flexor_digitorum_longus_muscle_animation.gif",
     "muscle_extensor_digitorum_longus": "https://upload.wikimedia.org/wikipedia/commons/d/de/Extensor_digitorum_longus_muscle_animation.gif"
 };
+
+console.log("SUCCESS: Bones&Muscles_turntable_data.js loaded and parsed.");
