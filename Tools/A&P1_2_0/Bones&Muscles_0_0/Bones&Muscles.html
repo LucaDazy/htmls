@@ -215,9 +215,22 @@
         details.rosetta-details summary::-webkit-details-marker { display: none; }
         
         .dict-grid { display: flex; flex-direction: column; gap: 0.3rem; padding: 1.5rem; border-top: 1px solid var(--text-muted); }
-        .dict-entry { display: flex; gap: 1rem; align-items: baseline; padding: 0.4rem 0.8rem; border-radius: 4px; transition: background-color 0.2s; }
+        .dict-entry { display: flex; gap: 1rem; align-items: baseline; padding: 0.4rem 0.8rem; border-radius: 4px; transition: background-color 0.2s; background: rgba(0,0,0,0.2); }
         .dict-root { font-weight: bold; color: var(--accent); width: 160px; text-align: right; flex-shrink: 0; transition: color 0.2s; }
         .dict-def { color: var(--text-muted); font-size: 0.9rem; }
+        .dict-group-title {
+            color: var(--success);
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            margin-top: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--hover-bg);
+        }
+        .dict-grid > .dict-group-title:first-child {
+            margin-top: 0;
+        }
 
         .dict-entry.glow-region, .dict-entry.glow-origin { background-color: rgba(77, 182, 172, 0.1); }
         .dict-entry.glow-landmarks, .dict-entry.glow-insertion { background-color: rgba(165, 104, 157, 0.1); }
@@ -393,7 +406,7 @@
 
         <!-- COLLAPSIBLE DICTIONARY -->
         <details class="rosetta-details" id="dict-toggle" open>
-            <summary>📖 Anatomical Rosetta Stone (Dictionary)</summary>
+            <summary>📖 Anatomical Dictionary</summary>
             <div class="dict-grid" id="dict-grid"></div>
         </details>
 
@@ -489,6 +502,12 @@
             "vastus": "Vast/Huge"
         };
 
+        const groupedDictionary = {
+            "Positional & Directional": ["abduct", "adduct", "appendicular", "axial", "epi", "infra", "inter", "lateralis", "medialis", "peri", "sub", "supra"],
+            "Anatomical Structures": ["acetabulum", "condyle", "costal", "foramen", "fossa", "malleolus", "meatus", "process", "spine", "trochanter", "tubercle", "tuberosity", "vertebrae"],
+            "Body Regions": ["brachii", "carpi", "cleido", "cnemius", "cranial", "facial", "femoris", "gastro", "glosso", "gluteus", "ilio", "mastoid", "oculi", "oris", "palmaris", "pectoral", "pelvic", "peroneus", "popliteus", "radialis", "sterno", "thoracic", "tibialis", "ulnaris"],
+            "Descriptive Terms & Prefixes": ["alba", "aspera", "bi", "brevis", "ceps", "digitorum", "fascia", "latae", "linea", "longus", "maximus", "minimus", "oblique", "rectus", "sartor", "semi", "tensor", "tri", "vastus"]
+        };
         let boneNames = [];
 
         // --- 2. STATE MANAGEMENT ---
@@ -1121,15 +1140,22 @@
                 <div id="highlighted-dict-terms" class="dict-grid" style="padding: 0; gap: 0.3rem;"></div>
                 <hr id="dict-divider" style="display: none; width: 100%; border: 0; border-top: 1px dashed var(--text-muted); margin: 1rem 0;">
             `;
-            const sortedRoots = Object.keys(dictionary).sort();
             
             const fragment = document.createDocumentFragment();
-            for (const root of sortedRoots) {
-                const entry = document.createElement('div');
-                entry.className = 'dict-entry';
-                entry.id = 'dict-card-' + root; // Keep old ID for compatibility
-                entry.innerHTML = `<span class="dict-root">${root.charAt(0).toUpperCase() + root.slice(1)}</span><span class="dict-def">${dictionary[root]}</span>`;
-                fragment.appendChild(entry);
+            for (const groupName in groupedDictionary) {
+                const groupTitle = document.createElement('div');
+                groupTitle.className = 'dict-group-title';
+                groupTitle.textContent = groupName;
+                fragment.appendChild(groupTitle);
+
+                const terms = groupedDictionary[groupName];
+                for (const root of terms) {
+                    const entry = document.createElement('div');
+                    entry.className = 'dict-entry';
+                    entry.id = 'dict-card-' + root; // Keep old ID for compatibility
+                    entry.innerHTML = `<span class="dict-root">${root.charAt(0).toUpperCase() + root.slice(1)}</span><span class="dict-def">${dictionary[root]}</span>`;
+                    fragment.appendChild(entry);
+                }
             }
             grid.appendChild(fragment);
         }
