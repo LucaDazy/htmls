@@ -811,28 +811,47 @@
                 `;
                 fieldEl.appendChild(header);
 
-                if (key === 'landmarks') {
-                    const landmarks = value.answer.split(', ').map(l => l.trim()).filter(l => l);
-                    currentCardState.landmarks = { answers: landmarks, solved: Array(landmarks.length).fill(false) };
+                // Handle multi-input fields (Landmarks, Insertion)
+                if (key === 'landmarks' || key === 'insertion') {
+                    const items = value.answer.replace(/ & /g, ', ').split(', ').map(l => l.trim()).filter(l => l);
+                    
+                    if (items.length > 1) {
+                        currentCardState.multiInputs = currentCardState.multiInputs || {};
+                        currentCardState.multiInputs[key] = { answers: items, solved: Array(items.length).fill(false) };
 
-                    const landmarkContainer = document.createElement('div');
-                    landmarkContainer.className = 'landmark-field-container';
-                    landmarkContainer.id = 'landmark-container';
+                        const multiContainer = document.createElement('div');
+                        multiContainer.className = 'landmark-field-container'; // Reuse existing style
+                        multiContainer.id = `${key}-container`;
 
-                    landmarks.forEach((landmark, index) => {
+                        const placeholderText = value.title.endsWith('s') ? value.title.slice(0, -1) : value.title;
+
+                        items.forEach((item, index) => {
+                            const input = document.createElement('input');
+                            input.type = 'text';
+                            input.id = `input-${key}-${index}`;
+                            input.className = 'field-input';
+                            input.dataset.index = index;
+                            input.placeholder = `${placeholderText} #${index + 1}`;
+                            input.oninput = () => checkAnswer(key, input);
+                            input.onfocus = () => previewHighlight(key);
+                            input.onblur = () => clearAllPreviews();
+                            multiContainer.appendChild(input);
+                        });
+                        fieldEl.appendChild(multiContainer);
+                    } else {
+                        // Fallback to single input for fields with only one item
                         const input = document.createElement('input');
-                        input.type = 'text'; input.id = `input-landmarks-${index}`; input.className = 'field-input';
-                        input.dataset.index = index; input.placeholder = `Landmark #${index + 1}`;
+                        input.type = 'text'; input.id = `input-${key}`; input.className = 'field-input';
+                        input.placeholder = 'Type the answer here...';
                         input.oninput = () => checkAnswer(key, input);
-                        input.onfocus = () => previewHighlight('landmarks'); input.onblur = () => clearAllPreviews();
-                        landmarkContainer.appendChild(input);
-                    });
-                    fieldEl.appendChild(landmarkContainer);
+                        input.onfocus = () => previewHighlight(key); input.onblur = () => clearAllPreviews();
+                        fieldEl.appendChild(input);
+                    }
                 } else if (key === 'action') {
+                    // MCQ logic for Action
                     const correctAnswer = value.answer;
                     const allActions = rawDB.filter(item => item.t === 'm' && item.a !== correctAnswer).map(item => item.a);
-                    allActions.sort(() => Math.random() - 0.5); // Shuffle for variety
-                    
+                    allActions.sort(() => Math.random() - 0.5);
                     const choices = [correctAnswer, ...allActions.slice(0, 3)].sort(() => Math.random() - 0.5);
 
                     const mcqContainer = document.createElement('div');
@@ -841,12 +860,11 @@
                         const button = document.createElement('button');
                         button.className = 'mcq-option';
                         button.textContent = choice;
-                        const isCorrect = choice === correctAnswer;
-                        button.onclick = () => checkActionAnswer(button, isCorrect);
+                        button.onclick = () => checkActionAnswer(button, choice === correctAnswer);
                         mcqContainer.appendChild(button);
                     });
                     fieldEl.appendChild(mcqContainer);
-                } else { // For 'region', 'origin', 'insertion'
+                } else { // Standard single-input fields (Region, Origin)
                     const input = document.createElement('input');
                     input.type = 'text'; input.id = `input-${key}`; input.className = 'field-input';
                     input.placeholder = 'Type the answer here...';
@@ -855,7 +873,6 @@
                     fieldEl.appendChild(input);
                 }
                 
-                // Add a hint display for all field types
                 const hintDisplay = document.createElement('div');
                 hintDisplay.id = `hint-display-${key}`;
                 hintDisplay.className = 'hint-display';
@@ -883,24 +900,24 @@
         
             const answer = (currentItem.t === 'b') ? (key === 'region' ? currentItem.r : currentItem.l) : (key === 'origin' ? currentItem.o : (key === 'insertion' ? currentItem.i : currentItem.a));
         
-            if (key === 'landmarks') {
-                const { answers, solved } = currentCardState.landmarks;
-                const landmarkInputs = document.querySelectorAll('#landmark-container .field-input');
+            if (currentCardState.multiInputs && currentCardState.multiInputs[key]) {
+                const { answers, solved } = currentCardState.multiInputs[key];
+                const multiInputs = document.querySelectorAll(`#${key}-container .field-input`);
                 switch (level) {
                     case 1:
                         highlightDictionaryTerms(key, answer);
-                        answers.forEach((ans, i) => { if (!solved[i]) landmarkInputs[i].placeholder = ans.replace(/[a-zA-Z0-9]/g, '_'); });
+                        answers.forEach((ans, i) => { if (!solved[i]) multiInputs[i].placeholder = ans.replace(/[a-zA-Z0-9]/g, '_'); });
                         break;
                     case 2:
                         answers.forEach((ans, i) => {
                             if (!solved[i]) {
-                                landmarkInputs[i].placeholder = ans.split(' ').map(word => word.length <= 2 ? word : word[0] + '_'.repeat(word.length - 2) + word.slice(-1)).join(' ');
+                                multiInputs[i].placeholder = ans.split(' ').map(word => word.length <= 2 ? word : word[0] + '_'.repeat(word.length - 2) + word.slice(-1)).join(' ');
                             }
                         });
                         break;
                     case 3:
                         answers.forEach((ans, i) => {
-                            if (!solved[i]) { landmarkInputs[i].value = ans; landmarkInputs[i].classList.add('revealed'); currentCardState.landmarks.solved[i] = true; }
+                            if (!solved[i]) { multiInputs[i].value = ans; multiInputs[i].classList.add('revealed'); currentCardState.multiInputs[key].solved[i] = true; }
                         });
                         markFieldAsSolved(key);
                         break;
@@ -1001,16 +1018,15 @@
         function checkAnswer(key, element) {
             if (currentCardState.solvedFields.has(key) || key === 'action') return;
 
-            if (key === 'landmarks') {
+            if (currentCardState.multiInputs && currentCardState.multiInputs[key]) {
                 const index = parseInt(element.dataset.index, 10);
-                const { answers, solved } = currentCardState.landmarks;
+                const { answers, solved } = currentCardState.multiInputs[key];
                 
                 if (normalizeAnswer(element.value) === normalizeAnswer(answers[index])) {
                     element.classList.add('correct');
                     element.disabled = true;
                     solved[index] = true;
                     
-                    // Check if all landmarks are solved
                     if (solved.every(s => s === true)) {
                         markFieldAsSolved(key);
                     }
@@ -1031,8 +1047,8 @@
             const hintBtn = document.getElementById(`hint-btn-${key}`);
             hintBtn.disabled = true;
             
-            if (key === 'landmarks') {
-                document.querySelectorAll('#landmark-container .field-input').forEach(input => {
+            if (currentCardState.multiInputs && currentCardState.multiInputs[key]) {
+                document.querySelectorAll(`#${key}-container .field-input`).forEach(input => {
                     input.disabled = true;
                 });
             } else {
