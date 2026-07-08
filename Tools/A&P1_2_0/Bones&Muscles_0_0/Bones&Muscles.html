@@ -406,6 +406,23 @@
         .toc-item-type.bone { color: var(--success); }
         .toc-item-type.muscle { color: var(--accent); }
 
+        /* Error Overlay */
+        .error-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(34, 25, 36, 0.95);
+            z-index: 5000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+        .error-content h2 { color: var(--error); }
+        .error-content p { color: var(--text-main); max-width: 600px; line-height: 1.6; }
+        .error-content code { background: var(--bg-color); color: var(--accent); padding: 0.2rem 0.5rem; border-radius: 4px; }
+
         /* Developer Console */
         .dev-console {
             position: fixed;
@@ -454,6 +471,13 @@
     <script src="Bones&Muscles_turntable_data.js"></script>
 </head>
 <body>
+    <div id="error-overlay" class="error-overlay" style="display: none;">
+        <div class="error-content">
+            <h2>Critical Data File Missing</h2>
+            <p>One or more essential data files (<code>Bones&Muscles_data.js</code>, <code>Bones&Muscles_svg_data.js</code>, or <code>Bones&Muscles_turntable_data.js</code>) failed to load. The application cannot continue.</p>
+            <p>Please check the browser's developer console (F12) for a <b>404 error</b>, which indicates the file is not on the server. Make sure all files have been correctly committed and pushed to your git repository.</p>
+        </div>
+    </div>
     <div id="dynamic-script-loader"></div>
     <canvas id="background-canvas"></canvas>
     <div id="turntable-container" class="turntable-container">
@@ -569,6 +593,23 @@
             const targetX = (spaceLeft / 2) - (turntableWidth / 2);
             // Ensure it doesn't go off-screen, with a minimum margin of 24px (1.5rem)
             turntable.style.transform = `translate(${Math.max(24, targetX)}px, -50%)`;
+        }
+
+        function runStartupChecks() {
+            const requiredData = {
+                'rawDB': 'Bones&Muscles_data.js',
+                'svgDB': 'Bones&Muscles_svg_data.js',
+                'turntableDB': 'Bones&Muscles_turntable_data.js'
+            };
+            const missing = Object.keys(requiredData).filter(db => typeof window[db] === 'undefined');
+
+            if (missing.length > 0) {
+                document.getElementById('error-overlay').style.display = 'flex';
+                logToConsole(`FATAL: The following required data variables are missing: ${missing.join(', ')}.`, 'error');
+                logToConsole('This is likely due to a 404 error. The application cannot start.', 'error');
+                return false;
+            }
+            return true;
         }
 
         // --- 1. ROSETTA STONE DICTIONARY ---
@@ -702,10 +743,6 @@
         }
 
         function buildQueue() {
-            if (typeof rawDB === 'undefined' || typeof svgDB === 'undefined') {
-                document.getElementById('arena').innerHTML = `<h2 style="color:var(--error);">Error: Data file not found!</h2><p>Please ensure Bones&Muscles_data.js and Bones&Muscles_svg_data.js are present.</p>`;
-                return;
-            }
 
             const now = Date.now();
             let due = [];
@@ -932,51 +969,37 @@
                 "Identify the Origin, Insertion, and Action.";
             document.getElementById('card-prompt').innerHTML = promptText;
             
-            // --- Turntable GIF Logic (Failsafe) ---
-            try {
-                const turntableGif = document.getElementById('turntable-gif');
-                const turntableLabel = document.getElementById('turntable-label');
-                const messageEl = document.getElementById('turntable-message');
+            // --- Turntable GIF Logic ---
+            const turntableGif = document.getElementById('turntable-gif');
+            const turntableLabel = document.getElementById('turntable-label');
+            const messageEl = document.getElementById('turntable-message');
 
-                turntableContainer.classList.add('visible');
-                logToConsole(`--- Loading card: ${currentItem.n} ---`);
+            turntableContainer.classList.add('visible');
+            logToConsole(`--- Loading card: ${currentItem.n} ---`);
 
-                if (typeof turntableDB === 'undefined') {
-                    throw new Error('`turntableDB` is not defined. Ensure the data file is loaded.');
-                }
+            const gifUrl = turntableDB[currentItem.svg_id]; // Direct lookup
 
-                const gifUrl = turntableDB[currentItem.svg_id]; // Direct lookup
+            if (gifUrl) {
+                logToConsole(`Found GIF URL in local DB: ${gifUrl}`, 'success');
+                turntableLabel.textContent = currentItem.n;
+                turntableGif.src = gifUrl;
+                messageEl.style.display = 'none';
+                turntableGif.style.display = 'block';
+                turntableLabel.style.display = 'block';
 
-                if (gifUrl) {
-                    logToConsole(`Found GIF URL in local DB: ${gifUrl}`, 'success');
-                    turntableLabel.textContent = currentItem.n;
-                    turntableGif.src = gifUrl;
-                    messageEl.style.display = 'none';
-                    turntableGif.style.display = 'block';
-                    turntableLabel.style.display = 'block';
-
-                    turntableGif.onerror = () => {
-                        turntableGif.style.display = 'none';
-                        turntableLabel.style.display = 'none';
-                        messageEl.style.display = 'flex';
-                        messageEl.textContent = 'Failed to Load GIF';
-                        logToConsole(`Error loading GIF from URL: ${gifUrl}`, 'error');
-                    };
-                } else {
-                    throw new Error(`No GIF URL found in turntableDB for ID: ${currentItem.svg_id}`);
-                }
-            } catch (error) {
-                logToConsole(error.message, 'error');
-                if (error.message.includes('turntableDB')) {
-                    logToConsole('<b>Troubleshooting:</b> Open the browser console (F12) and check for the "SUCCESS" message from the data file. If it is not there, the `Bones&Muscles_turntable_data.js` file is either missing, misspelled, or in the wrong directory.', 'info');
-                }
-                const turntableGif = document.getElementById('turntable-gif');
-                const turntableLabel = document.getElementById('turntable-label');
-                const messageEl = document.getElementById('turntable-message');
+                turntableGif.onerror = () => {
+                    turntableGif.style.display = 'none';
+                    turntableLabel.style.display = 'none';
+                    messageEl.style.display = 'flex';
+                    messageEl.textContent = 'Failed to Load GIF';
+                    logToConsole(`Error loading GIF from URL: ${gifUrl}`, 'error');
+                };
+            } else {
                 turntableGif.style.display = 'none';
                 turntableLabel.style.display = 'none';
                 messageEl.style.display = 'flex';
                 messageEl.textContent = 'Animation Not Found';
+                logToConsole(`No GIF URL found in turntableDB for ID: ${currentItem.svg_id}`, 'warn');
             }
             // --- End Turntable Logic ---
 
@@ -1360,6 +1383,8 @@
         // --- INIT ---
         window.onload = () => {
             const init = async () => {
+                if (!runStartupChecks()) return; // Stop initialization if data is missing
+
                 buildToc(); // Build the Table of Contents list
                 boneNames = rawDB.filter(i => i.t === 'b').map(i => i.n.toLowerCase().replace(/ \(.+\)/, ''));
                 loadState();
