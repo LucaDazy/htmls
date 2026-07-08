@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SVG Preview: Parietal Bone</title>
+    <style>
+        :root { 
+            --bg-color: #221924;      
+            --panel-bg: #3d1c60;      
+            --accent: #a5689d;        
+            --success: #4db6ac;
+            --text-main: #e0d0e3;     
+            --text-muted: #9c82a1;
+        }
+        body { 
+            background-color: var(--bg-color); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            color: var(--text-main); 
+            font-family: sans-serif; 
+            margin: 0;
+        }
+        svg { 
+            width: 450px; 
+            border: 1px dashed var(--text-muted); 
+            background-color: var(--panel-bg); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .interactive-layer { 
+            transition: filter 0.3s ease; 
+        }
+        #origin-layer:hover, #insertion-layer:hover, #action-layer:hover, #region-layer:hover, #landmarks-layer:hover {
+            filter: url(#glow);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Preview: Parietal Bone</h1>
+    <p>SVG ID: <strong>bone_parietal_bone</strong></p>
+    
+    <svg viewBox="20 10 380 340" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+        
+        <g class="svg-bg" fill="url(#bone-shading)" opacity="0.4">
+            <path d="M 180,50 C 140,60 110,110 115,175 C 95,175 75,185 60,210 C 40,160 50,90 100,60 C 125,45 150,40 180,50 Z" />
+            
+            <path d="M 115,175 C 150,140 210,145 260,190 C 255,230 230,270 190,270 C 150,270 125,250 110,230 C 100,210 105,190 115,175 Z" />
+            
+            <path d="M 320,90 C 310,130 290,160 260,190 C 270,220 265,255 235,275 C 280,305 345,270 365,210 C 375,155 355,105 320,90 Z" />
+            
+            <path d="M 60,210 C 45,240 50,300 90,320 C 130,330 160,300 170,270 C 150,270 125,250 110,230 C 90,230 75,225 60,210 Z" />
+        </g>
+        
+        <g id="region-layer" class="interactive-layer">
+            <path d="M 180,50 
+                     C 140,60 110,110 115,175 
+                     C 150,140 210,145 260,190 
+                     C 290,160 310,130 320,90 
+                     C 290,30 230,25 180,50 Z" 
+                  fill="url(#bone-shading)" />
+                  
+            <g stroke="#475569" fill="none">
+                <path d="M 120,145 Q 185,100 270,140" stroke-width="2.5" opacity="0.4" />
+                <path d="M 125,160 Q 185,115 260,155" stroke-width="1.5" opacity="0.3" />
+            </g>
+            
+            <circle cx="210" cy="100" r="1.5" fill="#475569" opacity="0.2" />
+            <circle cx="225" cy="95" r="1.5" fill="#475569" opacity="0.2" />
+            <circle cx="218" cy="110" r="1.5" fill="#475569" opacity="0.2" />
+            <circle cx="232" cy="105" r="1.5" fill="#475569" opacity="0.2" />
+        </g>
+        
+        <g id="landmarks-layer" class="interactive-layer">
+            <circle cx="270" cy="62" r="4.5" fill="var(--accent)" />
+        </g>
+        
+    </svg>
+</body>
+</html>

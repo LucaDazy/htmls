@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SVG Preview: Stylohyoid</title>
+    <style>
+        :root { 
+            --bg-color: #221924;      
+            --panel-bg: #3d1c60;      
+            --accent: #a5689d;        
+            --success: #4db6ac;
+            --text-main: #e0d0e3;     
+            --text-muted: #9c82a1;
+        }
+        body { 
+            background-color: var(--bg-color); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            color: var(--text-main); 
+            font-family: sans-serif; 
+            margin: 0;
+            padding: 20px;
+        }
+        svg { 
+            width: 400px; 
+            max-width: 100%;
+            border: 1px dashed var(--text-muted); 
+            background-color: var(--panel-bg); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-top: 15px;
+        }
+        .info-panel {
+            text-align: center;
+            max-width: 650px;
+            background: rgba(0,0,0,0.2);
+            padding: 15px 25px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .info-panel p {
+            margin: 5px 0;
+            font-size: 0.95em;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+        .info-panel strong {
+            color: var(--text-main);
+        }
+        .interactive-layer { 
+            transition: filter 0.3s ease; 
+        }
+        #origin-layer:hover, #insertion-layer:hover, #action-layer:hover {
+            filter: url(#glow);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="info-panel">
+        <h1>Preview: Stylohyoid</h1>
+        <p>SVG ID: <strong>muscle_stylohyoid</strong></p>
+        <p>Region / Origin: <strong>Styloid process of temporal bone</strong></p>
+        <p>Landmarks / Insertion: <strong>Hyoid</strong></p>
+        <p>Action: <strong>Elevates larynx</strong></p>
+        <p><em>Note: Visualized from a lateral view of the right neck. The slender stylohyoid muscle descends from the styloid process to the hyoid bone. Distally, the muscle typically splits into two slips that surround the intermediate tendon of the digastric muscle (represented by the gap) before inserting onto the hyoid. The mandible is ghosted to reveal the deeper structures.</em></p>
+    </div>
+
+    <svg viewBox="0 0 350 450" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <linearGradient id="muscle-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#7f1d1d" />
+                <stop offset="35%" stop-color="#ef4444" />
+                <stop offset="80%" stop-color="#b91c1c" />
+                <stop offset="100%" stop-color="#450a0a" />
+            </linearGradient>
+            <linearGradient id="tendon-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#64748b" />
+                <stop offset="50%" stop-color="#f8fafc" />
+                <stop offset="100%" stop-color="#334155" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+
+        <g class="svg-bg" fill="url(#bone-shading)" opacity="0.4">
+            
+            <path d="M 50,180 L 90,180 C 100,200 95,220 90,230 C 100,250 95,270 90,280 C 100,300 95,320 90,330 C 100,350 95,370 90,380 L 50,380 Z" />
+
+            <path d="M 80,140 C 90,180 85,210 65,230 C 45,210 50,170 40,130 C 50,110 70,110 80,140 Z" />
+            
+            <circle cx="105" cy="155" r="8" fill="var(--bg-color)" opacity="0.8" />
+
+            <path d="M 115,150 C 140,150 170,140 200,140 C 210,140 210,150 200,150 C 170,150 140,160 115,160 Z" />
+
+            <path d="M 95,180 L 130,260 C 132,263 128,265 125,260 L 85,190 Z" />
+
+            <path d="M 120,160 
+                     C 115,200 120,250 130,280 
+                     C 180,300 250,290 290,260 
+                     L 280,230 
+                     C 240,250 180,250 165,220 
+                     C 160,200 170,160 165,155 
+                     C 155,165 145,165 140,155 
+                     C 135,145 125,150 120,160 Z" 
+                  opacity="0.5" stroke="#475569" stroke-width="1.5" />
+
+            <path d="M 200,340 C 220,350 240,350 260,340 C 250,330 240,325 210,330 Z" />
+            <path d="M 200,340 C 180,310 160,280 150,270 C 155,265 170,295 210,330 Z" />
+            
+            <path d="M 210,350 C 230,350 240,370 230,390 L 210,390 Z" opacity="0.6" />
+            <path d="M 210,350 C 200,360 200,380 210,390" fill="none" stroke="#475569" stroke-width="1.5" opacity="0.5" />
+
+        </g>
+
+        <g id="origin-layer" class="interactive-layer">
+            <ellipse cx="125" cy="255" rx="4" ry="8" transform="rotate(-30 125 255)" fill="var(--success)" />
+        </g>
+        
+        <g id="insertion-layer" class="interactive-layer">
+            <ellipse cx="185" cy="320" rx="5" ry="7" transform="rotate(20 185 320)" fill="var(--accent)" />
+            <ellipse cx="195" cy="328" rx="4" ry="6" transform="rotate(30 195 328)" fill="var(--accent)" />
+        </g>
+        
+        <g id="action-layer" class="interactive-layer">
+            
+            <g id="action-belly">
+                <path d="M 122,252 
+                         C 145,285 165,310 188,325 
+                         C 193,328 195,323 190,318 
+                         C 172,300 152,270 132,245 
+                         C 128,240 118,245 122,252 Z" 
+                      fill="url(#muscle-shading)" />
+                      
+                <path d="M 160,298 
+                         C 168,310 175,325 182,335 
+                         C 187,340 192,335 188,330 
+                         C 182,320 172,305 165,295 Z" 
+                      fill="url(#muscle-shading)" />
+
+                <g stroke="#450a0a" stroke-width="1.5" opacity="0.45" fill="none">
+                    <path d="M 125,250 Q 155,295 185,320" />
+                    <path d="M 130,248 Q 160,290 190,315" />
+                    <path d="M 168,300 Q 180,320 185,330" />
+                </g>
+            </g>
+            
+            <g id="action-tendon">
+                <path d="M 122,252 C 125,258 128,265 130,260 C 128,255 125,245 132,245 C 128,240 118,245 122,252 Z" fill="url(#tendon-shading)" opacity="0.9" />
+                
+                <path d="M 188,325 C 191,328 193,330 190,318 C 188,323 185,323 188,325 Z" fill="url(#tendon-shading)" opacity="0.9" />
+                <path d="M 182,335 C 185,338 187,340 188,330 C 186,335 183,335 182,335 Z" fill="url(#tendon-shading)" opacity="0.9" />
+
+                <g stroke="#f8fafc" stroke-width="1" opacity="0.5" fill="none">
+                    <path d="M 124,250 L 128,258" />
+                    <path d="M 187,322 L 190,325" />
+                    <path d="M 184,330 L 186,334" />
+                </g>
+            </g>
+            
+        </g>
+    </svg>
+</body>
+</html>

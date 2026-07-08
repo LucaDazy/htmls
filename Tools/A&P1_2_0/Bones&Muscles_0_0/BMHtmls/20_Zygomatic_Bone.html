@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SVG Preview: Zygomatic Bone</title>
+    <style>
+        :root {
+            --bg-color: #221924;      
+            --panel-bg: #3d1c60;      
+            --accent: #a5689d;        
+            --success: #4db6ac;
+            --text-main: #e0d0e3;     
+            --text-muted: #9c82a1;
+        }
+        body { 
+            background-color: var(--bg-color); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            color: var(--text-main); 
+            font-family: sans-serif; 
+        }
+        svg { 
+            width: 400px; 
+            border: 1px dashed var(--text-muted); 
+            background-color: var(--panel-bg); 
+        }
+        .interactive-layer { 
+            transition: filter 0.3s ease; 
+        }
+        #region-layer:hover, #landmarks-layer:hover {
+            filter: url(#glow);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Preview: Zygomatic Bone</h1>
+    <p>SVG ID: <strong>bone_zygomatic_bone</strong></p>
+    <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+        
+        <g class="svg-bg" fill="url(#bone-shading)" opacity="0.4">
+            <path d="M 125,125 C 100,50 150,20 200,20 C 250,20 300,50 275,125 C 250,115 220,115 210,140 L 190,140 C 180,115 150,115 125,125 Z" />
+            
+            <path d="M 180,190 C 185,170 190,140 190,140 L 210,140 C 210,140 215,170 220,190 C 225,210 230,220 235,230 C 245,240 250,250 240,280 L 160,280 C 150,250 155,240 165,230 C 170,220 175,210 180,190 M 200,175 C 190,200 185,230 200,240 C 215,230 210,200 200,175" fill-rule="evenodd" />
+            
+            <path d="M 155,290 L 245,290 C 255,340 230,360 200,360 C 170,360 145,340 155,290 Z" />
+            <path d="M 155,290 L 120,230 C 110,250 110,290 135,320 L 160,300 Z" />
+            <path d="M 245,290 L 280,230 C 290,250 290,290 265,320 L 240,300 Z" />
+            
+            <path d="M 60,185 L 60,200 L 30,195 C 25,190 25,185 30,185 Z" />
+            <path d="M 340,185 L 340,200 L 370,195 C 375,190 375,185 370,185 Z" />
+        </g>
+        
+        <g id="region-layer" class="interactive-layer">
+            <path d="M 125,125 C 120,150 130,180 160,195 L 180,190 C 175,210 170,220 165,230 C 135,235 105,225 60,200 L 60,185 C 90,195 105,185 125,125 Z" fill="url(#bone-shading)" />
+            
+            <path d="M 275,125 C 280,150 270,180 240,195 L 220,190 C 225,210 230,220 235,230 C 265,235 295,225 340,200 L 340,185 C 310,195 295,185 275,125 Z" fill="url(#bone-shading)" />
+        </g>
+        
+        <g id="landmarks-layer" class="interactive-layer">
+            <circle cx="130" cy="135" r="3.5" fill="var(--accent)" />
+            <circle cx="70" cy="193" r="3.5" fill="var(--accent)" />
+            <circle cx="170" cy="223" r="3.5" fill="var(--accent)" />
+            <circle cx="140" cy="195" r="2" fill="var(--accent)" />
+            
+            <circle cx="270" cy="135" r="3.5" fill="var(--accent)" />
+            <circle cx="330" cy="193" r="3.5" fill="var(--accent)" />
+            <circle cx="230" cy="223" r="3.5" fill="var(--accent)" />
+            <circle cx="260" cy="195" r="2" fill="var(--accent)" />
+        </g>
+    </svg>
+</body>
+</html>

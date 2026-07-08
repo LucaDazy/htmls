@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SVG Preview: Soleus</title>
+    <style>
+        :root { 
+            --bg-color: #221924;      
+            --panel-bg: #3d1c60;      
+            --accent: #a5689d;        
+            --success: #4db6ac;
+            --text-main: #e0d0e3;     
+            --text-muted: #9c82a1;
+        }
+        body { 
+            background-color: var(--bg-color); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            color: var(--text-main); 
+            font-family: sans-serif; 
+            margin: 0;
+            padding: 20px;
+        }
+        svg { 
+            width: 400px; 
+            max-width: 100%;
+            border: 1px dashed var(--text-muted); 
+            background-color: var(--panel-bg); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-top: 15px;
+        }
+        .info-panel {
+            text-align: center;
+            max-width: 650px;
+            background: rgba(0,0,0,0.2);
+            padding: 15px 25px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .info-panel p {
+            margin: 5px 0;
+            font-size: 0.95em;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+        .info-panel strong {
+            color: var(--text-main);
+        }
+        .interactive-layer { 
+            transition: filter 0.3s ease; 
+        }
+        #origin-layer:hover, #insertion-layer:hover, #action-layer:hover {
+            filter: url(#glow);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="info-panel">
+        <h1>Preview: Soleus</h1>
+        <p>SVG ID: <strong>muscle_soleus</strong></p>
+        <p>Region / Origin: <strong>Proximal tibia and fibula</strong></p>
+        <p>Landmarks / Insertion: <strong>Calcaneous via calcaneal tendon</strong></p>
+        <p>Action: <strong>Plantar flexes foot</strong></p>
+        <p><em>Note: Visualized from a posterior view of the right lower leg. The soleus is a broad, flat, powerful muscle situated deep to the gastrocnemius (whose outline is shown faintly for context). It originates from the soleal line of the tibia and the posterior fibula, merging distally into the thick calcaneal (Achilles) tendon to insert on the heel.</em></p>
+    </div>
+
+    <svg viewBox="0 0 450 850" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <linearGradient id="muscle-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#7f1d1d" />
+                <stop offset="35%" stop-color="#ef4444" />
+                <stop offset="80%" stop-color="#b91c1c" />
+                <stop offset="100%" stop-color="#450a0a" />
+            </linearGradient>
+            <linearGradient id="tendon-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#64748b" />
+                <stop offset="50%" stop-color="#f8fafc" />
+                <stop offset="100%" stop-color="#334155" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+
+        <g class="svg-bg" opacity="0.4">
+            
+            <path d="M 80,50 L 80,800" stroke="#475569" stroke-width="2" stroke-dasharray="5,5" opacity="0.3" />
+
+            <path d="M 180,50 
+                     L 240,50 
+                     C 240,80 260,100 250,130 
+                     C 220,130 200,130 170,130 
+                     C 160,100 180,80 180,50 Z" 
+                  fill="url(#bone-shading)"/>
+            <path d="M 170,120 C 170,140 200,140 205,120 C 205,100 190,90 180,100" fill="var(--bg-color)" opacity="0.5"/>
+            <path d="M 250,120 C 250,140 220,140 215,120 C 215,100 230,90 240,100" fill="var(--bg-color)" opacity="0.5"/>
+            <path d="M 205,120 C 210,100 210,100 215,120" fill="url(#bone-shading)"/>
+
+            <path d="M 175,135 
+                     C 200,135 220,135 235,140 
+                     L 220,670 
+                     C 210,700 195,700 180,670 
+                     L 170,140 Z" 
+                  fill="url(#bone-shading)" />
+            <path d="M 180,670 C 160,680 160,700 175,700 L 195,680 Z" fill="url(#bone-shading)" />
+            <path d="M 230,165 C 210,195 190,230 175,260" fill="none" stroke="#475569" stroke-width="2" opacity="0.6"/>
+
+            <path d="M 240,145 
+                     C 260,145 265,160 255,175 
+                     L 245,670 
+                     L 230,670 
+                     L 240,175 Z" 
+                  fill="url(#bone-shading)" />
+            <path d="M 245,670 C 265,685 265,715 250,720 L 235,680 Z" fill="url(#bone-shading)" />
+
+            <path d="M 180,700 C 190,690 230,690 245,700 C 235,715 195,715 180,700 Z" fill="url(#bone-shading)" />
+            <path d="M 175,710 
+                     C 170,760 185,790 215,790 
+                     C 245,790 260,760 250,710 
+                     C 230,700 190,700 175,710 Z" 
+                  fill="url(#bone-shading)" />
+
+            <path d="M 245,135 C 230,160 200,180 175,190 C 170,170 190,150 230,135 Z" fill="url(#muscle-shading)" opacity="0.3" />
+            
+            <path d="M 180,350 C 170,450 175,550 185,670 L 195,670 C 190,550 185,450 195,350 Z" fill="url(#muscle-shading)" opacity="0.2" />
+
+            <path d="M 195,250 C 185,400 195,500 205,650 L 215,650 C 210,500 205,400 210,250 Z" fill="url(#muscle-shading)" opacity="0.2" />
+            
+            <path d="M 210,180 C 205,350 215,500 225,650 L 235,650 C 225,500 220,350 230,180 Z" fill="url(#muscle-shading)" opacity="0.15" />
+
+            <path d="M 255,180 C 270,300 270,500 245,670 L 235,670 C 255,500 255,300 245,180 Z" fill="url(#muscle-shading)" opacity="0.25" />
+
+        </g>
+
+        <g id="origin-layer" class="interactive-layer">
+            <path d="M 235,150 C 265,150 265,180 250,230 L 243,230 C 255,180 250,160 235,160 Z" fill="var(--success)" />
+            <path d="M 230,170 C 210,200 190,230 175,255 L 180,265 C 195,235 220,200 235,175 Z" fill="var(--success)" />
+            <path d="M 230,165 Q 235,170 238,160 L 234,155 Z" fill="var(--success)" />
+        </g>
+        
+        <g id="insertion-layer" class="interactive-layer">
+            <path d="M 195,730 C 205,725 225,725 235,730 C 238,745 225,755 215,755 C 205,755 192,745 195,730 Z" fill="var(--accent)" />
+        </g>
+        
+        <g id="action-layer" class="interactive-layer">
+            
+            <g id="action-belly">
+                <path d="M 232,165 
+                         C 275,175 300,280 275,400 
+                         C 260,470 245,520 235,580 
+                         L 195,580 
+                         C 185,520 160,470 145,400 
+                         C 125,300 155,230 178,255 
+                         C 195,220 215,190 232,165 Z" 
+                      fill="url(#muscle-shading)" />
+                      
+                <g stroke="#450a0a" stroke-width="1.5" opacity="0.45" fill="none">
+                    <path d="M 175,270 Q 170,330 195,400" />
+                    <path d="M 160,310 Q 165,370 200,450" />
+                    <path d="M 152,360 Q 165,420 205,500" />
+                    <path d="M 152,410 Q 170,470 210,540" />
+                    
+                    <path d="M 245,190 Q 260,250 235,380" />
+                    <path d="M 265,240 Q 275,300 235,420" />
+                    <path d="M 275,300 Q 280,360 230,470" />
+                    <path d="M 275,360 Q 270,430 225,520" />
+                    <path d="M 265,420 Q 255,480 220,550" />
+                    
+                    <path d="M 220,250 Q 215,350 215,450" stroke-width="3" opacity="0.2" />
+                </g>
+            </g>
+            
+            <g id="action-tendon">
+                <path d="M 195,400 
+                         C 190,470 195,580 195,650 
+                         C 195,700 195,720 200,730 
+                         C 215,735 225,730 230,730 
+                         C 235,720 235,700 235,650 
+                         C 235,580 240,470 235,400 
+                         C 225,430 205,430 195,400 Z" 
+                      fill="url(#tendon-shading)" opacity="0.85" />
+                      
+                <g stroke="#f8fafc" stroke-width="1.2" opacity="0.5" fill="none">
+                    <path d="M 210,420 Q 210,550 210,720" />
+                    <path d="M 215,430 Q 215,550 215,720" />
+                    <path d="M 220,420 Q 220,550 220,720" />
+                    
+                    <path d="M 225,440 Q 230,520 225,600" />
+                    <path d="M 230,470 Q 235,540 230,620" />
+                    
+                    <path d="M 205,440 Q 200,520 205,600" />
+                    <path d="M 200,470 Q 195,540 200,620" />
+                </g>
+            </g>
+            
+        </g>
+
+        <g style="pointer-events: none;">
+            <path d="M 175,120 
+                     C 150,140 100,280 135,430 
+                     C 155,510 185,550 195,580" 
+                  fill="none" stroke="#9c82a1" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.7" />
+            <path d="M 245,120 
+                     C 270,140 320,280 285,430 
+                     C 265,510 240,550 235,580" 
+                  fill="none" stroke="#9c82a1" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.7" />
+            <path d="M 195,580 C 215,540 215,540 235,580" fill="none" stroke="#9c82a1" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.7" />
+            <text x="145" y="480" fill="#9c82a1" font-size="12" opacity="0.8" font-family="sans-serif" style="text-shadow: 1px 1px 2px #000;">Gastrocnemius (cut)</text>
+        </g>
+
+    </svg>
+</body>
+</html>

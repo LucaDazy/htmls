@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SVG Preview: Biceps Brachii</title>
+    <style>
+        :root { 
+            --bg-color: #221924;      
+            --panel-bg: #3d1c60;      
+            --accent: #a5689d;        
+            --success: #4db6ac;
+            --text-main: #e0d0e3;     
+            --text-muted: #9c82a1;
+        }
+        body { 
+            background-color: var(--bg-color); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            color: var(--text-main); 
+            font-family: sans-serif; 
+            margin: 0;
+            padding: 20px;
+        }
+        svg { 
+            width: 350px; 
+            max-width: 100%;
+            border: 1px dashed var(--text-muted); 
+            background-color: var(--panel-bg); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-top: 15px;
+        }
+        .info-panel {
+            text-align: center;
+            max-width: 650px;
+            background: rgba(0,0,0,0.2);
+            padding: 15px 25px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .info-panel p {
+            margin: 5px 0;
+            font-size: 0.95em;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+        .info-panel strong {
+            color: var(--text-main);
+        }
+        .interactive-layer { 
+            transition: filter 0.3s ease; 
+        }
+        #origin-layer:hover, #insertion-layer:hover, #action-layer:hover {
+            filter: url(#glow);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="info-panel">
+        <h1>Preview: Biceps Brachii</h1>
+        <p>SVG ID: <strong>muscle_biceps_brachii</strong></p>
+        <p>Region / Origin: <strong>Coracoid process of scapula</strong></p>
+        <p>Landmarks / Insertion: <strong>Radial tuberosity</strong></p>
+        <p>Action: <strong>Flexes forearm at elbow & supinates forearm</strong></p>
+        <p><em>Note: Visualized from an anterior view of the right arm. Features the long head (lateral) and short head (medial), merging into a common belly and inserting distally onto the radius, alongside the bicipital aponeurosis fanning medially.</em></p>
+    </div>
+
+    <svg viewBox="0 0 400 800" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <linearGradient id="muscle-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#7f1d1d" />
+                <stop offset="35%" stop-color="#ef4444" />
+                <stop offset="80%" stop-color="#b91c1c" />
+                <stop offset="100%" stop-color="#450a0a" />
+            </linearGradient>
+            <linearGradient id="tendon-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#64748b" />
+                <stop offset="50%" stop-color="#f8fafc" />
+                <stop offset="100%" stop-color="#334155" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+
+        <g class="svg-bg" fill="url(#bone-shading)" opacity="0.4">
+            <path d="M 230,50 C 270,40 310,50 320,80 C 290,90 280,70 250,80 C 220,90 190,100 180,90 C 180,70 200,60 230,50 Z" />
+            <path d="M 220,80 C 240,90 255,100 250,115 C 245,125 230,120 220,110 C 210,100 215,85 220,80 Z" />
+            
+            <path d="M 190,80 C 215,75 225,95 210,120 L 220,550 C 240,580 250,600 230,620 L 150,620 C 130,600 140,580 160,550 L 170,120 C 150,100 170,80 190,80 Z" />
+            <path d="M 165,100 C 155,110 155,130 165,140" fill="none" stroke="#475569" stroke-width="2" opacity="0.6" /> <path d="M 195,110 C 205,120 205,140 195,150" fill="none" stroke="#475569" stroke-width="2" opacity="0.6" /> <path d="M 180,120 C 180,140 180,160 180,180" fill="none" stroke="#475569" stroke-width="3" opacity="0.5" /> <path d="M 140,625 C 130,630 175,630 165,625 L 165,645 C 180,655 180,680 165,690 L 140,810 L 110,810 L 145,645 Z" />
+            <path d="M 160,655 C 175,665 175,680 160,685 Z" fill="none" stroke="#475569" stroke-width="1.5" opacity="0.6" />
+
+            <path d="M 180,625 C 190,615 210,615 220,625 L 240,810 L 210,810 Z" />
+        </g>
+
+        <g id="origin-layer" class="interactive-layer">
+            <circle cx="238" cy="108" r="8" fill="var(--success)" />
+            
+            <ellipse cx="185" cy="85" rx="6" ry="4" fill="var(--success)" opacity="0.8" />
+        </g>
+        
+        <g id="insertion-layer" class="interactive-layer">
+            <ellipse cx="168" cy="670" rx="6" ry="14" fill="var(--accent)" />
+        </g>
+        
+        <g id="action-layer" class="interactive-layer">
+            
+            <g id="action-tendon">
+                <path d="M 185,85 C 175,130 175,180 180,225 C 188,225 195,225 200,225 C 195,180 195,130 195,85 Z" fill="url(#tendon-shading)" opacity="0.9" />
+                
+                <path d="M 238,108 C 230,150 225,185 215,225 C 205,225 200,225 195,225 C 205,185 215,150 228,108 Z" fill="url(#tendon-shading)" opacity="0.9" />
+
+                <path d="M 175,520 C 185,570 175,630 165,668 C 170,675 175,670 180,655 C 190,600 205,570 220,520 C 195,535 185,535 175,520 Z" fill="url(#tendon-shading)" opacity="0.9" />
+                
+                <path d="M 180,590 C 200,610 230,620 255,645 C 245,655 220,635 175,610 Z" fill="url(#tendon-shading)" opacity="0.75" />
+            </g>
+
+            <g id="action-belly">
+                <path d="M 180,225 
+                         C 150,330 150,440 175,520 
+                         C 185,535 210,535 220,520 
+                         C 245,440 245,330 215,225 
+                         C 205,275 190,275 180,225 Z" 
+                      fill="url(#muscle-shading)" />
+                      
+                <g stroke="#450a0a" stroke-width="1.5" opacity="0.4" fill="none">
+                    <path d="M 178,240 Q 160,370 180,510" />
+                    <path d="M 184,235 Q 170,370 188,515" />
+                    <path d="M 190,232 Q 180,370 196,518" />
+                    
+                    <path d="M 205,232 Q 215,370 204,518" />
+                    <path d="M 211,235 Q 230,370 212,515" />
+                    <path d="M 217,240 Q 240,370 220,510" />
+                    
+                    <path d="M 197,270 L 197,470" stroke-dasharray="8, 6" opacity="0.3" stroke-width="2" />
+                </g>
+            </g>
+            
+        </g>
+    </svg>
+</body>
+</html>

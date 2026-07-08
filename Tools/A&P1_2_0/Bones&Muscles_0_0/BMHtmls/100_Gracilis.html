@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SVG Preview: Gracilis</title>
+    <style>
+        :root { 
+            --bg-color: #221924;      
+            --panel-bg: #3d1c60;      
+            --accent: #a5689d;        
+            --success: #4db6ac;
+            --text-main: #e0d0e3;     
+            --text-muted: #9c82a1;
+        }
+        body { 
+            background-color: var(--bg-color); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            color: var(--text-main); 
+            font-family: sans-serif; 
+            margin: 0;
+            padding: 20px;
+        }
+        svg { 
+            width: 450px; 
+            max-width: 100%;
+            border: 1px dashed var(--text-muted); 
+            background-color: var(--panel-bg); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-top: 15px;
+        }
+        .info-panel {
+            text-align: center;
+            max-width: 650px;
+            background: rgba(0,0,0,0.2);
+            padding: 15px 25px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .info-panel p {
+            margin: 5px 0;
+            font-size: 0.95em;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+        .info-panel strong {
+            color: var(--text-main);
+        }
+        .interactive-layer { 
+            transition: filter 0.3s ease; 
+        }
+        #origin-layer:hover, #insertion-layer:hover, #action-layer:hover {
+            filter: url(#glow);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="info-panel">
+        <h1>Preview: Gracilis</h1>
+        <p>SVG ID: <strong>muscle_gracilis</strong></p>
+        <p>Region / Origin: <strong>Inferior ramus of pubis</strong></p>
+        <p>Landmarks / Insertion: <strong>Tibia (medial surface of proximal shaft)</strong></p>
+        <p>Action: <strong>Flexes lower, and medially rotates leg at knee, adducts thigh at hip</strong></p>
+        <p><em>Note: Visualized from an anterior view of the right thigh. The gracilis is the most superficial muscle on the medial side of the thigh. It is a long, strap-like muscle that descends almost vertically from the pubic arch to insert into the pes anserinus on the medial tibia, wrapping slightly posteriorly around the medial condyles.</em></p>
+    </div>
+
+    <svg viewBox="0 0 450 750" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <linearGradient id="muscle-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#7f1d1d" />
+                <stop offset="35%" stop-color="#ef4444" />
+                <stop offset="80%" stop-color="#b91c1c" />
+                <stop offset="100%" stop-color="#450a0a" />
+            </linearGradient>
+            <linearGradient id="tendon-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#64748b" />
+                <stop offset="50%" stop-color="#f8fafc" />
+                <stop offset="100%" stop-color="#334155" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+
+        <g class="svg-bg" opacity="0.4">
+            
+            <path d="M 80,50 L 80,700" stroke="#475569" stroke-width="2" stroke-dasharray="5,5" opacity="0.3" />
+            
+            <path d="M 80,340 C 65,340 45,330 55,300 C 65,290 75,290 80,290 Z" fill="url(#bone-shading)" opacity="0.3"/>
+
+            <path d="M 80,340 
+                     L 80,120 
+                     C 130,100 200,100 230,130 
+                     C 250,150 260,165 260,180 
+                     C 260,195 240,210 230,225 
+                     C 220,240 230,255 220,270 
+                     C 210,290 160,330 140,350 
+                     C 120,360 90,350 80,340 Z" 
+                  fill="url(#bone-shading)"/>
+                  
+            <path d="M 80,290 C 110,290 130,300 140,320" fill="none" stroke="#475569" stroke-width="2" opacity="0.5"/> <path d="M 100,300 C 130,290 140,320 120,340 C 105,335 95,320 100,300 Z" fill="var(--bg-color)" opacity="0.9"/>
+            <path d="M 90,345 C 100,380 125,385 135,360 C 120,360 100,360 90,345 Z" fill="url(#bone-shading)"/>
+
+            <circle cx="205" cy="265" r="22" fill="url(#bone-shading)" /> <path d="M 205,265 L 255,280 L 240,305 L 195,280 Z" fill="url(#bone-shading)" /> <path d="M 245,260 C 265,260 280,280 275,300 C 270,310 255,315 245,305 Z" fill="url(#bone-shading)" /> <path d="M 215,305 C 230,305 235,325 220,330 Z" fill="url(#bone-shading)" /> <path d="M 230,310 L 205,620 C 200,640 240,640 245,620 L 270,310 Z" fill="url(#bone-shading)" /> <path d="M 175,620 C 165,660 220,660 225,630 Z" fill="url(#bone-shading)" /> <path d="M 225,630 C 230,660 275,660 265,620 Z" fill="url(#bone-shading)" /> <path d="M 220,625 C 250,625 255,645 235,655 C 225,660 215,645 220,625 Z" fill="url(#bone-shading)" opacity="0.8" />
+
+            <path d="M 170,655 C 215,655 265,655 260,680 L 250,740 L 180,740 L 165,680 Z" fill="url(#bone-shading)" />
+            <path d="M 225,680 C 245,680 240,700 230,700 C 220,700 215,680 225,680 Z" fill="none" stroke="#475569" stroke-width="2" opacity="0.6" />
+            <path d="M 235,655 C 240,670 240,670 235,685 C 225,685 225,670 230,655 Z" fill="url(#tendon-shading)" opacity="0.5" />
+
+            <path d="M 265,660 C 275,660 280,680 270,690 L 265,740 L 255,740 L 260,690 Z" fill="url(#bone-shading)" />
+
+            <path d="M 100,320 C 130,400 160,500 175,580 L 195,500 C 160,420 130,350 120,310 Z" fill="url(#muscle-shading)" opacity="0.25" />
+            
+            <path d="M 105,295 C 130,320 170,360 220,410 L 205,510 C 160,450 130,360 115,305 Z" fill="url(#muscle-shading)" opacity="0.2" />
+            
+            <path d="M 250,170 C 260,180 250,250 230,350 C 210,450 180,550 170,620 C 165,650 155,670 160,690 L 170,690 C 165,670 175,650 180,620 C 190,550 220,450 240,350 C 260,250 270,180 250,170 Z" fill="url(#muscle-shading)" opacity="0.15" />
+            
+            <path d="M 215,380 C 180,450 160,550 205,615 L 235,615 C 225,550 220,450 225,380 Z" fill="url(#muscle-shading)" opacity="0.15" />
+
+        </g>
+
+        <g id="origin-layer" class="interactive-layer">
+            <ellipse cx="98" cy="320" rx="4" ry="12" transform="rotate(15 98 320)" fill="var(--success)" />
+        </g>
+        
+        <g id="insertion-layer" class="interactive-layer">
+            <path d="M 172,670 C 178,670 182,680 180,705 C 178,715 174,715 170,705 C 168,680 166,670 172,670 Z" fill="var(--accent)" />
+        </g>
+        
+        <g id="action-layer" class="interactive-layer">
+            
+            <g id="action-belly">
+                <path d="M 95,315 
+                         C 95,420 128,520 158,595 
+                         C 160,600 168,600 170,595 
+                         C 142,510 108,420 102,312 
+                         C 100,305 95,305 95,315 Z" 
+                      fill="url(#muscle-shading)" />
+                      
+                <g stroke="#450a0a" stroke-width="1.5" opacity="0.45" fill="none">
+                    <path d="M 97,325 Q 112,420 160,580" />
+                    <path d="M 100,320 Q 120,420 164,585" />
+                    <path d="M 103,320 Q 128,420 168,580" />
+                </g>
+            </g>
+            
+            <g id="action-tendon">
+                <path d="M 96,312 
+                         C 98,318 100,320 102,322 
+                         L 100,312 
+                         C 98,308 95,308 96,312 Z" 
+                      fill="url(#tendon-shading)" opacity="0.85" />
+
+                <path d="M 158,595 
+                         C 165,630 166,660 170,705 
+                         C 174,715 178,715 180,705 
+                         C 178,660 175,630 170,595 
+                         C 168,590 160,590 158,595 Z" 
+                      fill="url(#tendon-shading)" opacity="0.95" />
+                      
+                <g stroke="#f8fafc" stroke-width="1.2" opacity="0.5" fill="none">
+                    <path d="M 163,605 Q 169,650 173,695" />
+                    <path d="M 166,605 Q 172,650 176,695" />
+                    <path d="M 168,605 Q 174,650 178,695" />
+                </g>
+            </g>
+            
+        </g>
+        
+        <path d="M 160,670 C 180,670 190,690 190,720 C 180,710 160,700 160,670 Z" fill="#f8fafc" opacity="0.15" style="pointer-events: none;" />
+
+    </svg>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SVG Preview: Iliopsoas</title>
+    <style>
+        :root {
+            --bg-color: #221924;      
+            --panel-bg: #3d1c60;      
+            --accent: #a5689d;        
+            --success: #4db6ac;
+            --text-main: #e0d0e3;     
+            --text-muted: #9c82a1;
+        }
+        body { 
+            background-color: var(--bg-color); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            color: var(--text-main); 
+            font-family: sans-serif; 
+        }
+        svg { 
+            width: 400px; 
+            border: 1px dashed var(--text-muted); 
+            background-color: var(--panel-bg); 
+        }
+        .interactive-layer { 
+            transition: filter 0.3s ease; 
+        }
+        #origin-layer:hover, #insertion-layer:hover, #action-layer:hover {
+            filter: url(#glow);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Preview: Iliopsoas</h1>
+    <p>SVG ID: <strong>muscle_iliopsoas</strong></p>
+    <svg viewBox="0 0 400 580" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <linearGradient id="muscle-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#7f1d1d" />
+                <stop offset="35%" stop-color="#ef4444" />
+                <stop offset="80%" stop-color="#b91c1c" />
+                <stop offset="100%" stop-color="#450a0a" />
+            </linearGradient>
+            <linearGradient id="tendon-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#64748b" />
+                <stop offset="50%" stop-color="#f8fafc" />
+                <stop offset="100%" stop-color="#334155" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+        
+        <g class="svg-bg" fill="url(#bone-shading)" opacity="0.4">
+            <path d="M 160,70 L 240,70 L 240,85 L 160,85 Z" />
+            <path d="M 155,105 L 245,105 L 245,120 L 155,120 Z" />
+            <path d="M 150,145 L 250,145 L 250,160 L 150,160 Z" />
+            <path d="M 145,185 L 255,185 L 255,200 L 145,200 Z" />
+            <path d="M 140,225 L 260,225 L 260,245 L 140,245 Z" />
+            <path d="M 130,270 L 270,270 L 270,290 L 130,290 Z" />
+
+            <rect x="180" y="60" width="40" height="28" rx="4" />
+            <rect x="178" y="95" width="44" height="32" rx="4" />
+            <rect x="176" y="135" width="48" height="34" rx="4" />
+            <rect x="174" y="177" width="52" height="36" rx="5" />
+            <rect x="170" y="221" width="60" height="38" rx="5" />
+            <rect x="166" y="267" width="68" height="40" rx="5" />
+            
+            <path d="M 166,310 L 234,310 L 210,400 L 190,400 Z" />
+            
+            <path d="M 166,310 C 150,260 120,200 60,210 C 40,230 35,270 50,300 C 65,330 90,340 115,345 C 130,380 150,420 170,410 L 170,390 C 160,370 145,340 166,310 Z" />
+            
+            <path d="M 234,310 C 250,260 280,200 340,210 C 360,230 365,270 350,300 C 335,330 310,340 285,345 C 270,380 250,420 230,410 L 230,390 C 240,370 255,340 234,310 Z" />
+            
+            <path d="M 125,340 C 135,320 100,320 90,345 C 85,360 80,370 65,370 L 55,360 L 40,390 L 60,560 L 95,560 L 95,430 C 115,420 115,400 100,385 C 110,375 120,360 125,340 Z" />
+            
+            <path d="M 275,340 C 265,320 300,320 310,345 C 315,360 320,370 335,370 L 345,360 L 360,390 L 340,560 L 305,560 L 305,430 C 285,420 285,400 300,385 C 290,375 280,360 275,340 Z" />
+        </g>
+        
+        <g id="origin-layer" class="interactive-layer">
+            <circle cx="178" cy="74" r="5" fill="var(--success)" />
+            <circle cx="174" cy="111" r="5.5" fill="var(--success)" />
+            <circle cx="170" cy="152" r="6" fill="var(--success)" />
+            <circle cx="166" cy="195" r="6.5" fill="var(--success)" />
+            <circle cx="162" cy="240" r="7" fill="var(--success)" />
+            <circle cx="158" cy="287" r="7.5" fill="var(--success)" />
+            
+            <circle cx="222" cy="74" r="5" fill="var(--success)" />
+            <circle cx="226" cy="111" r="5.5" fill="var(--success)" />
+            <circle cx="230" cy="152" r="6" fill="var(--success)" />
+            <circle cx="234" cy="195" r="6.5" fill="var(--success)" />
+            <circle cx="238" cy="240" r="7" fill="var(--success)" />
+            <circle cx="242" cy="287" r="7.5" fill="var(--success)" />
+
+            <path d="M 60,220 C 50,250 55,280 65,300 C 85,310 115,310 125,290 C 115,260 90,225 60,220 Z" fill="var(--success)" />
+            <path d="M 340,220 C 350,250 345,280 335,300 C 315,310 285,310 275,290 C 285,260 310,225 340,220 Z" fill="var(--success)" />
+        </g>
+        
+        <g id="action-layer" class="interactive-layer">
+            <g id="action-belly">
+                <path d="M 175,70 C 150,150 135,250 130,340 C 135,355 125,370 120,380 L 105,380 C 115,350 125,280 145,180 C 155,130 165,90 185,70 Z" fill="url(#muscle-shading)" />
+                <path d="M 225,70 C 250,150 265,250 270,340 C 265,355 275,370 280,380 L 295,380 C 285,350 275,280 255,180 C 245,130 235,90 215,70 Z" fill="url(#muscle-shading)" />
+                
+                <path d="M 125,335 C 100,310 65,300 50,250 C 70,220 100,240 125,280 C 135,300 135,320 130,340 Z" fill="url(#muscle-shading)" />
+                <path d="M 275,335 C 300,310 335,300 350,250 C 330,220 300,240 275,280 C 265,300 265,320 270,340 Z" fill="url(#muscle-shading)" />
+
+                <g stroke="#450a0a" stroke-width="1.2" opacity="0.4" fill="none">
+                    <path d="M 175,90 Q 155,180 135,330" />
+                    <path d="M 180,110 Q 165,200 142,300" />
+                    <path d="M 165,150 Q 145,240 125,350" />
+                    <path d="M 60,250 Q 80,290 120,335" />
+                    <path d="M 80,240 Q 95,280 125,320" />
+                    <path d="M 100,245 Q 115,285 130,315" />
+                    
+                    <path d="M 225,90 Q 245,180 265,330" />
+                    <path d="M 220,110 Q 235,200 258,300" />
+                    <path d="M 235,150 Q 255,240 275,350" />
+                    <path d="M 340,250 Q 320,290 280,335" />
+                    <path d="M 320,240 Q 305,280 275,320" />
+                    <path d="M 300,245 Q 285,285 270,315" />
+                </g>
+            </g>
+            
+            <g id="action-tendon">
+                <path d="M 105,380 C 100,395 102,408 108,415 C 115,405 120,395 120,380 Z" fill="url(#tendon-shading)" />
+                <path d="M 110,380 Q 110,400 110,410" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" opacity="0.4" />
+                
+                <path d="M 295,380 C 300,395 298,408 292,415 C 285,405 280,395 280,380 Z" fill="url(#tendon-shading)" />
+                <path d="M 290,380 Q 290,400 290,410" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" opacity="0.4" />
+            </g>
+        </g>
+        
+        <g id="insertion-layer" class="interactive-layer">
+            <ellipse cx="108" cy="410" rx="5" ry="9" transform="rotate(-15 108 410)" fill="var(--accent)" />
+            <ellipse cx="292" cy="410" rx="5" ry="9" transform="rotate(15 292 410)" fill="var(--accent)" />
+        </g>
+    </svg>
+</body>
+</html>

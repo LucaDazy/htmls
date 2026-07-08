@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SVG Preview: Levator Scapulae</title>
+    <style>
+        :root { 
+            --bg-color: #221924;      
+            --panel-bg: #3d1c60;      
+            --accent: #a5689d;        
+            --success: #4db6ac;
+            --text-main: #e0d0e3;     
+            --text-muted: #9c82a1;
+        }
+        body { 
+            background-color: var(--bg-color); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            color: var(--text-main); 
+            font-family: sans-serif; 
+            margin: 0;
+            padding: 20px;
+        }
+        svg { 
+            width: 450px; 
+            max-width: 100%;
+            border: 1px dashed var(--text-muted); 
+            background-color: var(--panel-bg); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-top: 15px;
+        }
+        .info-panel {
+            text-align: center;
+            max-width: 650px;
+            background: rgba(0,0,0,0.2);
+            padding: 15px 25px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .info-panel p {
+            margin: 5px 0;
+            font-size: 0.95em;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+        .info-panel strong {
+            color: var(--text-main);
+        }
+        .interactive-layer { 
+            transition: filter 0.3s ease; 
+        }
+        #origin-layer:hover, #insertion-layer:hover, #action-layer:hover {
+            filter: url(#glow);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="info-panel">
+        <h1>Preview: Levator Scapulae</h1>
+        <p>SVG ID: <strong>muscle_levator_scapulae</strong></p>
+        <p>Region / Origin: <strong>Transverse processes of cervical vertebrae (1-4)</strong></p>
+        <p>Landmarks / Insertion: <strong>Scapula</strong></p>
+        <p>Action: <strong>Elevates scapula</strong></p>
+        <p><em>Note: Visualized from a posterior view of the right neck and upper back. The levator scapulae descends from the transverse processes of the first four cervical vertebrae, twisting slightly as its slips converge, to insert on the superior angle and upper medial border of the scapula.</em></p>
+    </div>
+
+    <svg viewBox="0 0 450 500" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <linearGradient id="muscle-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#7f1d1d" />
+                <stop offset="35%" stop-color="#ef4444" />
+                <stop offset="80%" stop-color="#b91c1c" />
+                <stop offset="100%" stop-color="#450a0a" />
+            </linearGradient>
+            <linearGradient id="tendon-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#64748b" />
+                <stop offset="50%" stop-color="#f8fafc" />
+                <stop offset="100%" stop-color="#334155" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+
+        <!-- Background Context (Skull Base, Spine, Scapula, Ribs) -->
+        <g class="svg-bg" opacity="0.4">
+            
+            <!-- Base of Skull (Occipital Bone) -->
+            <path d="M 50,60 C 100,110 160,110 210,60 C 210,80 180,100 130,100 C 80,100 50,80 50,60 Z" fill="url(#bone-shading)" />
+            
+            <!-- Cervical and Upper Thoracic Spine (Central Column) -->
+            <path d="M 120,100 L 140,100 L 140,380 L 120,380 Z" fill="url(#bone-shading)" />
+            
+            <!-- Spinous Processes -->
+            <g fill="url(#bone-shading)" stroke="#475569" stroke-width="1.5">
+                <rect x="125" y="140" width="10" height="15" rx="3" /> <!-- C2 -->
+                <rect x="125" y="165" width="10" height="15" rx="3" /> <!-- C3 -->
+                <rect x="125" y="190" width="10" height="15" rx="3" /> <!-- C4 -->
+                <rect x="125" y="215" width="10" height="15" rx="3" /> <!-- C5 -->
+                <rect x="125" y="240" width="10" height="15" rx="3" /> <!-- C6 -->
+                <rect x="123" y="265" width="14" height="20" rx="3" /> <!-- C7 (Vertebra Prominens) -->
+                <rect x="123" y="295" width="14" height="20" rx="3" /> <!-- T1 -->
+                <rect x="123" y="325" width="14" height="20" rx="3" /> <!-- T2 -->
+            </g>
+
+            <!-- Transverse Processes (Left side context) -->
+            <g fill="url(#bone-shading)">
+                <circle cx="95" cy="125" r="5" />
+                <circle cx="105" cy="155" r="4" />
+                <circle cx="105" cy="180" r="4" />
+                <circle cx="105" cy="205" r="4" />
+            </g>
+
+            <!-- Ribs (Right side deep context) -->
+            <g stroke="url(#bone-shading)" stroke-width="10" fill="none" stroke-linecap="round" opacity="0.6">
+                <path d="M 140,280 C 170,270 220,280 270,320" /> <!-- Rib 1 -->
+                <path d="M 140,310 C 170,300 220,310 270,350" /> <!-- Rib 2 -->
+                <path d="M 140,340 C 170,330 220,340 270,380" /> <!-- Rib 3 -->
+                <path d="M 140,370 C 170,360 220,370 270,410" /> <!-- Rib 4 -->
+            </g>
+
+            <!-- Right Scapula (Posterior View) -->
+            <path d="M 215,245 
+                     L 205,285 
+                     L 190,380 
+                     L 220,360 
+                     L 280,270 
+                     L 250,240 Z" 
+                  fill="url(#bone-shading)" />
+            <!-- Spine of Scapula -->
+            <path d="M 205,285 C 240,270 280,265 310,250" fill="none" stroke="#475569" stroke-width="6" stroke-linecap="round" opacity="0.8" />
+            
+            <!-- Right Clavicle (Faint superior context) -->
+            <path d="M 310,250 C 290,230 250,210 170,220" fill="none" stroke="url(#bone-shading)" stroke-width="12" stroke-linecap="round" opacity="0.5" />
+
+        </g>
+
+        <!-- INTERACTIVE LAYERS -->
+        
+        <!-- Origin Layer: Transverse processes of C1-C4 -->
+        <g id="origin-layer" class="interactive-layer">
+            <ellipse cx="165" cy="125" rx="6" ry="4" fill="var(--success)" />
+            <ellipse cx="155" cy="155" rx="5" ry="4" fill="var(--success)" />
+            <ellipse cx="155" cy="180" rx="5" ry="4" fill="var(--success)" />
+            <ellipse cx="155" cy="205" rx="5" ry="4" fill="var(--success)" />
+        </g>
+        
+        <!-- Action Layer: Main Muscle Belly and Tendons -->
+        <g id="action-layer" class="interactive-layer">
+            
+            <!-- Muscle Belly -->
+            <g id="action-belly">
+                <!-- Main Levator Scapulae mass combining 4 slips -->
+                <path d="M 165,122 
+                         C 195,150 215,190 218,245 
+                         L 205,285 
+                         C 180,240 165,225 152,210 
+                         L 152,150 
+                         L 165,122 Z" 
+                      fill="url(#muscle-shading)" />
+                      
+                <!-- Muscle Fiber Striations representing the 4 twisted slips -->
+                <g stroke="#450a0a" stroke-width="1.5" opacity="0.45" fill="none">
+                    <!-- Slip 1 (from C1, twists to insert most posteriorly/inferiorly on the attachment site) -->
+                    <path d="M 165,125 Q 195,180 215,248" />
+                    <path d="M 170,135 Q 198,185 212,258" />
+                    <!-- Slip 2 (from C2) -->
+                    <path d="M 155,155 Q 185,195 212,260" />
+                    <!-- Slip 3 (from C3) -->
+                    <path d="M 155,180 Q 175,215 208,275" />
+                    <!-- Slip 4 (from C4, inserts most anteriorly/superiorly) -->
+                    <path d="M 155,205 Q 170,230 206,282" />
+                    <path d="M 154,192 Q 172,222 207,268" />
+                </g>
+            </g>
+            
+            <!-- Tendons & Aponeuroses -->
+            <g id="action-tendon">
+                <!-- Distal Tendon (Insertion at Scapula) -->
+                <path d="M 218,245 L 205,285 L 200,280 L 213,240 Z" fill="url(#tendon-shading)" opacity="0.8" />
+                
+                <!-- Proximal Tendinous Origins -->
+                <path d="M 165,122 L 168,130 L 160,130 Z" fill="url(#tendon-shading)" opacity="0.8" />
+                <path d="M 155,152 L 158,160 L 150,160 Z" fill="url(#tendon-shading)" opacity="0.8" />
+                <path d="M 155,177 L 158,185 L 150,185 Z" fill="url(#tendon-shading)" opacity="0.8" />
+                <path d="M 155,202 L 158,210 L 150,210 Z" fill="url(#tendon-shading)" opacity="0.8" />
+                
+                <!-- Tendon Striations at Insertion -->
+                <g stroke="#f8fafc" stroke-width="1.5" opacity="0.4" fill="none">
+                    <line x1="215" y1="248" x2="210" y2="260" />
+                    <line x1="210" y1="262" x2="205" y2="275" />
+                </g>
+            </g>
+            
+        </g>
+        
+        <!-- Insertion Layer: Superior angle and upper medial border of scapula -->
+        <g id="insertion-layer" class="interactive-layer">
+            <path d="M 215,245 L 205,285 L 200,285 L 210,245 Z" fill="var(--accent)" />
+        </g>
+        
+    </svg>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SVG Preview: Extensor Carpi Radialis Longus</title>
+    <style>
+        :root { 
+            --bg-color: #221924;      
+            --panel-bg: #3d1c60;      
+            --accent: #a5689d;        
+            --success: #4db6ac;
+            --text-main: #e0d0e3;     
+            --text-muted: #9c82a1;
+        }
+        body { 
+            background-color: var(--bg-color); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            color: var(--text-main); 
+            font-family: sans-serif; 
+            margin: 0;
+            padding: 20px;
+        }
+        svg { 
+            width: 450px; 
+            max-width: 100%;
+            border: 1px dashed var(--text-muted); 
+            background-color: var(--panel-bg); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-top: 15px;
+        }
+        .info-panel {
+            text-align: center;
+            max-width: 650px;
+            background: rgba(0,0,0,0.2);
+            padding: 15px 25px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .info-panel p {
+            margin: 5px 0;
+            font-size: 0.95em;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+        .info-panel strong {
+            color: var(--text-main);
+        }
+        .interactive-layer { 
+            transition: filter 0.3s ease; 
+        }
+        #origin-layer:hover, #insertion-layer:hover, #action-layer:hover {
+            filter: url(#glow);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="info-panel">
+        <h1>Preview: Extensor Carpi Radialis Longus</h1>
+        <p>SVG ID: <strong>muscle_extensor_carpi_radialis_longus</strong></p>
+        <p>Region / Origin: <strong>Lateral supracondylar ridge of humerus</strong></p>
+        <p>Landmarks / Insertion: <strong>Base of 2nd metacarpal</strong></p>
+        <p>Action: <strong>Extends and abducts wrist</strong></p>
+        <p><em>Note: Visualized from a posterior view of the right forearm. The extensor carpi radialis longus originates high on the lateral supracondylar ridge. Its fusiform belly sweeps down the lateral aspect of the posterior forearm, transitioning into a long tendon that passes beneath the extensor retinaculum to insert on the dorsal base of the second metacarpal.</em></p>
+    </div>
+
+    <svg viewBox="0 0 450 650" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <linearGradient id="muscle-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#7f1d1d" />
+                <stop offset="35%" stop-color="#ef4444" />
+                <stop offset="80%" stop-color="#b91c1c" />
+                <stop offset="100%" stop-color="#450a0a" />
+            </linearGradient>
+            <linearGradient id="tendon-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#64748b" />
+                <stop offset="50%" stop-color="#f8fafc" />
+                <stop offset="100%" stop-color="#334155" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+
+        <g class="svg-bg" opacity="0.4">
+            
+            <path d="M 180,30 
+                     L 230,30 
+                     L 230,80 
+                     C 260,110 270,140 250,155 
+                     C 225,165 185,165 160,155 
+                     C 140,140 150,110 180,80 Z" 
+                  fill="url(#bone-shading)" />
+            <path d="M 185,130 C 195,115 215,115 225,130 C 220,145 190,145 185,130 Z" fill="var(--bg-color)" opacity="0.5" />
+            <path d="M 250,155 C 265,165 275,145 260,135" fill="url(#bone-shading)" />
+
+            <path d="M 220,160 
+                     L 260,160 
+                     L 265,180 
+                     L 215,180 Z" 
+                  fill="url(#bone-shading)" />
+            <path d="M 215,180 
+                     C 220,250 220,350 225,450 
+                     L 265,450 
+                     C 270,350 265,250 265,180 Z" 
+                  fill="url(#bone-shading)" />
+            <path d="M 220,160 Q 240,155 260,160" fill="none" stroke="#475569" stroke-width="1.5" />
+
+            <path d="M 160,140 
+                     C 180,130 200,130 220,140 
+                     L 215,160 
+                     L 165,160 Z" 
+                  fill="url(#bone-shading)" />
+            <path d="M 160,155 
+                     C 180,155 200,160 215,160 
+                     L 210,180 
+                     L 160,180 Z" 
+                  fill="url(#bone-shading)" />
+            <path d="M 160,180 
+                     C 170,250 180,350 190,450 
+                     L 220,450 
+                     C 215,350 210,250 210,180 Z" 
+                  fill="url(#bone-shading)" />
+
+            <rect x="180" y="455" width="90" height="30" rx="10" fill="url(#bone-shading)" opacity="0.8" />
+
+            <path d="M 270,470 L 310,540 L 300,550 L 265,480 Z" fill="url(#bone-shading)" />
+            <path d="M 250,490 L 265,590 L 250,595 L 235,490 Z" fill="url(#bone-shading)" />
+            <path d="M 225,490 L 230,600 L 215,600 L 210,490 Z" fill="url(#bone-shading)" />
+            <path d="M 200,490 L 190,590 L 175,590 L 185,490 Z" fill="url(#bone-shading)" />
+            <path d="M 175,485 L 150,550 L 135,545 L 160,485 Z" fill="url(#bone-shading)" />
+
+            <path d="M 225,60 C 270,90 290,140 285,200 C 280,260 260,320 255,380 L 245,380 C 255,250 250,150 220,70 Z" fill="url(#muscle-shading)" opacity="0.25" />
+            <path d="M 250,150 C 230,250 220,350 220,440 L 235,440 C 240,350 250,250 260,150 Z" fill="url(#muscle-shading)" opacity="0.25" />
+            
+            <path d="M 175,445 Q 225,435 275,450 L 278,465 Q 225,450 170,465 Z" fill="#94a3b8" opacity="0.3" />
+
+        </g>
+
+        <g id="origin-layer" class="interactive-layer">
+            <path d="M 228,85 C 242,105 252,125 250,140 L 242,138 C 244,122 235,102 222,88 Z" fill="var(--success)" />
+        </g>
+        
+        <g id="insertion-layer" class="interactive-layer">
+            <ellipse cx="242" cy="495" rx="6" ry="10" transform="rotate(-15 242 495)" fill="var(--accent)" />
+        </g>
+        
+        <g id="action-layer" class="interactive-layer">
+            
+            <g id="action-belly">
+                <path d="M 225,85 
+                         C 255,110 285,155 275,235 
+                         C 265,295 255,325 248,335 
+                         L 235,330 
+                         C 242,285 250,225 230,155 
+                         C 220,115 220,95 225,85 Z" 
+                      fill="url(#muscle-shading)" />
+                      
+                <g stroke="#450a0a" stroke-width="1.5" opacity="0.45" fill="none">
+                    <path d="M 235,100 Q 255,140 265,230" />
+                    <path d="M 240,110 Q 265,150 270,240" />
+                    <path d="M 243,120 Q 270,170 263,270" />
+                    <path d="M 230,115 Q 245,160 240,240" />
+                    <path d="M 247,130 Q 280,190 255,310" />
+                    <path d="M 250,145 Q 280,210 245,330" />
+                </g>
+            </g>
+            
+            <g id="action-tendon">
+                <path d="M 248,320 
+                         C 255,380 255,440 244,495 
+                         C 242,502 238,502 236,495 
+                         C 238,430 238,370 232,320 Z" 
+                      fill="url(#tendon-shading)" opacity="0.95" />
+                      
+                <g stroke="#f8fafc" stroke-width="1.2" opacity="0.5" fill="none">
+                    <path d="M 240,330 Q 246,390 238,490" />
+                    <path d="M 245,330 Q 251,390 242,490" />
+                </g>
+            </g>
+            
+        </g>
+    </svg>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SVG Preview: Subscapularis</title>
+    <style>
+        :root { 
+            --bg-color: #221924;      
+            --panel-bg: #3d1c60;      
+            --accent: #a5689d;        
+            --success: #4db6ac;
+            --text-main: #e0d0e3;     
+            --text-muted: #9c82a1;
+        }
+        body { 
+            background-color: var(--bg-color); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            color: var(--text-main); 
+            font-family: sans-serif; 
+            margin: 0;
+            padding: 20px;
+        }
+        svg { 
+            width: 450px; 
+            max-width: 100%;
+            border: 1px dashed var(--text-muted); 
+            background-color: var(--panel-bg); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-top: 15px;
+        }
+        .info-panel {
+            text-align: center;
+            max-width: 650px;
+            background: rgba(0,0,0,0.2);
+            padding: 15px 25px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .info-panel p {
+            margin: 5px 0;
+            font-size: 0.95em;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+        .info-panel strong {
+            color: var(--text-main);
+        }
+        .interactive-layer { 
+            transition: filter 0.3s ease; 
+        }
+        #origin-layer:hover, #insertion-layer:hover, #action-layer:hover {
+            filter: url(#glow);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="info-panel">
+        <h1>Preview: Subscapularis</h1>
+        <p>SVG ID: <strong>muscle_subscapularis</strong></p>
+        <p>Region / Origin: <strong>Subscapular fossa of scapula</strong></p>
+        <p>Landmarks / Insertion: <strong>Lesser tubercle of humerus</strong></p>
+        <p>Action: <strong>Medial rotation of humerus</strong></p>
+        <p><em>Note: Visualized from an anterior view of the right shoulder girdle. The subscapularis is a large, multipennate muscle that fills the subscapular fossa. Its broad fibers converge into a thick tendon that crosses the anterior shoulder joint to insert onto the lesser tubercle. It is the largest of the four rotator cuff muscles.</em></p>
+    </div>
+
+    <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <linearGradient id="muscle-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#7f1d1d" />
+                <stop offset="35%" stop-color="#ef4444" />
+                <stop offset="80%" stop-color="#b91c1c" />
+                <stop offset="100%" stop-color="#450a0a" />
+            </linearGradient>
+            <linearGradient id="tendon-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#64748b" />
+                <stop offset="50%" stop-color="#f8fafc" />
+                <stop offset="100%" stop-color="#334155" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+
+        <!-- Background Context (Ribs, Clavicle, Scapula, Humerus) -->
+        <g class="svg-bg" opacity="0.4">
+            
+            <!-- Deep Ribcage Context (Faint, behind the scapula) -->
+            <g stroke="url(#bone-shading)" stroke-width="12" fill="none" stroke-linecap="round" opacity="0.4">
+                <path d="M 60,150 C 110,160 160,170 180,220" />
+                <path d="M 50,200 C 100,210 160,220 180,270" />
+                <path d="M 50,250 C 100,260 160,270 180,320" />
+                <path d="M 60,300 C 110,310 160,320 180,370" />
+            </g>
+
+            <!-- Right Clavicle (Anterior View) -->
+            <path d="M 50,110 C 130,90 220,110 300,90 C 330,80 350,110 370,120 C 350,135 320,115 290,115 C 220,135 130,120 50,135 Z" fill="url(#bone-shading)" />
+            
+            <!-- Right Scapula (Anterior View - Subscapular Fossa) -->
+            <path d="M 180,140 
+                     C 230,130 280,140 310,150 
+                     C 300,170 320,180 350,170 
+                     C 360,190 350,220 330,240 
+                     C 290,310 250,380 220,420 
+                     C 180,310 160,210 180,140 Z" 
+                  fill="url(#bone-shading)" />
+                  
+            <!-- Scapula Details (Coracoid Process & Acromion) -->
+            <path d="M 310,150 C 300,120 270,110 260,120 C 250,130 280,140 300,150 Z" fill="url(#bone-shading)" /> <!-- Coracoid -->
+            <path d="M 330,130 C 350,110 370,115 380,135 C 370,145 350,140 330,130 Z" fill="url(#bone-shading)" /> <!-- Acromion (peeking behind) -->
+            
+            <!-- Bony ridges on subscapular fossa (for multipennate attachment) -->
+            <g stroke="#475569" stroke-width="2" fill="none" opacity="0.3">
+                <path d="M 185,180 C 230,185 270,195 300,210" />
+                <path d="M 180,240 C 220,245 260,245 295,230" />
+                <path d="M 185,300 C 210,300 240,285 275,255" />
+            </g>
+
+            <!-- Right Humerus (Anterior View) -->
+            <path d="M 355,160 
+                     C 370,140 395,140 415,150 
+                     C 435,170 425,210 415,230 
+                     L 395,450 
+                     L 345,450 
+                     L 365,230 
+                     C 355,210 350,180 355,160 Z" 
+                  fill="url(#bone-shading)" />
+                  
+            <!-- Humerus Details: Lesser Tubercle, Greater Tubercle, Intertubercular Sulcus -->
+            <path d="M 375,175 C 390,170 400,180 390,195 C 380,200 370,190 375,175 Z" fill="none" stroke="#475569" stroke-width="2" opacity="0.6" /> <!-- Lesser Tubercle outline -->
+            <path d="M 400,165 C 410,160 420,165 425,180" fill="none" stroke="#475569" stroke-width="2" opacity="0.5" /> <!-- Greater Tubercle outline -->
+            <path d="M 392,195 L 385,260" fill="none" stroke="#475569" stroke-width="3" opacity="0.4" /> <!-- Intertubercular sulcus -->
+
+        </g>
+
+        <!-- INTERACTIVE LAYERS -->
+        
+        <!-- Origin Layer: Subscapular fossa of scapula -->
+        <g id="origin-layer" class="interactive-layer">
+            <path d="M 183,143 
+                     C 230,135 275,145 305,155 
+                     C 295,175 315,190 325,210 
+                     C 290,270 255,340 220,415 
+                     C 183,310 165,210 183,143 Z" 
+                  fill="var(--success)" />
+        </g>
+        
+        <!-- Insertion Layer: Lesser tubercle of humerus -->
+        <g id="insertion-layer" class="interactive-layer">
+            <ellipse cx="382" cy="185" rx="8" ry="14" transform="rotate(-15 382 185)" fill="var(--accent)" />
+        </g>
+        
+        <!-- Action Layer: Main Muscle Belly and Tendons -->
+        <g id="action-layer" class="interactive-layer">
+            
+            <!-- Muscle Belly -->
+            <g id="action-belly">
+                <!-- Multipennate Muscle Belly filling the Subscapular Fossa -->
+                <path d="M 183,143 
+                         C 230,135 275,145 305,155 
+                         L 315,225 
+                         C 290,280 255,340 220,415 
+                         C 183,310 165,210 183,143 Z" 
+                      fill="url(#muscle-shading)" />
+                      
+                <!-- Muscle Fiber Striations & Intramuscular Tendons -->
+                <g stroke="#450a0a" stroke-width="1.5" opacity="0.45" fill="none">
+                    <!-- Superior fascicles -->
+                    <path d="M 185,155 Q 240,155 305,175" />
+                    <path d="M 180,170 Q 245,170 308,185" />
+                    <path d="M 175,185 Q 240,185 310,195" />
+                    <!-- Middle fascicles -->
+                    <path d="M 173,210 Q 235,210 312,205" />
+                    <path d="M 175,235 Q 235,225 310,215" />
+                    <path d="M 178,260 Q 240,240 305,225" />
+                    <!-- Inferior fascicles -->
+                    <path d="M 185,290 Q 245,260 295,235" />
+                    <path d="M 195,330 Q 245,280 285,245" />
+                    <path d="M 210,380 Q 245,310 280,250" />
+                </g>
+                
+                <!-- White/Grey Intramuscular Tendon Bands (Characteristics of Subscapularis) -->
+                <g stroke="#f8fafc" stroke-width="2.5" opacity="0.3" fill="none" stroke-linecap="round">
+                    <path d="M 190,185 Q 240,185 300,195" />
+                    <path d="M 185,245 Q 240,235 305,215" />
+                    <path d="M 195,310 Q 240,280 290,235" />
+                </g>
+            </g>
+            
+            <!-- Tendons & Aponeuroses -->
+            <g id="action-tendon">
+                <!-- Distal Tendon (Broad, thick tendon inserting on lesser tubercle) -->
+                <path d="M 305,155 
+                         C 335,160 360,165 378,173 
+                         C 385,185 385,195 380,200 
+                         C 350,210 330,220 315,225 
+                         C 320,200 315,175 305,155 Z" 
+                      fill="url(#tendon-shading)" opacity="0.9" />
+                      
+                <!-- Tendinous Connective Details / Glints -->
+                <g stroke="#f8fafc" stroke-width="1.5" opacity="0.5" fill="none">
+                    <path d="M 315,165 Q 345,170 375,180" />
+                    <path d="M 320,185 Q 350,185 378,190" />
+                    <path d="M 320,205 Q 350,200 375,195" />
+                </g>
+            </g>
+            
+        </g>
+    </svg>
+</body>
+</html>

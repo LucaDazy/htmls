@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SVG Preview: Inferior Nasal Concha</title>
+    <style>
+        :root { 
+            --bg-color: #221924;      
+            --panel-bg: #3d1c60;      
+            --accent: #a5689d;        
+            --success: #4db6ac;
+            --text-main: #e0d0e3;     
+            --text-muted: #9c82a1;
+        }
+        body { 
+            background-color: var(--bg-color); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            color: var(--text-main); 
+            font-family: sans-serif; 
+        }
+        svg { 
+            width: 400px; 
+            border: 1px dashed var(--text-muted); 
+            background-color: var(--panel-bg); 
+        }
+        .interactive-layer { 
+            transition: filter 0.3s ease; 
+        }
+        #region-layer:hover, #landmarks-layer:hover {
+            filter: url(#glow);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Preview: Inferior Nasal Concha</h1>
+    <p>SVG ID: <strong>bone_inferior_nasal_concha</strong></p>
+    <svg viewBox="0 40 400 320" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bone-shading" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#94a3b8" />
+                <stop offset="25%" stop-color="#f1f5f9" />
+                <stop offset="75%" stop-color="#cbd5e1" />
+                <stop offset="100%" stop-color="#475569" />
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+        
+        <!-- Background Bones (Coronal view of nasal cavity, orbits, and maxillary sinuses) -->
+        <g class="svg-bg" fill="url(#bone-shading)" opacity="0.4">
+            <!-- Frontal/Ethmoid Superior Margin -->
+            <path d="M 175,50 L 225,50 C 220,80 205,90 205,100 L 195,100 C 195,90 180,80 175,50 Z" />
+
+            <!-- Left Maxilla & Zygomatic Bone (Viewer's Left, Anatomic Right) -->
+            <path d="M 20,90 C 70,80 110,85 130,115 C 130,115 138,150 136,205 C 125,240 125,280 135,300 C 135,300 170,305 195,300 L 195,320 L 20,320 Z" />
+            
+            <!-- Right Maxilla & Zygomatic Bone (Viewer's Right, Anatomic Left) -->
+            <path d="M 380,90 C 330,80 290,85 270,115 C 270,115 262,150 264,205 C 275,240 275,280 265,300 C 265,300 230,305 205,300 L 205,320 L 380,320 Z" />
+            
+            <!-- Orbital Cavities (Shadows) -->
+            <path d="M 40,95 C 70,85 100,95 110,120 C 120,145 80,175 40,160 C 20,150 10,120 40,95 Z" fill="#221924" opacity="0.8"/>
+            <path d="M 360,95 C 330,85 300,95 290,120 C 280,145 320,175 360,160 C 380,150 390,120 360,95 Z" fill="#221924" opacity="0.8"/>
+
+            <!-- Maxillary Sinuses (Shadows) -->
+            <path d="M 50,190 C 80,180 105,195 110,220 C 115,255 110,280 90,290 C 70,300 40,280 40,240 Z" fill="#221924" opacity="0.8"/>
+            <path d="M 350,190 C 320,180 295,195 290,220 C 285,255 290,280 310,290 C 330,300 360,280 360,240 Z" fill="#221924" opacity="0.8"/>
+
+            <!-- Nasal Septum (Perpendicular plate of ethmoid & Vomer) -->
+            <path d="M 194,100 L 206,100 L 206,300 L 194,300 Z" />
+
+            <!-- Superior & Middle Nasal Conchae (Ethmoid bone) -->
+            <path d="M 136,130 C 160,130 175,145 175,160 C 175,175 160,185 150,180 C 145,175 140,150 136,150 Z" />
+            <path d="M 264,130 C 240,130 225,145 225,160 C 225,175 240,185 250,180 C 255,175 260,150 264,150 Z" />
+            
+            <!-- Maxillary Alveolar Process (Teeth roots indicator) -->
+            <path d="M 140,320 L 150,345 L 160,320 Z M 165,320 L 175,350 L 185,320 Z M 215,320 L 225,350 L 235,320 Z M 240,320 L 250,345 L 260,320 Z" fill="#e2e8f0" stroke="#475569" stroke-width="1" opacity="0.6"/>
+        </g>
+        
+        <!-- INTERACTIVE LAYERS -->
+        <g id="region-layer" class="interactive-layer">
+            <!-- Left Inferior Nasal Concha (Anatomic Right) -->
+            <path d="M 136,205 C 170,210 185,230 185,260 C 185,285 145,285 145,260 C 145,245 155,240 165,245 C 175,250 175,270 155,275 C 135,280 125,250 136,220 Z" fill="url(#bone-shading)" stroke="#475569" stroke-width="2" stroke-linejoin="round"/>
+            
+            <!-- Right Inferior Nasal Concha (Anatomic Left) -->
+            <path d="M 264,205 C 230,210 215,230 215,260 C 215,285 255,285 255,260 C 255,245 245,240 235,245 C 225,250 225,270 245,275 C 265,280 275,250 264,220 Z" fill="url(#bone-shading)" stroke="#475569" stroke-width="2" stroke-linejoin="round"/>
+        </g>
+
+        <!-- Landmarks Layer -->
+        <g id="landmarks-layer" class="interactive-layer">
+            <!-- Landmark Highlight: Inferior border / scroll of the concha (Left) -->
+            <path d="M 185,260 C 185,285 145,285 145,260 C 145,255 150,250 155,250 C 150,275 180,275 180,260 Z" fill="var(--accent)" />
+            
+            <!-- Landmark Highlight: Inferior border / scroll of the concha (Right) -->
+            <path d="M 215,260 C 215,285 255,285 255,260 C 255,255 250,250 245,250 C 250,275 220,275 220,260 Z" fill="var(--accent)" />
+        </g>
+    </svg>
+</body>
+</html>
