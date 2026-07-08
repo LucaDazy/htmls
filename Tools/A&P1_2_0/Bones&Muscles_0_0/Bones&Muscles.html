@@ -270,6 +270,7 @@
             top: 50%;
             transform: translateY(-50%);
             width: 200px;
+            height: 200px; /* Set an explicit height */
             z-index: 20;
             background: var(--panel-bg);
             border-radius: 8px;
@@ -286,16 +287,22 @@
         }
         .turntable-container img {
             width: 100%;
-            height: auto;
+            height: 100%; /* Make image fill the container */
+            object-fit: cover;
             display: block;
-            background: #000; /* Dark background for transparent GIFs */
+            background: #000;
         }
         .turntable-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
             padding: 0.5rem;
             font-size: 0.8rem;
             text-align: center;
             color: var(--text-muted);
-            background: var(--hover-bg);
+            background: rgba(40, 20, 60, 0.8); /* Semi-transparent background */
+            backdrop-filter: blur(3px); /* Frosted glass effect */
             text-transform: uppercase;
             letter-spacing: 1px;
             font-family: var(--font-family-mono);
