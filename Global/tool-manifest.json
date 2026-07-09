@@ -5,6 +5,12 @@
     "sort2": 0,
     "tools": [
       {
+        "name": "AnatomicalPositions",
+        "path": "Tools/A&P1_2_0/AnatomicalPositions_1_1/AnatomicalPositions.html",
+        "sort1": 1,
+        "sort2": 1
+      },
+      {
         "name": "Bones&Muscles",
         "path": "Tools/A&P1_2_0/Bones&Muscles_0_0/Bones&Muscles.html",
         "sort1": 0,
