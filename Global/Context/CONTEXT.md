@@ -23,7 +23,7 @@ The visual theme is a strict, minimalist, dark-mode aesthetic heavily inspired b
 
 **Layout & Branding:**
 *   **Tool Titles:** Each tool page should feature a single, prominent `<h1>` title using the `--font-family-display` font. Titles should be concise and descriptive (e.g., "Rat Structure"). Subtitles should be avoided to maintain a clean aesthetic.
-*   **Corner Watermarks:** To ensure consistent branding, all tool pages must include two corner watermarks. These are implemented with `<div class="corner-watermark watermark-left">...</div>` and `<div class="corner-watermark watermark-right">...</div>` placed directly inside the `<body>` tag. The left watermark should contain project info (e.g., "Study Hub v1.0"), and the right should specify the relevant course (e.g., "BI 112 Prereq.").
+*   **Corner Watermarks:** To ensure consistent branding, all tool pages must include the global logo and avatar as corner watermarks. These are implemented with `<img src="..." alt="..." class="corner-logo">` and `<img src="..." alt="..." class="corner-avatar">` placed directly inside the `<body>` tag. The `.corner-logo` (Study Hub logo) should be on the left, and the `.corner-avatar` should be on the right. Their styles are defined globally in `main.css`.
 
 **Color Palette (CSS Variables located in `Global/Css/main.css`):**  
 ```css

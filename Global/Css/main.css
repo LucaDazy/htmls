@@ -167,24 +167,25 @@ body {
 #loading { text-align: center; color: var(--accent); font-size: 1.1rem; margin-bottom: 1rem; }
 #rate-limit-warning { color: var(--error); font-size: 0.9rem; text-align: center; margin-bottom: 1.5rem; display: none; }
 
-/* === Corner Watermarks === */
-.corner-watermark {
+/* === Corner Graphics === */
+.corner-logo,
+.corner-avatar {
     position: fixed;
-    bottom: 1rem;
-    font-family: var(--font-family-mono);
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    opacity: 0.5;
-    z-index: 1000;
-    pointer-events: none; /* So they don't interfere with content */
+    bottom: 1.5rem;
+    width: 160px;
+    height: auto;
+    z-index: 10;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
 }
 
-.watermark-left {
-    left: 1rem;
+.corner-logo {
+    left: 1.5rem;
 }
 
-.watermark-right {
-    right: 1rem;
+.corner-avatar {
+    right: 1.5rem;
 }
 
 #debug-console {

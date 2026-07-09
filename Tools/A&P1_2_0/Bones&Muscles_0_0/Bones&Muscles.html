@@ -263,27 +263,6 @@
         .end-screen { text-align: center; display: none; padding: 4rem 0; width: 100%; background: var(--panel-bg); border-radius: 8px;}
         .end-screen h2 { color: var(--success); }
 
-        /* Corner Graphics */
-        .corner-logo,
-        .corner-avatar {
-            position: fixed;
-            bottom: 1.5rem;
-            width: 160px; /* Approx. 2 inches on a standard 16" display */
-            height: auto;
-            z-index: 10;
-            opacity: 0.6; /* Increased for better visibility */
-            transition: opacity 0.3s ease;
-            pointer-events: none; /* Make them decorative so they don't interfere */
-        }
-        
-        .corner-logo {
-            left: 1.5rem;
-        }
-
-        .corner-avatar {
-            right: 1.5rem;
-        }
-
         .turntable-container {
             position: fixed;
             left: 0; /* JS will handle horizontal positioning */
