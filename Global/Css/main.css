@@ -167,6 +167,26 @@ body {
 #loading { text-align: center; color: var(--accent); font-size: 1.1rem; margin-bottom: 1rem; }
 #rate-limit-warning { color: var(--error); font-size: 0.9rem; text-align: center; margin-bottom: 1.5rem; display: none; }
 
+/* === Corner Watermarks === */
+.corner-watermark {
+    position: fixed;
+    bottom: 1rem;
+    font-family: var(--font-family-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    opacity: 0.5;
+    z-index: 1000;
+    pointer-events: none; /* So they don't interfere with content */
+}
+
+.watermark-left {
+    left: 1rem;
+}
+
+.watermark-right {
+    right: 1rem;
+}
+
 #debug-console {
     position: fixed;
     bottom: 0;
