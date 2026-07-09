@@ -98,6 +98,7 @@
             max-width: 1300px; /* Match container */
             display: flex;
             justify-content: flex-end; /* Align to the right */
+            gap: 0.5rem;
             margin-bottom: -1rem; /* Pull it closer to the SVG arena */
             padding-right: 0.5rem;
         }
@@ -167,6 +168,7 @@
         </div>
 
         <div class="controls-bar">
+            <button id="colloquial-toggle-btn" class="control-btn active" onclick="toggleColloquial()">Hide Common</button>
             <button id="tooltip-toggle-btn" class="control-btn" onclick="toggleTooltips()">Show Hovers</button>
         </div>
 
@@ -539,9 +541,38 @@
         let hintUsed = false;
         let lockBoard = false;
         let tooltipsEnabled = false;
+        let showColloquial = true;
         const tooltipEl = document.getElementById('tooltip');
 
+        // --- TEXT FORMATTING ---
+        function getDisplayName(structure) {
+            if (!structure) return "";
+            if (showColloquial) {
+                return structure.name;
+            } else {
+                return structure.name.replace(/\s*\([^)]*\)\s*/, '');
+            }
+        }
+
+        function updateClueText() {
+            if (mcqState.idx >= mcqState.deck.length) return;
+            const currentCard = mcqState.deck[mcqState.idx];
+            document.getElementById('clue-text').innerText = getDisplayName(currentCard);
+        }
+        
         // --- FEATURE TOGGLES & HELPERS ---
+        function toggleColloquial() {
+            showColloquial = !showColloquial;
+            const btn = document.getElementById('colloquial-toggle-btn');
+            if (showColloquial) {
+                btn.classList.add('active');
+                btn.textContent = 'Hide Common';
+            } else {
+                btn.classList.remove('active');
+                btn.textContent = 'Show Common';
+            }
+            updateClueText();
+        }
         function toggleTooltips() {
             tooltipsEnabled = !tooltipsEnabled;
             const btn = document.getElementById('tooltip-toggle-btn');
@@ -610,7 +641,7 @@
                     if (tooltipsEnabled) {
                         const structure = structures.find(s => s.id === id);
                         if (structure) {
-                            tooltipEl.textContent = structure.name;
+                            tooltipEl.textContent = getDisplayName(structure);
                             tooltipEl.classList.add('visible');
                         }
                     }
@@ -655,7 +686,7 @@
             
             const currentCard = mcqState.deck[mcqState.idx];
 
-            document.getElementById('clue-text').innerText = currentCard.name;
+            updateClueText();
             document.getElementById('prog-text').innerText = `Region ${mcqState.idx + 1} of ${mcqState.deck.length}`;
             
             document.getElementById('feedback').style.display = 'none';
