@@ -4,22 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BI231 - Anatomical Positions Master</title>
+    <link rel="stylesheet" href="../../../Global/Css/main.css">
+    <link rel="stylesheet" href="../../../Global/Css/animations.css">
     <style>
-        :root {
-            --bg-color: #323437;
-            --panel-bg: #2c2e31;
-            --hover-bg: #3a3d40;
-            --text-main: #d1d0c5;
-            --text-muted: #646669;
-            --accent: #e2b714;
-            --error: #ca4754;
-            --success: #8cc84b;
-        }
-
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
-            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            font-family: var(--font-family-main);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -51,9 +42,9 @@
 
         .hint-btn {
             background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted);
-            padding: 0.4rem 0.8rem; font-family: inherit; font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s;
+            padding: 0.4rem 0.8rem; font-family: var(--font-family-mono); font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s;
         }
-        .hint-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: rgba(226, 183, 20, 0.1); }
+        .hint-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: rgba(165, 104, 157, 0.1); }
         .hint-btn:disabled { opacity: 0.5; cursor: default; }
 
         .target-clue { font-size: 1.4rem; line-height: 1.6; color: var(--text-main); margin-bottom: 0.5rem; width: 100%; }
@@ -76,15 +67,15 @@
         .pin-dot { fill: rgba(255,255,255,0.8); pointer-events: none; }
 
         /* JS Synced Hover States (Replaces CSS :hover to fix Z-Order Sync) */
-        .organ-group.is-hovered .organ-shape { opacity: 0.9; filter: drop-shadow(0 0 6px rgba(226, 183, 20, 0.6)); fill: var(--accent); }
+        .organ-group.is-hovered .organ-shape { opacity: 0.9; filter: drop-shadow(0 0 6px rgba(165, 104, 157, 0.6)); fill: var(--accent); }
         .organ-group.is-hovered .pin-line { stroke: var(--accent); stroke-width: 3.5; }
         .organ-group.is-hovered .pin-head { fill: var(--accent); }
 
         /* Game States */
         .organ-group.dimmed { opacity: 0.15; pointer-events: none; }
-        .organ-group.correct .organ-shape { opacity: 0.9; fill: var(--success) !important; filter: drop-shadow(0 0 10px rgba(140, 200, 75, 0.6)); }
+        .organ-group.correct .organ-shape { opacity: 0.9; fill: var(--success) !important; filter: drop-shadow(0 0 10px rgba(77, 182, 172, 0.6)); }
         .organ-group.correct .pin-head { fill: var(--success); }
-        .organ-group.wrong .organ-shape { opacity: 0.9; fill: var(--error) !important; filter: drop-shadow(0 0 10px rgba(202, 71, 84, 0.6)); }
+        .organ-group.wrong .organ-shape { opacity: 0.9; fill: var(--error) !important; filter: drop-shadow(0 0 10px rgba(224, 94, 117, 0.6)); }
         .organ-group.wrong .pin-head { fill: var(--error); }
         
         /* Feedback Box */
@@ -95,7 +86,7 @@
 
         .action-btn {
             background: transparent; border: 2px solid var(--accent); color: var(--accent); padding: 1rem 1.5rem;
-            font-family: inherit; font-size: 1rem; cursor: pointer; border-radius: 4px; transition: 0.2s; width: 100%;
+            font-family: var(--font-family-mono); font-size: 1rem; cursor: pointer; border-radius: 4px; transition: 0.2s; width: 100%;
             margin-top: 1.5rem; font-weight: bold; display: none;
         }
         .action-btn:hover { background: var(--accent); color: var(--bg-color); }
@@ -106,6 +97,9 @@
     </style>
 </head>
 <body>
+    <canvas id="background-canvas"></canvas>
+    <img class="corner-logo" src="../../../Global/SVGs/logo.svg" alt="Study Hub Logo">
+    <img class="corner-avatar" src="../../../Global/SVGs/avatar.svg" alt="Avatar">
 
     <h1>Anatomical Positions Master</h1>
     <div class="subtitle">Regional Terms Identification & Spaced Repetition Drill</div>
@@ -435,6 +429,7 @@
 
     </div>
 
+    <script src="../../../Global/Scripts/background-animation.js" data-base-path="../../../"></script>
     <script>
         // --- DATA DECK ---
         const structures = [
