@@ -9,6 +9,12 @@
         "path": "Tools/A&P1_2_0/Bones&Muscles_0_0/Bones&Muscles.html",
         "sort1": 0,
         "sort2": 0
+      },
+      {
+        "name": "RatStructures",
+        "path": "Tools/A&P1_2_0/RatStructures_1_0/RatStructures.html",
+        "sort1": 1,
+        "sort2": 0
       }
     ]
   },
