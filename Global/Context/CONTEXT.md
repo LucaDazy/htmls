@@ -21,6 +21,10 @@ The objective is to build a centralized, interactive, client-side Study Hub host
 ## 2. Aesthetic & UI Style Guide
 The visual theme is a strict, minimalist, dark-mode aesthetic heavily inspired by "Monkeytype." It prioritizes low eye strain, high contrast for essential information, and clean, readable typography.
 
+**Layout & Branding:**
+*   **Tool Titles:** Each tool page should feature a single, prominent `<h1>` title using the `--font-family-display` font. Titles should be concise and descriptive (e.g., "Rat Structure"). Subtitles should be avoided to maintain a clean aesthetic.
+*   **Corner Watermarks:** To ensure consistent branding, all tool pages must include two corner watermarks. These are implemented with `<div class="corner-watermark watermark-left">...</div>` and `<div class="corner-watermark watermark-right">...</div>` placed directly inside the `<body>` tag. The left watermark should contain project info (e.g., "Study Hub v1.0"), and the right should specify the relevant course (e.g., "BI 112 Prereq.").
+
 **Color Palette (CSS Variables located in `Global/Css/main.css`):**  
 ```css
 :root {
