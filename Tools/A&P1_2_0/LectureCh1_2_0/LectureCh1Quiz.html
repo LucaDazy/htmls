@@ -438,19 +438,19 @@
         // --- MARKDOWN PARSER ---
         async function fetchAndParseMarkdown() {
             try {
-                let path = window.location.pathname;
-                let pageName = path.split("/").pop() || "index.html";
+                const path = window.location.pathname;
+                const pageName = path.substring(path.lastIndexOf('/') + 1);
                 
                 // Set page title from HTML filename
-                let titleBase = pageName.replace(/\.html$/, '');
+                const titleBase = pageName.replace(/\.html$/, '');
                 dom.pageTitle.innerText = titleBase;
                 
-                let mdName = pageName.replace(/\.html$/, ".md");
-                if (!mdName.endsWith('.md')) mdName += '.md'; 
-                currentFileName = mdName;
+                // Construct the full path to the markdown file, making it robust
+                const mdPath = path.replace(/\.html$/, '.md');
+                currentFileName = mdPath; // Use the full path as a unique ID for stats
 
-                const response = await fetch(mdName);
-                if (!response.ok) throw new Error("File not found");
+                const response = await fetch(mdPath);
+                if (!response.ok) throw new Error(`Markdown file not found at: ${mdPath}`);
                 
                 const mdText = await response.text();
                 processMarkdown(mdText);
