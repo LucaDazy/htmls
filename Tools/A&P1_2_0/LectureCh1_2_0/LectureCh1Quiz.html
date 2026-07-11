@@ -3,63 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Universal Study Module</title>
+    <title>Study Hub - Universal Quiz</title>
+    <link rel="stylesheet" href="../../../Global/Css/main.css">
+    <link rel="stylesheet" href="../../../Global/Css/animations.css">
     <style>
-        :root {
-            --bg-color: #323437;
-            --panel-bg: #2c2e31;
-            --hover-bg: #3a3d40;
-            --text-main: #d1d0c5;
-            --text-muted: #646669;
-            --accent: #e2b714;
-            --error: #ca4754;
-            --success: #8cc84b;
-            --hard: #e27d60; 
+        h1 {
+            color: var(--minimal-white);
+            font-family: var(--font-family-display);
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
         }
 
-        body {
-            background-color: var(--bg-color); color: var(--text-main);
-            font-family: 'Fira Code', 'Courier New', Courier, monospace;
-            display: flex; flex-direction: column; align-items: center;
-            padding: 2rem; margin: 0; min-height: 100vh;
-        }
-
-        h1 { color: var(--accent); margin-bottom: 2rem; text-align: center; }
-
-        .container {
+        .tool-container {
             width: 100%; max-width: 900px; display: flex; flex-direction: column; 
             align-items: center; gap: 1.5rem; position: relative;
         }
 
-        /* Target Box */
         .target-box {
-            background: var(--panel-bg); border: 2px solid var(--accent); border-radius: 8px;
-            padding: 1.5rem 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            background: var(--panel-bg); border-radius: 8px;
+            padding: 1.5rem 2rem;
             display: flex; flex-direction: column; width: 100%; box-sizing: border-box;
         }
 
         .header-row {
             display: flex; justify-content: space-between; align-items: center; width: 100%;
-            border-bottom: 1px dashed var(--text-muted); padding-bottom: 1rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;
+            border-bottom: 1px dashed var(--hover-bg); padding-bottom: 1rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;
         }
 
-        .progress-text { font-size: 0.95rem; color: var(--text-muted); font-weight: bold; white-space: nowrap; }
+        .progress-text { font-family: var(--font-family-mono); font-size: 0.95rem; color: var(--text-muted); font-weight: bold; white-space: nowrap; }
 
-        /* Tools Separation */
-        .tools-container {
-            display: flex; gap: 2.5rem; align-items: center; flex-wrap: wrap; justify-content: flex-end; flex: 1;
-        }
+        .tools-container { display: flex; gap: 2.5rem; align-items: center; flex-wrap: wrap; justify-content: flex-end; flex: 1; }
         .tool-group { display: flex; gap: 0.5rem; }
         
         .tool-btn {
-            background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted);
-            padding: 0.4rem 0.8rem; font-family: inherit; font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s;
+            background: transparent; border: 2px solid var(--text-muted); color: var(--text-muted);
+            padding: 0.4rem 0.8rem; font-family: var(--font-family-mono); font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: all 0.2s ease;
         }
         .tool-btn.active { border-color: var(--accent); color: var(--accent); }
-        .tool-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: rgba(226, 183, 20, 0.1); }
+        .tool-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: var(--hover-bg); }
         .tool-btn:disabled { opacity: 0.3; cursor: default; }
 
-        /* Hover ToC Menu */
         .toc-container { position: relative; }
         .toc-dropdown {
             position: absolute; top: 120%; left: 50%; transform: translateX(-50%);
@@ -67,40 +51,33 @@
             border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 1000;
             display: none; flex-direction: column; overflow: hidden;
         }
-        .toc-header {
-            padding: 1rem; background: rgba(0,0,0,0.3); border-bottom: 1px dashed var(--text-muted);
-            color: var(--accent); font-weight: bold; font-size: 1.1rem; text-align: center;
-        }
+        .toc-header { padding: 1rem; background: var(--panel-bg); border-bottom: 1px dashed var(--hover-bg); color: var(--accent); font-weight: bold; font-size: 1.1rem; text-align: center; }
         .toc-content { overflow-y: auto; flex: 1; padding: 0; margin: 0; }
         .toc-item { 
-            padding: 1rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; 
+            padding: 1rem 1.5rem; border-bottom: 1px solid var(--hover-bg); cursor: pointer; 
             display: flex; gap: 1rem; align-items: flex-start; transition: 0.2s;
         }
         .toc-item:hover { background: var(--hover-bg); }
         .toc-status { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
         .toc-status.unseen { background: var(--text-muted); }
-        .toc-status.learning { background: var(--hard); box-shadow: 0 0 6px var(--hard); }
+        .toc-status.learning { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
         .toc-status.mastered { background: var(--success); box-shadow: 0 0 6px var(--success); }
         .toc-text { font-size: 0.9rem; line-height: 1.4; color: var(--text-main); }
 
-        /* Hint Display */
         .hint-display {
-            background: rgba(226, 183, 20, 0.1); border: 1px solid var(--accent); color: var(--accent);
+            background: rgba(165, 104, 157, 0.1); border: 1px solid var(--accent); color: var(--accent);
             padding: 1rem; border-radius: 6px; font-size: 0.95rem; margin-bottom: 1.5rem; display: none; line-height: 1.5;
         }
 
-        .question-text { font-size: 1.25rem; line-height: 1.6; color: var(--text-main); margin-bottom: 1.5rem; width: 100%; transition: color 0.2s; }
+        .question-text { font-size: 1.25rem; line-height: 1.6; color: var(--text-main); margin-bottom: 1.5rem; width: 100%; }
 
-        /* Options & Floating Tooltips */
         .options-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; width: 100%; }
-        
         .option-btn {
-            background: var(--bg-color); border: 2px solid var(--text-muted); color: var(--text-main);
-            text-align: left; padding: 1.2rem; font-family: inherit; cursor: pointer;
+            background: transparent; border: 2px solid var(--text-muted); color: var(--text-main);
+            text-align: left; padding: 1.2rem; font-family: var(--font-family-main); cursor: pointer;
             border-radius: 6px; transition: all 0.2s; position: relative;
         }
         .opt-text { font-size: 1.05rem; line-height: 1.4; font-weight: bold; }
-        
         .opt-tooltip {
             position: absolute; bottom: 115%; left: 50%; transform: translateX(-50%) translateY(10px);
             background: var(--bg-color); color: var(--accent); padding: 0.6rem 1rem;
@@ -113,68 +90,56 @@
             content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
             border-width: 6px; border-style: solid; border-color: var(--accent) transparent transparent transparent;
         }
-        
         .option-btn:hover:not(:disabled):not(.dimmed) { border-color: var(--accent); background: var(--hover-bg); transform: translateY(-2px); }
         .option-btn:hover:not(:disabled):not(.dimmed) .opt-tooltip { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
-        
         .options-grid.hide-tooltips .opt-tooltip { display: none !important; }
 
-        /* Result States */
-        .option-btn.correct { border-color: var(--success); color: var(--success); background: rgba(140, 200, 75, 0.1); }
-        .option-btn.correct-penalty { border-color: var(--hard); color: var(--hard); background: rgba(226, 125, 96, 0.1); }
-        .option-btn.wrong { border-color: var(--error); color: var(--error); background: rgba(202, 71, 84, 0.1); }
+        .option-btn.correct { border-color: var(--success); color: var(--success); background: rgba(77, 182, 172, 0.1); }
+        .option-btn.correct-penalty { border-color: var(--accent); color: var(--accent); background: rgba(165, 104, 157, 0.1); }
+        .option-btn.wrong { border-color: var(--error); color: var(--error); background: rgba(224, 94, 117, 0.1); }
         .option-btn.dimmed { opacity: 0.25; pointer-events: none; border-color: var(--text-muted); }
         .option-btn:disabled { cursor: default; transform: none; }
 
-        /* Feedback Box */
         .feedback-box {
             margin-top: 1.5rem; padding: 1.2rem; border-radius: 4px; display: none; line-height: 1.5; font-size: 1.05rem;
-            background: rgba(0,0,0,0.2); border-left: 4px solid var(--accent); width: 100%; text-align: left; box-sizing: border-box;
+            background: var(--hover-bg); border-left: 4px solid var(--accent); width: 100%; text-align: left; box-sizing: border-box;
         }
 
         .action-btn {
             background: transparent; border: 2px solid var(--accent); color: var(--accent); padding: 1rem 1.5rem;
-            font-family: inherit; font-size: 1rem; cursor: pointer; border-radius: 4px; transition: 0.2s; width: 100%;
+            font-family: var(--font-family-mono); font-size: 1rem; cursor: pointer; border-radius: 4px; transition: 0.2s; width: 100%;
             margin-top: 1.5rem; font-weight: bold; display: none; text-align: center;
         }
         .action-btn:hover { background: var(--accent); color: var(--bg-color); }
 
-        /* Collapsible Addons */
         details.addon-details {
-            width: 100%; background: rgba(0,0,0,0.15); border: 1px dashed var(--text-muted); 
+            width: 100%; background: transparent; border: 1px dashed var(--text-muted); 
             border-radius: 8px; box-sizing: border-box; display: none;
         }
         details.addon-details summary {
-            padding: 1.2rem; font-size: 0.95rem; font-weight: bold; color: var(--text-muted); 
-            text-transform: uppercase; letter-spacing: 1px; cursor: pointer; outline: none; list-style: none; text-align: center;
-            transition: color 0.2s;
+            font-family: var(--font-family-mono); padding: 1.2rem; font-size: 0.95rem; font-weight: bold; color: var(--text-muted); 
+            text-transform: uppercase; letter-spacing: 1px; cursor: pointer; outline: none; list-style: none; text-align: center; transition: color 0.2s;
         }
         details.addon-details summary:hover { color: var(--accent); }
         details.addon-details summary::-webkit-details-marker { display: none; }
-        .addon-content { padding: 0 1.5rem 1.5rem 1.5rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1.5rem; }
+        .addon-content { padding: 0 1.5rem 1.5rem 1.5rem; border-top: 1px solid var(--hover-bg); padding-top: 1.5rem; }
 
-        /* Media Row */
         .media-row { display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 0.5rem; }
         .media-row::-webkit-scrollbar { height: 8px; }
         .media-row::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; }
         .media-row img { flex-shrink: 0; border-radius: 6px; border: 1px solid var(--text-muted); background: #000; height: 140px; min-width: 100px; object-fit: cover; }
 
-        /* Auto-Dictionary */
         .auto-dict-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
-        .dict-item { 
-            background: var(--panel-bg); border-left: 3px solid var(--accent); padding: 1.2rem; 
-            border-radius: 6px; line-height: 1.4; box-shadow: 0 4px 6px rgba(0,0,0,0.15);
-        }
+        .dict-item { background: var(--hover-bg); border-left: 3px solid var(--accent); padding: 1.2rem; border-radius: 6px; line-height: 1.4; }
         .dict-word { color: var(--accent); font-weight: bold; font-size: 0.95rem; margin-bottom: 0.3rem; text-transform: capitalize;}
         .dict-pos { color: var(--text-muted); font-style: italic; font-size: 0.8rem; font-weight: normal; margin-right: 0.3rem;}
         .dict-def { color: var(--text-main); font-size: 0.85rem; }
         hr.dict-divider { border: 0; height: 1px; background: dashed 1px var(--text-muted); margin: 1.5rem 0; width: 100%; display: none; }
 
-        /* Session Tracking Grid */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem; text-align: center; }
-        .stat-card { background: rgba(0,0,0,0.2); border: 1px solid var(--text-muted); padding: 1.5rem 1rem; border-radius: 6px; display: flex; flex-direction: column; gap: 0.5rem; }
-        .stat-val { color: var(--accent); font-size: 1.5rem; font-weight: bold; }
-        .stat-label { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-card { background: transparent; border: 1px solid var(--text-muted); padding: 1.5rem 1rem; border-radius: 6px; display: flex; flex-direction: column; gap: 0.5rem; }
+        .stat-val { font-family: var(--font-family-mono); color: var(--accent); font-size: 1.5rem; font-weight: bold; }
+        .stat-label { font-family: var(--font-family-mono); color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
 
         .end-screen { text-align: center; display: none; background: var(--panel-bg); padding: 3rem; border-radius: 8px; border: 2px solid var(--success); width: 100%; box-sizing: border-box;}
         .end-screen h2 { color: var(--success); margin-bottom: 1rem; }
@@ -183,12 +148,15 @@
     </style>
 </head>
 <body>
+    <canvas id="background-canvas"></canvas>
+    <img src="../../../Global/SVGs/logo.svg" alt="Study Hub Logo" class="corner-logo">
+    <img src="../../../Global/SVGs/avatar.svg" alt="Avatar" class="corner-avatar">
+    <div class="content-wrapper">
+        <h1 id="page-title">Universal Quiz Template</h1>
 
-    <h1 id="page-title">Universal Study Module</h1>
-
-    <div class="container">
-        
-        <div class="target-box" id="target-area">
+        <div class="tool-container">
+            
+            <div class="target-box" id="target-area">
             <div class="header-row">
                 <div class="progress-text" id="prog-text">Loading...</div>
                 
@@ -263,7 +231,8 @@
             <button class="action-btn" style="display:block;" onclick="restartDrill()">Restart Drill</button>
         </div>
 
-    </div>
+    </div> <!-- close .tool-container -->
+    </div> <!-- close .content-wrapper -->
 
     <script>
         // --- ENGINE STATE ---
@@ -838,5 +807,6 @@
         window.onload = fetchAndParseMarkdown;
 
     </script>
+    <script src="../../../Global/Scripts/background-animation.js" data-base-path="../../../"></script>
 </body>
 </html>
