@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Hub - Universal Quiz</title>
+    <link rel="stylesheet" href="../../../Global/Css/main.css">
+    <link rel="stylesheet" href="../../../Global/Css/animations.css">
+    <style>
+        h1 {
+            color: var(--minimal-white);
+            font-family: var(--font-family-display);
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .tool-container {
+            width: 100%; max-width: 900px; display: flex; flex-direction: column; 
+            align-items: center; gap: 1.5rem; position: relative;
+        }
+
+        .target-box {
+            background: var(--panel-bg); border-radius: 8px;
+            padding: 1.5rem 2rem;
+            display: flex; flex-direction: column; width: 100%; box-sizing: border-box;
+        }
+
+        .header-row {
+            display: flex; justify-content: space-between; align-items: center; width: 100%;
+            border-bottom: 1px dashed var(--hover-bg); padding-bottom: 1rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;
+        }
+
+        .progress-text { font-family: var(--font-family-mono); font-size: 0.95rem; color: var(--text-muted); font-weight: bold; white-space: nowrap; }
+
+        .tools-container { display: flex; gap: 2.5rem; align-items: center; flex-wrap: wrap; justify-content: flex-end; flex: 1; }
+        .tool-group { display: flex; gap: 0.5rem; }
+        
+        .tool-btn {
+            background: transparent; border: 2px solid var(--text-muted); color: var(--text-muted);
+            padding: 0.4rem 0.8rem; font-family: var(--font-family-mono); font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: all 0.2s ease;
+        }
+        .tool-btn.active { border-color: var(--accent); color: var(--accent); }
+        .tool-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: var(--hover-bg); }
+        .tool-btn:disabled { opacity: 0.3; cursor: default; }
+
+        .toc-container { position: relative; }
+        .toc-dropdown {
+            position: absolute; top: 120%; left: 50%; transform: translateX(-50%);
+            width: 380px; max-height: 400px; background: var(--bg-color); border: 2px solid var(--accent);
+            border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 1000;
+            display: none; flex-direction: column; overflow: hidden;
+        }
+        .toc-header { padding: 1rem; background: var(--panel-bg); border-bottom: 1px dashed var(--hover-bg); color: var(--accent); font-weight: bold; font-size: 1.1rem; text-align: center; }
+        .toc-content { overflow-y: auto; flex: 1; padding: 0; margin: 0; }
+        .toc-item { 
+            padding: 1rem 1.5rem; border-bottom: 1px solid var(--hover-bg); cursor: pointer; 
+            display: flex; gap: 1rem; align-items: flex-start; transition: 0.2s;
+        }
+        .toc-item:hover { background: var(--hover-bg); }
+        .toc-status { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+        .toc-status.unseen { background: var(--text-muted); }
+        .toc-status.learning { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+        .toc-status.mastered { background: var(--success); box-shadow: 0 0 6px var(--success); }
+        .toc-text { font-size: 0.9rem; line-height: 1.4; color: var(--text-main); }
+
+        .hint-display {
+            background: rgba(165, 104, 157, 0.1); border: 1px solid var(--accent); color: var(--accent);
+            padding: 1rem; border-radius: 6px; font-size: 0.95rem; margin-bottom: 1.5rem; display: none; line-height: 1.5;
+        }
+
+        .question-text { font-size: 1.25rem; line-height: 1.6; color: var(--text-main); margin-bottom: 1.5rem; width: 100%; }
+
+        .options-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; width: 100%; }
+        .option-btn {
+            background: transparent; border: 2px solid var(--text-muted); color: var(--text-main);
+            text-align: left; padding: 1.2rem; font-family: var(--font-family-main); cursor: pointer;
+            border-radius: 6px; transition: all 0.2s; position: relative;
+        }
+        .opt-text { font-size: 1.05rem; line-height: 1.4; font-weight: bold; }
+        .opt-tooltip {
+            position: absolute; bottom: 115%; left: 50%; transform: translateX(-50%) translateY(10px);
+            background: var(--bg-color); color: var(--accent); padding: 0.6rem 1rem;
+            border-radius: 6px; border: 1px solid var(--accent); font-size: 0.85rem;
+            width: max-content; max-width: 250px; white-space: normal;
+            z-index: 100; opacity: 0; visibility: hidden; transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6); pointer-events: none; text-align: center;
+        }
+        .opt-tooltip::after {
+            content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+            border-width: 6px; border-style: solid; border-color: var(--accent) transparent transparent transparent;
+        }
+        .option-btn:hover:not(:disabled):not(.dimmed) { border-color: var(--accent); background: var(--hover-bg); transform: translateY(-2px); }
+        .option-btn:hover:not(:disabled):not(.dimmed) .opt-tooltip { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+        .options-grid.hide-tooltips .opt-tooltip { display: none !important; }
+
+        .option-btn.correct { border-color: var(--success); color: var(--success); background: rgba(77, 182, 172, 0.1); }
+        .option-btn.correct-penalty { border-color: var(--accent); color: var(--accent); background: rgba(165, 104, 157, 0.1); }
+        .option-btn.wrong { border-color: var(--error); color: var(--error); background: rgba(224, 94, 117, 0.1); }
+        .option-btn.dimmed { opacity: 0.25; pointer-events: none; border-color: var(--text-muted); }
+        .option-btn:disabled { cursor: default; transform: none; }
+
+        .feedback-box, .action-btn {
+            opacity: 0;
+            transform: translateY(10px) scale(0.98);
+            max-height: 0;
+            margin-top: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            overflow: hidden;
+            transition: all 0.3s ease-in-out;
+            pointer-events: none;
+        }
+
+        .feedback-box.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            max-height: 500px;
+            margin-top: 1.5rem;
+            padding: 1.2rem;
+            pointer-events: auto;
+        }
+        
+        .feedback-box {
+             border-radius: 4px; line-height: 1.5; font-size: 1.05rem;
+            background: var(--hover-bg); border-left: 4px solid var(--accent); width: 100%; text-align: left; box-sizing: border-box;
+        }
+
+        .action-btn.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            max-height: 100px;
+            margin-top: 1.5rem;
+            padding: 1rem 1.5rem;
+            pointer-events: auto;
+        }
+
+        .action-btn {
+            background: transparent; border: 2px solid var(--accent); color: var(--accent);
+            font-family: var(--font-family-mono); font-size: 1rem; cursor: pointer; border-radius: 4px; width: 100%;
+            font-weight: bold; text-align: center;
+        }
+        .action-btn:hover { background: var(--accent); color: var(--bg-color); }
+
+        details.addon-details {
+            width: 100%; background: var(--panel-bg); border: 1px solid var(--hover-bg); 
+            border-radius: 8px; box-sizing: border-box; display: none;
+        }
+        details.addon-details summary {
+            font-family: var(--font-family-mono); padding: 1.2rem; font-size: 0.95rem; font-weight: bold; color: var(--text-muted); 
+            text-transform: uppercase; letter-spacing: 1px; cursor: pointer; outline: none; list-style: none; text-align: center; transition: color 0.2s;
+        }
+        details.addon-details summary:hover { color: var(--accent); }
+        details.addon-details summary::-webkit-details-marker { display: none; }
+        
+        details:not([open]) .addon-content {
+            transition: max-height 0.2s ease-out, padding 0.2s ease-out;
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            overflow: hidden;
+        }
+
+        details[open] .addon-content {
+            transition: max-height 0.35s ease-in, padding 0.35s ease-in;
+            max-height: 1000px; /* Arbitrary large value */
+        }
+
+        .addon-content { padding: 0 1.5rem 1.5rem 1.5rem; border-top: 1px solid var(--hover-bg); padding-top: 1.5rem; }
+
+        .media-row { display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 0.5rem; }
+        .media-row::-webkit-scrollbar { height: 8px; }
+        .media-row::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; }
+        .media-row img { flex-shrink: 0; border-radius: 6px; border: 1px solid var(--text-muted); background: #000; height: 140px; min-width: 100px; object-fit: cover; }
+
+        .auto-dict-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+        .dict-item { 
+            background: var(--hover-bg); border-left: 3px solid var(--accent); padding: 1.2rem; 
+            border-radius: 6px; line-height: 1.4; 
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .dict-item.hidden {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        .dict-word { color: var(--accent); font-weight: bold; font-size: 0.95rem; margin-bottom: 0.3rem; text-transform: capitalize;}
+        .dict-pos { color: var(--text-muted); font-style: italic; font-size: 0.8rem; font-weight: normal; margin-right: 0.3rem;}
+        .dict-def { color: var(--text-main); font-size: 0.85rem; }
+        hr.dict-divider { border: 0; height: 1px; background: dashed 1px var(--text-muted); margin: 1.5rem 0; width: 100%; display: none; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem; text-align: center; }
+        .stat-card { background: transparent; border: 1px solid var(--text-muted); padding: 1.5rem 1rem; border-radius: 6px; display: flex; flex-direction: column; gap: 0.5rem; }
+        .stat-val { font-family: var(--font-family-mono); color: var(--accent); font-size: 1.5rem; font-weight: bold; }
+        .stat-label { font-family: var(--font-family-mono); color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        .end-screen { text-align: center; display: none; background: var(--panel-bg); padding: 3rem; border-radius: 8px; border: 2px solid var(--success); width: 100%; box-sizing: border-box;}
+        .end-screen h2 { color: var(--success); margin-bottom: 1rem; }
+
+        @media (min-width: 800px) { .options-grid { grid-template-columns: 1fr 1fr; } }
+    </style>
+</head>
+<body>
+    <canvas id="background-canvas"></canvas>
+    <img src="../../../Global/SVGs/logo.svg" alt="Study Hub Logo" class="corner-logo">
+    <img src="../../../Global/SVGs/avatar.svg" alt="Avatar" class="corner-avatar">
+    <div class="content-wrapper">
+        <h1 id="page-title">Universal Quiz Template</h1>
+
+        <div class="tool-container">
+            
+            <div class="target-box" id="target-area">
+            <div class="header-row">
+                <div class="progress-text" id="prog-text">Loading...</div>
+                
+                <div class="tools-container">
+                    <div class="tool-group">
+                        <button class="tool-btn active" id="tooltip-btn" onclick="toggleTooltips()">👁️ Tooltips</button>
+                        
+                        <div class="toc-container">
+                            <button class="tool-btn" id="table-btn" onclick="toggleToC()">📋 Table</button>
+                            <div id="toc-dropdown" class="toc-dropdown">
+                                <div class="toc-header">Table of Contents</div>
+                                <div id="toc-content" class="toc-content"></div>
+                            </div>
+                        </div>
+
+                        <button class="tool-btn" id="video-btn" onclick="openYouTube()">▶️ Videos</button>
+                    </div>
+                    
+                    <div class="tool-group">
+                        <button class="tool-btn" id="hint-btn" onclick="useHint()">💡 Hint</button>
+                        <button class="tool-btn" id="chop-btn" onclick="useChop()">✂️ Chop</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="hint-display" class="hint-display"></div>
+            
+            <div class="question-text" id="q-text">Loading question...</div>
+            <div class="options-grid" id="options-grid"></div>
+
+            <div id="feedback" class="feedback-box"></div>
+            <button id="next-btn" class="action-btn" onclick="nextCard()">Next Question ➔</button>
+            
+            <div id="file-alert" style="margin-top: 1.5rem; text-align: center; color: var(--error); font-size: 0.85rem; display: none;">
+                Note: Loaded Advanced Fallback Deck because the associated .md file was not found.
+            </div>
+        </div>
+
+        <details id="images-box" class="addon-details">
+            <summary>🖼️ Potentially Relevant Images</summary>
+            <div class="addon-content">
+                <div id="images-row" class="media-row"></div>
+            </div>
+        </details>
+
+        <details id="auto-dict-box" class="addon-details" open>
+            <summary>📖 Dictionary</summary>
+            <div class="addon-content">
+                <div id="dict-relevant" class="auto-dict-grid"></div>
+                <hr id="dict-divider" class="dict-divider">
+                <div id="dict-other" class="auto-dict-grid"></div>
+            </div>
+        </details>
+
+        <details id="stats-box" class="addon-details" style="display:block;" open>
+            <summary>📊 Benchmarks</summary>
+            <div class="addon-content">
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-val" id="stat-session-time">00:00</div><div class="stat-label">Current Session</div></div>
+                    <div class="stat-card"><div class="stat-val" id="stat-total-time">00:00</div><div class="stat-label">All-Time Studied</div></div>
+                    <div class="stat-card"><div class="stat-val" id="stat-avg-time">0s</div><div class="stat-label">Avg Time / Card</div></div>
+                    <div class="stat-card"><div class="stat-val" id="stat-accuracy">0%</div><div class="stat-label">Global Accuracy</div></div>
+                    <div class="stat-card"><div class="stat-val" id="stat-visits">1</div><div class="stat-label">Total Visits</div></div>
+                    <div class="stat-card"><div class="stat-val" id="stat-tools">0</div><div class="stat-label">Tools Used</div></div>
+                </div>
+            </div>
+        </details>
+
+        <div id="end-screen" class="end-screen">
+            <h2>Deck Conquered!</h2>
+            <p id="final-score" style="margin-bottom: 2rem; color: var(--text-main); font-size:1.1rem;"></p>
+            <button class="action-btn" style="display:block;" onclick="restartDrill()">Restart Drill</button>
+        </div>
+
+    </div> <!-- close .tool-container -->
+    </div> <!-- close .content-wrapper -->
+
+    <script>
+        // --- DOM ELEMENT CACHE ---
+        const dom = {
+            pageTitle: document.getElementById('page-title'),
+            targetArea: document.getElementById('target-area'),
+            progText: document.getElementById('prog-text'),
+            tooltipBtn: document.getElementById('tooltip-btn'),
+            tocBtn: document.getElementById('table-btn'),
+            tocDropdown: document.getElementById('toc-dropdown'),
+            tocContent: document.getElementById('toc-content'),
+            hintBtn: document.getElementById('hint-btn'),
+            chopBtn: document.getElementById('chop-btn'),
+            hintDisplay: document.getElementById('hint-display'),
+            qText: document.getElementById('q-text'),
+            optionsGrid: document.getElementById('options-grid'),
+            feedback: document.getElementById('feedback'),
+            nextBtn: document.getElementById('next-btn'),
+            fileAlert: document.getElementById('file-alert'),
+            imagesBox: document.getElementById('images-box'),
+            imagesRow: document.getElementById('images-row'),
+            autoDictBox: document.getElementById('auto-dict-box'),
+            dictRelevant: document.getElementById('dict-relevant'),
+            dictDivider: document.getElementById('dict-divider'),
+            dictOther: document.getElementById('dict-other'),
+            statsBox: document.getElementById('stats-box'),
+            statSessionTime: document.getElementById('stat-session-time'),
+            statTotalTime: document.getElementById('stat-total-time'),
+            statAvgTime: document.getElementById('stat-avg-time'),
+            statAccuracy: document.getElementById('stat-accuracy'),
+            statVisits: document.getElementById('stat-visits'),
+            statTools: document.getElementById('stat-tools'),
+            endScreen: document.getElementById('end-screen'),
+            finalScore: document.getElementById('final-score'),
+        };
+        
+        // --- UI STATE PERSISTENCE ---
+        let uiState = { tooltips: true, openDetails: { images: false, dictionary: true, stats: true } };
+        const uiStateKey = 'uiState_universal_quiz';
+
+        function saveUiState() {
+            uiState.openDetails.images = dom.imagesBox.open;
+            uiState.openDetails.dictionary = dom.autoDictBox.open;
+            uiState.openDetails.stats = dom.statsBox.open;
+            localStorage.setItem(uiStateKey, JSON.stringify(uiState));
+        }
+
+        function loadUiState() {
+            const saved = localStorage.getItem(uiStateKey);
+            if(saved) {
+                try { uiState = JSON.parse(saved); } catch(e) { /* Use default */ }
+            }
+            // Apply tooltips state
+            tooltipsOn = uiState.tooltips;
+            if(tooltipsOn) {
+                dom.tooltipBtn.classList.add('active');
+                dom.optionsGrid.classList.remove('hide-tooltips');
+            } else {
+                dom.tooltipBtn.classList.remove('active');
+                dom.optionsGrid.classList.add('hide-tooltips');
+            }
+            // Apply details open/closed state
+            dom.imagesBox.open = uiState.openDetails.images;
+            dom.autoDictBox.open = uiState.openDetails.dictionary;
+            dom.statsBox.open = uiState.openDetails.stats;
+        }
+
+        // --- ENGINE STATE ---
+        let mcqState = { originalDeck: [], deck: [], idx: 0, attempts: 0, correct: 0 };
+        let penaltyUsed = false; // Note: Only Hint triggers this now. Chop is penalty-free.
+        let lockBoard = false;
+        let chopsUsed = 0;
+        let tooltipsOn = true;
+        let currentFileName = "";
+        let currentSearchQuery = "";
+        
+        const dictCache = {};
+        const stopWords = new Set(['what', 'is', 'the', 'of', 'to', 'in', 'and', 'for', 'with', 'on', 'that', 'this', 'by', 'as', 'are', 'be', 'from', 'or', 'it', 'at', 'which', 'when', 'how', 'why', 'where', 'who', 'will', 'would', 'can', 'could', 'should', 'has', 'have', 'had', 'not', 'only', 'all', 'any', 'some', 'many', 'most', 'other', 'such', 'their', 'they', 'them', 'these', 'those', 'then', 'than', 'there', 'was', 'were', 'following', 'true', 'false', 'about', 'does', 'do', 'did', 'each', 'every', 'because', 'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'under']);
+
+        // Advanced Fallback Deck to accurately test the Auto-Dictionary sorting and extraction
+        const fallbackDeck = [{
+            q: "The sternocleidomastoid muscle is responsible for which of the following physiological actions?",
+            opts: [
+                { text: "Bilateral contraction causes flexion of the cervical vertebral column.", tooltip: "This is correct. Both sides firing pulls the head forward." },
+                { text: "Unilateral contraction causes ipsilateral rotation of the cranium.", tooltip: "Incorrect. It causes contralateral (opposite side) rotation." },
+                { text: "It acts as a primary agonist for mandibular depression during mastication.", tooltip: "Incorrect. Mastication involves the masseter and temporalis." },
+                { text: "It stabilizes the glenohumeral joint during appendicular abduction.", tooltip: "Incorrect. This describes rotator cuff muscles." }
+            ],
+            correctAns: "Bilateral contraction causes flexion of the cervical vertebral column.",
+            exp: "The sternocleidomastoid flexes the cervical spine bilaterally and rotates the head contralaterally.",
+            hint: "Think about the cervical region and how it connects to the sternum and clavicle."
+        }];
+
+        // --- SESSION TRACKING LOGIC ---
+        let sessionTimer = 0; 
+        let globalStats = { visits: 0, totalTime: 0, totalCards: 0, correctCards: 0, toolsUsed: 0 };
+        let statsInterval = null;
+
+        function initTracking() {
+            let cacheKey = 'stats_' + currentFileName;
+            let saved = localStorage.getItem(cacheKey);
+            if (saved) { try { globalStats = JSON.parse(saved); } catch(e) {} }
+            globalStats.visits += 1;
+            saveTracking();
+
+            if(statsInterval) clearInterval(statsInterval);
+            statsInterval = setInterval(() => {
+                sessionTimer++;
+                updateTrackingUI();
+                if (sessionTimer % 5 === 0) saveTracking();
+            }, 1000);
+        }
+
+        function saveTracking() {
+            let cacheKey = 'stats_' + currentFileName;
+            let toSave = { ...globalStats, totalTime: globalStats.totalTime + sessionTimer };
+            localStorage.setItem(cacheKey, JSON.stringify(toSave));
+        }
+
+        function updateTrackingUI() {
+            dom.statSessionTime.innerText = formatTime(sessionTimer);
+            dom.statTotalTime.innerText = formatTime(globalStats.totalTime + sessionTimer);
+            dom.statVisits.innerText = globalStats.visits;
+            dom.statTools.innerText = globalStats.toolsUsed;
+
+            let avgTime = globalStats.totalCards > 0 ? Math.round((globalStats.totalTime + sessionTimer) / globalStats.totalCards) : 0;
+            dom.statAvgTime.innerText = avgTime + "s";
+
+            let acc = globalStats.totalCards > 0 ? Math.round((globalStats.correctCards / globalStats.totalCards) * 100) : 0;
+            dom.statAccuracy.innerText = acc + "%";
+        }
+
+        function formatTime(seconds) {
+            let h = Math.floor(seconds / 3600);
+            let m = Math.floor((seconds % 3600) / 60);
+            let s = seconds % 60;
+            if (h > 0) return `${h}h ${m}m`;
+            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        // --- UTILS ---
+        function shuffle(arr) {
+            let a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        // --- MARKDOWN PARSER ---
+        async function fetchAndParseMarkdown() {
+            try {
+                const path = window.location.pathname;
+                const pageName = path.substring(path.lastIndexOf('/') + 1);
+                
+                // Set page title from HTML filename
+                const titleBase = pageName.replace(/\.html$/, '');
+                dom.pageTitle.innerText = titleBase;
+                
+                // Construct the full path to the markdown file, making it robust
+                const mdPath = path.replace(/\.html$/, '.md');
+                currentFileName = mdPath; // Use the full path as a unique ID for stats
+
+                const response = await fetch(mdPath);
+                if (!response.ok) throw new Error(`Markdown file not found at: ${mdPath}`);
+                
+                const mdText = await response.text();
+                processMarkdown(mdText);
+
+            } catch (err) {
+                if(!currentFileName) currentFileName = "fallback.md";
+                dom.fileAlert.style.display = 'block';
+                setupDecks(fallbackDeck);
+                startDrill();
+            }
+        }
+
+        function processMarkdown(text) {
+            const blocks = text.split(/(?=^# Q:)/m).filter(b => b.trim());
+            let parsedDeck = [];
+
+            blocks.forEach((block) => {
+                const lines = block.split('\n').map(l => l.trim()).filter(l => l);
+                let q = "", exp = "", hint = "", correctAns = "";
+                let opts = [];
+                let currentOpt = null;
+
+                lines.forEach(line => {
+                    if (line.startsWith('# Q:')) {
+                        q = line.substring(4).trim();
+                    } else if (line.startsWith('?')) {
+                        hint = line.substring(1).trim();
+                    } else if (line.startsWith('- [x]') || line.startsWith('- [X]')) {
+                        let text = line.substring(5).trim();
+                        currentOpt = { text: text, tooltip: "" };
+                        opts.push(currentOpt);
+                        correctAns = text;
+                    } else if (line.startsWith('- [ ]')) {
+                        let text = line.substring(5).trim();
+                        currentOpt = { text: text, tooltip: "" };
+                        opts.push(currentOpt);
+                    } else if (line.startsWith('^') && currentOpt) {
+                        currentOpt.tooltip = line.substring(1).trim();
+                    } else if (line.startsWith('>')) {
+                        exp += line.substring(1).trim() + " ";
+                    }
+                });
+
+                if (q && correctAns) {
+                    parsedDeck.push({ q, opts, correctAns, exp: exp.trim(), hint });
+                }
+            });
+
+            if (parsedDeck.length === 0) {
+                dom.fileAlert.style.display = 'block';
+                setupDecks(fallbackDeck);
+            } else {
+                setupDecks(parsedDeck);
+            }
+            startDrill();
+        }
+
+        function setupDecks(sourceArray) {
+            mcqState.originalDeck = sourceArray.map((card, i) => ({ ...card, id: i, status: 'unseen' }));
+            mcqState.deck = shuffle([...mcqState.originalDeck]);
+        }
+
+        // --- DRILL ENGINE ---
+        function startDrill() {
+            initTracking();
+            loadUiState();
+            dom.targetArea.style.display = 'flex';
+            loadCard();
+        }
+
+        function restartDrill() {
+            dom.endScreen.style.display = 'none';
+            dom.targetArea.style.display = 'flex';
+            mcqState.idx = 0;
+            mcqState.attempts = 0;
+            mcqState.correct = 0;
+            
+            mcqState.originalDeck.forEach(c => c.status = 'unseen');
+            mcqState.deck = shuffle([...mcqState.originalDeck]);
+            loadCard();
+        }
+
+        function loadCard() {
+            if (mcqState.idx >= mcqState.deck.length) {
+                endDrill();
+                return;
+            }
+
+            lockBoard = false;
+            penaltyUsed = false;
+            chopsUsed = 0;
+            
+            const currentCard = mcqState.deck[mcqState.idx];
+
+            dom.qText.innerHTML = currentCard.q;
+            dom.progText.innerText = `Question ${mcqState.idx + 1} of ${mcqState.deck.length}`;
+            
+            dom.feedback.classList.remove('visible');
+            dom.nextBtn.classList.remove('visible');
+            
+            dom.hintDisplay.style.display = 'none';
+            dom.hintBtn.disabled = !currentCard.hint; 
+            dom.chopBtn.disabled = false;
+
+            dom.optionsGrid.innerHTML = '';
+            
+            let shuffledOpts = shuffle(currentCard.opts);
+            shuffledOpts.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.dataset.correct = (opt.text === currentCard.correctAns);
+                
+                let html = `<span class="opt-text">${opt.text}</span>`;
+                if (opt.tooltip) {
+                    html += `<div class="opt-tooltip">💡 ${opt.tooltip}</div>`;
+                }
+                btn.innerHTML = html;
+                
+                btn.onclick = () => handleGuess(btn, opt.text);
+                btn.addEventListener('mouseenter', () => sortVocab(opt.text));
+                dom.optionsGrid.appendChild(btn);
+            });
+
+            dom.qText.addEventListener('mouseenter', () => sortVocab(currentCard.q));
+
+            dom.imagesBox.style.display = 'none';
+            dom.autoDictBox.style.display = 'none';
+
+            generateSearchQuery(currentCard);
+            runAutoDictionary(currentCard);
+            fetchMedia();
+        }
+
+        // --- TOOLS ---
+        function toggleTooltips() {
+            tooltipsOn = !tooltipsOn;
+            uiState.tooltips = tooltipsOn;
+            
+            if (tooltipsOn) {
+                dom.tooltipBtn.classList.add('active');
+                dom.optionsGrid.classList.remove('hide-tooltips');
+            } else {
+                dom.tooltipBtn.classList.remove('active');
+                dom.optionsGrid.classList.add('hide-tooltips');
+            }
+            saveUiState();
+        }
+
+        function useHint() {
+            if (lockBoard) return;
+            const currentCard = mcqState.deck[mcqState.idx];
+            if (!currentCard.hint) return;
+
+            penaltyUsed = true;
+            globalStats.toolsUsed++;
+            updateTrackingUI();
+
+            dom.hintDisplay.innerHTML = `<strong>Hint:</strong> ${currentCard.hint}`;
+            dom.hintDisplay.style.display = 'block';
+            dom.hintBtn.disabled = true;
+        }
+
+        function useChop() {
+            if (lockBoard || chopsUsed >= 2) return;
+            
+            const allBtns = Array.from(document.querySelectorAll('.option-btn'));
+            const availableWrongBtns = allBtns.filter(b => b.dataset.correct === "false" && !b.classList.contains('dimmed'));
+
+            if (availableWrongBtns.length > 0) {
+                // CHOP FIX: Using a chop is no longer a penalty. It simply eliminates an option.
+                chopsUsed++;
+                globalStats.toolsUsed++;
+                updateTrackingUI();
+
+                const btnToChop = availableWrongBtns[Math.floor(Math.random() * availableWrongBtns.length)];
+                btnToChop.classList.add('dimmed');
+                btnToChop.disabled = true;
+
+                if (availableWrongBtns.length === 1 || chopsUsed >= 2) {
+                    dom.chopBtn.disabled = true;
+                }
+            }
+        }
+
+        function openYouTube() {
+            if (currentSearchQuery) {
+                window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(currentSearchQuery)}`, '_blank');
+            }
+        }
+
+        // --- TABLE OF CONTENTS ---
+        function toggleToC() {
+            if (dom.tocDropdown.style.display === 'flex') {
+                dom.tocDropdown.style.display = 'none';
+            } else {
+                renderToC();
+                dom.tocDropdown.style.display = 'flex';
+            }
+        }
+
+        function renderToC() {
+            dom.tocContent.innerHTML = '';
+
+            mcqState.originalDeck.forEach(card => {
+                const item = document.createElement('div');
+                item.className = 'toc-item';
+                item.innerHTML = `
+                    <div class="toc-status ${card.status}"></div>
+                    <div class="toc-text">${card.q}</div>
+                `;
+                item.onclick = () => jumpToCard(card.id);
+                dom.tocContent.appendChild(item);
+            });
+        }
+
+        function jumpToCard(id) {
+            dom.tocDropdown.style.display = 'none';
+            
+            const targetIdxInDeck = mcqState.deck.findIndex(c => c.id === id);
+
+            if (targetIdxInDeck !== -1) {
+                // If the card is still in the deck, move it to the current position
+                const [cardToMove] = mcqState.deck.splice(targetIdxInDeck, 1);
+                mcqState.deck.splice(mcqState.idx, 0, cardToMove);
+            } else {
+                // If the card was already answered, get a fresh copy from the original deck
+                const freshCard = mcqState.originalDeck.find(c => c.id === id);
+                if (freshCard) {
+                    mcqState.deck.splice(mcqState.idx, 0, freshCard);
+                }
+            }
+            loadCard();
+        }
+
+        // --- VOCABULARY & MEDIA ENGINES ---
+        function generateSearchQuery(card) {
+            let rawWords = card.correctAns.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/);
+            let uniqueWords = [...new Set(rawWords)].filter(w => w.length > 3 && !stopWords.has(w));
+            
+            if (uniqueWords.length === 0) {
+                let qWords = card.q.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/);
+                uniqueWords = [...new Set(qWords)].filter(w => w.length > 5 && !stopWords.has(w)).slice(0, 2);
+            }
+            currentSearchQuery = uniqueWords.slice(0, 3).join(" ");
+        }
+
+        async function fetchMedia() {
+            if (!currentSearchQuery) return;
+
+            let collectedImages = [];
+            
+            async function fetchWikiImages(query) {
+                try {
+                    const imgUrl = `https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&format=json&piprop=thumbnail&pithumbsize=400&generator=search&gsrsearch=${encodeURIComponent(query)}&gsrlimit=10&origin=*`;
+                    const res = await fetch(imgUrl);
+                    const data = await res.json();
+                    let imgs = [];
+                    if (data.query && data.query.pages) {
+                        Object.values(data.query.pages).forEach(page => {
+                            if (page.thumbnail && page.thumbnail.source) {
+                                imgs.push({ src: page.thumbnail.source, alt: page.title });
+                            }
+                        });
+                    }
+                    return imgs;
+                } catch(e) { return []; }
+            }
+
+            // Attempt 1: Full Query
+            collectedImages = await fetchWikiImages(currentSearchQuery);
+
+            // Attempt 2: Split Query into Single Words
+            let words = currentSearchQuery.split(" ");
+            for (let i = 0; i < words.length && collectedImages.length < 5; i++) {
+                let fallback = await fetchWikiImages(words[i]);
+                fallback.forEach(img => {
+                    if (!collectedImages.find(ci => ci.src === img.src)) collectedImages.push(img);
+                });
+            }
+
+            // Attempt 3: Generic Anatomical Fallbacks if API absolutely fails or yields < 5
+            if (collectedImages.length < 5) {
+                const staticFallbacks = [
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Human_anatomy.svg/400px-Human_anatomy.svg.png",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/DNA_Double_Helix.png/400px-DNA_Double_Helix.png",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Cell_anatomy.jpg/400px-Cell_anatomy.jpg",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Brain_chris_chan_01.jpg/400px-Brain_chris_chan_01.jpg",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Heart_diagram-en.svg/400px-Heart_diagram-en.svg.png"
+                ];
+                while(collectedImages.length < 5) {
+                    collectedImages.push({ src: staticFallbacks[collectedImages.length % staticFallbacks.length], alt: "Reference Image" });
+                }
+            }
+
+            collectedImages = collectedImages.slice(0, 5); // Ensure EXACTLY 5 images
+
+            dom.imagesRow.innerHTML = '';
+            
+            collectedImages.forEach(img => {
+                dom.imagesRow.innerHTML += `<a href="${img.src.replace('400px', '1000px')}" target="_blank"><img src="${img.src}" alt="${img.alt}"></a>`;
+            });
+            dom.imagesBox.style.display = 'block';
+        }
+
+        async function runAutoDictionary(currentCard) {
+            dom.dictDivider.style.display = 'none';
+            dom.dictRelevant.innerHTML = '';
+            
+            let textToAnalyze = currentCard.q;
+            let isSentenceOptions = currentCard.opts.some(opt => opt.text.split(' ').length > 3);
+            if (isSentenceOptions) {
+                currentCard.opts.forEach(opt => textToAnalyze += " " + opt.text);
+            }
+
+            let rawWords = textToAnalyze.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/);
+            let uniqueWords = [...new Set(rawWords)].filter(w => w.length > 4 && !stopWords.has(w));
+            uniqueWords.sort((a, b) => b.length - a.length);
+
+            const wordsToFetch = uniqueWords.slice(0, 8); 
+
+            if (wordsToFetch.length === 0) {
+                dom.autoDictBox.style.display = 'none';
+                return;
+            }
+
+            dom.autoDictBox.style.display = 'block';
+            dom.dictOther.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; font-style:italic;">Scanning vocabulary...</div>';
+
+            let htmlOutput = '';
+            
+            await Promise.all(wordsToFetch.map(async (word) => {
+                if (dictCache[word]) {
+                    htmlOutput += dictCache[word];
+                    return;
+                }
+                
+                try {
+                    const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        let meaningStr = "";
+                        data[0].meanings.slice(0, 2).forEach(m => {
+                           meaningStr += `<span class="dict-pos">${m.partOfSpeech}.</span> ${m.definitions[0].definition} `; 
+                        });
+
+                        const entryHtml = `
+                            <div class="dict-item" data-word="${word}">
+                                <div class="dict-word">${word}</div>
+                                <div class="dict-def">${meaningStr.trim()}</div>
+                            </div>`;
+                            
+                        dictCache[word] = entryHtml; 
+                        htmlOutput += entryHtml;
+                    }
+                } catch (e) { /* Silently ignore API misses */ }
+            }));
+
+            if(htmlOutput) {
+                dom.dictOther.innerHTML = htmlOutput;
+            } else {
+                dom.autoDictBox.style.display = 'none';
+            }
+        }
+
+        function sortVocab(hoverText) {
+            const raw = hoverText.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/);
+            const hoverWords = new Set(raw);
+            
+            const itemsToMoveToRelevant = Array.from(dom.dictOther.querySelectorAll('.dict-item')).filter(item => hoverWords.has(item.dataset.word));
+            const itemsToMoveToOther = Array.from(dom.dictRelevant.querySelectorAll('.dict-item')).filter(item => !hoverWords.has(item.dataset.word));
+            const allToMove = [...itemsToMoveToRelevant, ...itemsToMoveToOther];
+            
+            if (allToMove.length === 0) return;
+
+            allToMove.forEach(item => item.classList.add('hidden'));
+
+            setTimeout(() => {
+                itemsToMoveToRelevant.forEach(item => dom.dictRelevant.appendChild(item));
+                itemsToMoveToOther.forEach(item => dom.dictOther.appendChild(item));
+                
+                dom.dictDivider.style.display = dom.dictRelevant.children.length > 0 ? 'block' : 'none';
+                
+                allToMove.forEach(item => item.classList.remove('hidden'));
+            }, 300);
+        }
+
+        // --- GUESS EVALUATION ---
+        function handleGuess(btn, guessedAns) {
+            if (lockBoard) return;
+            lockBoard = true;
+            dom.hintBtn.disabled = true;
+            dom.chopBtn.disabled = true;
+
+            const currentCard = mcqState.deck[mcqState.idx];
+            const allBtns = document.querySelectorAll('.option-btn');
+            
+            mcqState.attempts++;
+            globalStats.totalCards++;
+            
+            const isCorrect = (guessedAns === currentCard.correctAns);
+
+            if (isCorrect) {
+                if (penaltyUsed) {
+                    currentCard.status = 'learning';
+                    btn.classList.add('correct-penalty');
+                    mcqState.deck.push(mcqState.deck[mcqState.idx]); 
+                    dom.feedback.innerHTML = `<strong style="color:var(--hard);">⚠️ Correct (Hint Used).</strong><br><br>${currentCard.exp}<br><br><em style="color:var(--accent);">Card recycled to the back of the deck.</em>`;
+                    dom.feedback.style.borderLeftColor = 'var(--hard)';
+                } else {
+                    currentCard.status = 'mastered';
+                    btn.classList.add('correct');
+                    mcqState.correct++;
+                    globalStats.correctCards++;
+                    dom.feedback.innerHTML = `<strong style="color:var(--success);">✅ Correct!</strong><br><br>${currentCard.exp}`;
+                    dom.feedback.style.borderLeftColor = 'var(--success)';
+                }
+            } else {
+                currentCard.status = 'learning';
+                btn.classList.add('wrong');
+                mcqState.deck.push(mcqState.deck[mcqState.idx]); 
+                
+                allBtns.forEach(b => {
+                    if (b.dataset.correct === "true") b.classList.add('correct');
+                });
+
+                let prefix = penaltyUsed ? `<strong style="color:var(--error);">❌ Incorrect (Hint Used).</strong>` : `<strong style="color:var(--error);">❌ Incorrect.</strong>`;
+                dom.feedback.innerHTML = `${prefix}<br><br>${currentCard.exp}<br><br><em style="color:var(--accent);">Card recycled to the back of the deck.</em>`;
+                dom.feedback.style.borderLeftColor = 'var(--error)';
+            }
+            
+            updateTrackingUI();
+
+            allBtns.forEach(b => {
+                b.disabled = true;
+                if (!b.classList.contains('correct') && !b.classList.contains('correct-penalty') && !b.classList.contains('wrong')) {
+                    b.classList.add('dimmed');
+                }
+            });
+
+            dom.progText.innerText = `Question ${mcqState.idx + 1} of ${mcqState.deck.length}`;
+            dom.feedback.classList.add('visible');
+            dom.nextBtn.classList.add('visible');
+        }
+
+        function nextCard() {
+            mcqState.idx++;
+            loadCard();
+        }
+
+        function endDrill() {
+            dom.targetArea.style.display = 'none';
+            dom.imagesBox.style.display = 'none';
+            dom.autoDictBox.style.display = 'none';
+            dom.endScreen.style.display = 'block';
+            
+            const pct = Math.round((mcqState.correct / mcqState.attempts) * 100) || 0;
+            dom.finalScore.innerHTML = `You answered <strong>${mcqState.correct}</strong> questions correctly on the first try (without hints) out of <strong>${mcqState.attempts}</strong> total attempts (${pct}% accuracy).`;
+        }
+
+        dom.imagesBox.addEventListener('toggle', saveUiState);
+        dom.autoDictBox.addEventListener('toggle', saveUiState);
+        dom.statsBox.addEventListener('toggle', saveUiState);
+        window.onload = fetchAndParseMarkdown;
+
+    </script>
+    <script src="../../../Global/Scripts/background-animation.js" data-base-path="../../../"></script>
+</body>
+</html>
