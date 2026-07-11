@@ -100,20 +100,50 @@
         .option-btn.dimmed { opacity: 0.25; pointer-events: none; border-color: var(--text-muted); }
         .option-btn:disabled { cursor: default; transform: none; }
 
+        .feedback-box, .action-btn {
+            opacity: 0;
+            transform: translateY(10px) scale(0.98);
+            max-height: 0;
+            margin-top: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            overflow: hidden;
+            transition: all 0.3s ease-in-out;
+            pointer-events: none;
+        }
+
+        .feedback-box.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            max-height: 500px;
+            margin-top: 1.5rem;
+            padding: 1.2rem;
+            pointer-events: auto;
+        }
+        
         .feedback-box {
-            margin-top: 1.5rem; padding: 1.2rem; border-radius: 4px; display: none; line-height: 1.5; font-size: 1.05rem;
+             border-radius: 4px; line-height: 1.5; font-size: 1.05rem;
             background: var(--hover-bg); border-left: 4px solid var(--accent); width: 100%; text-align: left; box-sizing: border-box;
         }
 
+        .action-btn.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            max-height: 100px;
+            margin-top: 1.5rem;
+            padding: 1rem 1.5rem;
+            pointer-events: auto;
+        }
+
         .action-btn {
-            background: transparent; border: 2px solid var(--accent); color: var(--accent); padding: 1rem 1.5rem;
-            font-family: var(--font-family-mono); font-size: 1rem; cursor: pointer; border-radius: 4px; transition: 0.2s; width: 100%;
-            margin-top: 1.5rem; font-weight: bold; display: none; text-align: center;
+            background: transparent; border: 2px solid var(--accent); color: var(--accent);
+            font-family: var(--font-family-mono); font-size: 1rem; cursor: pointer; border-radius: 4px; width: 100%;
+            font-weight: bold; text-align: center;
         }
         .action-btn:hover { background: var(--accent); color: var(--bg-color); }
 
         details.addon-details {
-            width: 100%; background: transparent; border: 1px dashed var(--text-muted); 
+            width: 100%; background: var(--panel-bg); border: 1px solid var(--hover-bg); 
             border-radius: 8px; box-sizing: border-box; display: none;
         }
         details.addon-details summary {
@@ -122,6 +152,20 @@
         }
         details.addon-details summary:hover { color: var(--accent); }
         details.addon-details summary::-webkit-details-marker { display: none; }
+        
+        details:not([open]) .addon-content {
+            transition: max-height 0.2s ease-out, padding 0.2s ease-out;
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            overflow: hidden;
+        }
+
+        details[open] .addon-content {
+            transition: max-height 0.35s ease-in, padding 0.35s ease-in;
+            max-height: 1000px; /* Arbitrary large value */
+        }
+
         .addon-content { padding: 0 1.5rem 1.5rem 1.5rem; border-top: 1px solid var(--hover-bg); padding-top: 1.5rem; }
 
         .media-row { display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 0.5rem; }
@@ -130,7 +174,15 @@
         .media-row img { flex-shrink: 0; border-radius: 6px; border: 1px solid var(--text-muted); background: #000; height: 140px; min-width: 100px; object-fit: cover; }
 
         .auto-dict-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
-        .dict-item { background: var(--hover-bg); border-left: 3px solid var(--accent); padding: 1.2rem; border-radius: 6px; line-height: 1.4; }
+        .dict-item { 
+            background: var(--hover-bg); border-left: 3px solid var(--accent); padding: 1.2rem; 
+            border-radius: 6px; line-height: 1.4; 
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .dict-item.hidden {
+            opacity: 0;
+            transform: scale(0.95);
+        }
         .dict-word { color: var(--accent); font-weight: bold; font-size: 0.95rem; margin-bottom: 0.3rem; text-transform: capitalize;}
         .dict-pos { color: var(--text-muted); font-style: italic; font-size: 0.8rem; font-weight: normal; margin-right: 0.3rem;}
         .dict-def { color: var(--text-main); font-size: 0.85rem; }
@@ -196,14 +248,14 @@
         </div>
 
         <details id="images-box" class="addon-details">
-            <summary>🖼️ Contextual Reference Images</summary>
+            <summary>🖼️ Potentially Relevant Images</summary>
             <div class="addon-content">
                 <div id="images-row" class="media-row"></div>
             </div>
         </details>
 
         <details id="auto-dict-box" class="addon-details" open>
-            <summary>📖 Contextual Vocabulary</summary>
+            <summary>📖 Dictionary</summary>
             <div class="addon-content">
                 <div id="dict-relevant" class="auto-dict-grid"></div>
                 <hr id="dict-divider" class="dict-divider">
@@ -212,7 +264,7 @@
         </details>
 
         <details id="stats-box" class="addon-details" style="display:block;" open>
-            <summary>📊 Performance Benchmarks &amp; Tracking</summary>
+            <summary>📊 Benchmarks</summary>
             <div class="addon-content">
                 <div class="stats-grid">
                     <div class="stat-card"><div class="stat-val" id="stat-session-time">00:00</div><div class="stat-label">Current Session</div></div>
@@ -323,12 +375,14 @@
             try {
                 let path = window.location.pathname;
                 let pageName = path.split("/").pop() || "index.html";
+                
+                // Set page title from HTML filename
+                let titleBase = pageName.replace(/\.html$/, '');
+                document.getElementById('page-title').innerText = titleBase;
+                
                 let mdName = pageName.replace(/\.html$/, ".md");
                 if (!mdName.endsWith('.md')) mdName += '.md'; 
                 currentFileName = mdName;
-
-                let titleBase = mdName.replace('.md', '').replace(/_/g, ' ').toUpperCase();
-                document.getElementById('page-title').innerText = titleBase;
 
                 const response = await fetch(mdName);
                 if (!response.ok) throw new Error("File not found");
@@ -428,8 +482,8 @@
             document.getElementById('q-text').innerHTML = currentCard.q;
             document.getElementById('prog-text').innerText = `Question ${mcqState.idx + 1} of ${mcqState.deck.length}`;
             
-            document.getElementById('feedback').style.display = 'none';
-            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('feedback').classList.remove('visible');
+            document.getElementById('next-btn').classList.remove('visible');
             
             document.getElementById('hint-display').style.display = 'none';
             document.getElementById('hint-btn').disabled = !currentCard.hint; 
@@ -704,30 +758,43 @@
             const raw = hoverText.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/);
             const hoverWords = new Set(raw);
             
-            const dictItems = Array.from(document.querySelectorAll('.dict-item'));
             const relGrid = document.getElementById('dict-relevant');
             const otherGrid = document.getElementById('dict-other');
             const divider = document.getElementById('dict-divider');
 
-            let foundRelevant = false;
+            const itemsToMoveToRelevant = Array.from(otherGrid.querySelectorAll('.dict-item')).filter(item => hoverWords.has(item.dataset.word));
+            const itemsToMoveToOther = Array.from(relGrid.querySelectorAll('.dict-item')).filter(item => !hoverWords.has(item.dataset.word));
+            const allToMove = [...itemsToMoveToRelevant, ...itemsToMoveToOther];
+            
+            if (allToMove.length === 0) return;
 
-            dictItems.forEach(item => {
-                if (hoverWords.has(item.dataset.word)) {
-                    relGrid.appendChild(item);
-                    foundRelevant = true;
-                } else {
-                    otherGrid.appendChild(item);
-                }
-            });
+            allToMove.forEach(item => item.classList.add('hidden'));
 
-            divider.style.display = foundRelevant ? 'block' : 'none';
+            setTimeout(() => {
+                itemsToMoveToRelevant.forEach(item => relGrid.appendChild(item));
+                itemsToMoveToOther.forEach(item => otherGrid.appendChild(item));
+                
+                divider.style.display = relGrid.children.length > 0 ? 'block' : 'none';
+                
+                allToMove.forEach(item => item.classList.remove('hidden'));
+            }, 300);
         }
 
         function resetVocab() {
-            const dictItems = Array.from(document.querySelectorAll('.dict-item'));
+            const relGrid = document.getElementById('dict-relevant');
             const otherGrid = document.getElementById('dict-other');
-            dictItems.forEach(item => otherGrid.appendChild(item));
-            document.getElementById('dict-divider').style.display = 'none';
+            const itemsToMove = Array.from(relGrid.querySelectorAll('.dict-item'));
+            const divider = document.getElementById('dict-divider');
+
+            if (itemsToMove.length === 0) return;
+
+            itemsToMove.forEach(item => item.classList.add('hidden'));
+
+            setTimeout(() => {
+                itemsToMove.forEach(item => otherGrid.appendChild(item));
+                divider.style.display = 'none';
+                itemsToMove.forEach(item => item.classList.remove('hidden'));
+            }, 300);
         }
 
         // --- GUESS EVALUATION ---
@@ -785,8 +852,8 @@
             });
 
             document.getElementById('prog-text').innerText = `Question ${mcqState.idx + 1} of ${mcqState.deck.length}`;
-            fb.style.display = 'block';
-            document.getElementById('next-btn').style.display = 'block';
+            fb.classList.add('visible');
+            document.getElementById('next-btn').classList.add('visible');
         }
 
         function nextCard() {
