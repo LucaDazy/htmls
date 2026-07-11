@@ -5,6 +5,12 @@
     "sort2": 0,
     "tools": [
       {
+        "name": "LectureCh5Quiz",
+        "path": "Tools/A&P1_2_0/LectureCh5Quiz_2_2/LectureCh5Quiz.html",
+        "sort1": 2,
+        "sort2": 2
+      },
+      {
         "name": "AnatomicalPositions",
         "path": "Tools/A&P1_2_0/AnatomicalPositions_1_1/AnatomicalPositions.html",
         "sort1": 1,
