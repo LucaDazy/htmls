@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Study Module</title>
+    <style>
+        :root {
+            --bg-color: #323437;
+            --panel-bg: #2c2e31;
+            --hover-bg: #3a3d40;
+            --text-main: #d1d0c5;
+            --text-muted: #646669;
+            --accent: #e2b714;
+            --error: #ca4754;
+            --success: #8cc84b;
+            --hard: #e27d60; 
+        }
+
+        body {
+            background-color: var(--bg-color); color: var(--text-main);
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 2rem; margin: 0; min-height: 100vh;
+        }
+
+        h1 { color: var(--accent); margin-bottom: 2rem; text-align: center; }
+
+        .container {
+            width: 100%; max-width: 900px; display: flex; flex-direction: column; 
+            align-items: center; gap: 1.5rem; position: relative;
+        }
+
+        /* Target Box */
+        .target-box {
+            background: var(--panel-bg); border: 2px solid var(--accent); border-radius: 8px;
+            padding: 1.5rem 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; width: 100%; box-sizing: border-box;
+        }
+
+        .header-row {
+            display: flex; justify-content: space-between; align-items: center; width: 100%;
+            border-bottom: 1px dashed var(--text-muted); padding-bottom: 1rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;
+        }
+
+        .progress-text { font-size: 0.95rem; color: var(--text-muted); font-weight: bold; white-space: nowrap; }
+
+        /* Tools Separation */
+        .tools-container {
+            display: flex; gap: 2.5rem; align-items: center; flex-wrap: wrap; justify-content: flex-end; flex: 1;
+        }
+        .tool-group { display: flex; gap: 0.5rem; }
+        
+        .tool-btn {
+            background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted);
+            padding: 0.4rem 0.8rem; font-family: inherit; font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s;
+        }
+        .tool-btn.active { border-color: var(--accent); color: var(--accent); }
+        .tool-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: rgba(226, 183, 20, 0.1); }
+        .tool-btn:disabled { opacity: 0.3; cursor: default; }
+
+        /* Hover ToC Menu */
+        .toc-container { position: relative; }
+        .toc-dropdown {
+            position: absolute; top: 120%; left: 50%; transform: translateX(-50%);
+            width: 380px; max-height: 400px; background: var(--bg-color); border: 2px solid var(--accent);
+            border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 1000;
+            display: none; flex-direction: column; overflow: hidden;
+        }
+        .toc-header {
+            padding: 1rem; background: rgba(0,0,0,0.3); border-bottom: 1px dashed var(--text-muted);
+            color: var(--accent); font-weight: bold; font-size: 1.1rem; text-align: center;
+        }
+        .toc-content { overflow-y: auto; flex: 1; padding: 0; margin: 0; }
+        .toc-item { 
+            padding: 1rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; 
+            display: flex; gap: 1rem; align-items: flex-start; transition: 0.2s;
+        }
+        .toc-item:hover { background: var(--hover-bg); }
+        .toc-status { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+        .toc-status.unseen { background: var(--text-muted); }
+        .toc-status.learning { background: var(--hard); box-shadow: 0 0 6px var(--hard); }
+        .toc-status.mastered { background: var(--success); box-shadow: 0 0 6px var(--success); }
+        .toc-text { font-size: 0.9rem; line-height: 1.4; color: var(--text-main); }
+
+        /* Hint Display */
+        .hint-display {
+            background: rgba(226, 183, 20, 0.1); border: 1px solid var(--accent); color: var(--accent);
+            padding: 1rem; border-radius: 6px; font-size: 0.95rem; margin-bottom: 1.5rem; display: none; line-height: 1.5;
+        }
+
+        .question-text { font-size: 1.25rem; line-height: 1.6; color: var(--text-main); margin-bottom: 1.5rem; width: 100%; transition: color 0.2s; }
+
+        /* Options & Floating Tooltips */
+        .options-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; width: 100%; }
+        
+        .option-btn {
+            background: var(--bg-color); border: 2px solid var(--text-muted); color: var(--text-main);
+            text-align: left; padding: 1.2rem; font-family: inherit; cursor: pointer;
+            border-radius: 6px; transition: all 0.2s; position: relative;
+        }
+        .opt-text { font-size: 1.05rem; line-height: 1.4; font-weight: bold; }
+        
+        .opt-tooltip {
+            position: absolute; bottom: 115%; left: 50%; transform: translateX(-50%) translateY(10px);
+            background: var(--bg-color); color: var(--accent); padding: 0.6rem 1rem;
+            border-radius: 6px; border: 1px solid var(--accent); font-size: 0.85rem;
+            width: max-content; max-width: 250px; white-space: normal;
+            z-index: 100; opacity: 0; visibility: hidden; transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6); pointer-events: none; text-align: center;
+        }
+        .opt-tooltip::after {
+            content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+            border-width: 6px; border-style: solid; border-color: var(--accent) transparent transparent transparent;
+        }
+        
+        .option-btn:hover:not(:disabled):not(.dimmed) { border-color: var(--accent); background: var(--hover-bg); transform: translateY(-2px); }
+        .option-btn:hover:not(:disabled):not(.dimmed) .opt-tooltip { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+        
+        .options-grid.hide-tooltips .opt-tooltip { display: none !important; }
+
+        /* Result States */
+        .option-btn.correct { border-color: var(--success); color: var(--success); background: rgba(140, 200, 75, 0.1); }
+        .option-btn.correct-penalty { border-color: var(--hard); color: var(--hard); background: rgba(226, 125, 96, 0.1); }
+        .option-btn.wrong { border-color: var(--error); color: var(--error); background: rgba(202, 71, 84, 0.1); }
+        .option-btn.dimmed { opacity: 0.25; pointer-events: none; border-color: var(--text-muted); }
+        .option-btn:disabled { cursor: default; transform: none; }
+
+        /* Feedback Box */
+        .feedback-box {
+            margin-top: 1.5rem; padding: 1.2rem; border-radius: 4px; display: none; line-height: 1.5; font-size: 1.05rem;
+            background: rgba(0,0,0,0.2); border-left: 4px solid var(--accent); width: 100%; text-align: left; box-sizing: border-box;
+        }
+
+        .action-btn {
+            background: transparent; border: 2px solid var(--accent); color: var(--accent); padding: 1rem 1.5rem;
+            font-family: inherit; font-size: 1rem; cursor: pointer; border-radius: 4px; transition: 0.2s; width: 100%;
+            margin-top: 1.5rem; font-weight: bold; display: none; text-align: center;
+        }
+        .action-btn:hover { background: var(--accent); color: var(--bg-color); }
+
+        /* Collapsible Addons */
+        details.addon-details {
+            width: 100%; background: rgba(0,0,0,0.15); border: 1px dashed var(--text-muted); 
+            border-radius: 8px; box-sizing: border-box; display: none;
+        }
+        details.addon-details summary {
+            padding: 1.2rem; font-size: 0.95rem; font-weight: bold; color: var(--text-muted); 
+            text-transform: uppercase; letter-spacing: 1px; cursor: pointer; outline: none; list-style: none; text-align: center;
+            transition: color 0.2s;
+        }
+        details.addon-details summary:hover { color: var(--accent); }
+        details.addon-details summary::-webkit-details-marker { display: none; }
+        .addon-content { padding: 0 1.5rem 1.5rem 1.5rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1.5rem; }
+
+        /* Media Row */
+        .media-row { display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 0.5rem; }
+        .media-row::-webkit-scrollbar { height: 8px; }
+        .media-row::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; }
+        .media-row img { flex-shrink: 0; border-radius: 6px; border: 1px solid var(--text-muted); background: #000; height: 140px; min-width: 100px; object-fit: cover; }
+
+        /* Auto-Dictionary */
+        .auto-dict-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+        .dict-item { 
+            background: var(--panel-bg); border-left: 3px solid var(--accent); padding: 1.2rem; 
+            border-radius: 6px; line-height: 1.4; box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        }
+        .dict-word { color: var(--accent); font-weight: bold; font-size: 0.95rem; margin-bottom: 0.3rem; text-transform: capitalize;}
+        .dict-pos { color: var(--text-muted); font-style: italic; font-size: 0.8rem; font-weight: normal; margin-right: 0.3rem;}
+        .dict-def { color: var(--text-main); font-size: 0.85rem; }
+        hr.dict-divider { border: 0; height: 1px; background: dashed 1px var(--text-muted); margin: 1.5rem 0; width: 100%; display: none; }
+
+        /* Session Tracking Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem; text-align: center; }
+        .stat-card { background: rgba(0,0,0,0.2); border: 1px solid var(--text-muted); padding: 1.5rem 1rem; border-radius: 6px; display: flex; flex-direction: column; gap: 0.5rem; }
+        .stat-val { color: var(--accent); font-size: 1.5rem; font-weight: bold; }
+        .stat-label { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        .end-screen { text-align: center; display: none; background: var(--panel-bg); padding: 3rem; border-radius: 8px; border: 2px solid var(--success); width: 100%; box-sizing: border-box;}
+        .end-screen h2 { color: var(--success); margin-bottom: 1rem; }
+
+        @media (min-width: 800px) { .options-grid { grid-template-columns: 1fr 1fr; } }
+    </style>
+</head>
+<body>
+
+    <h1 id="page-title">Universal Study Module</h1>
+
+    <div class="container">
+        
+        <div class="target-box" id="target-area">
+            <div class="header-row">
+                <div class="progress-text" id="prog-text">Loading...</div>
+                
+                <div class="tools-container">
+                    <div class="tool-group">
+                        <button class="tool-btn active" id="tooltip-btn" onclick="toggleTooltips()">👁️ Tooltips</button>
+                        
+                        <div class="toc-container">
+                            <button class="tool-btn" id="table-btn" onclick="toggleToC()">📋 Table</button>
+                            <div id="toc-dropdown" class="toc-dropdown">
+                                <div class="toc-header">Table of Contents</div>
+                                <div id="toc-content" class="toc-content"></div>
+                            </div>
+                        </div>
+
+                        <button class="tool-btn" id="video-btn" onclick="openYouTube()">▶️ Videos</button>
+                    </div>
+                    
+                    <div class="tool-group">
+                        <button class="tool-btn" id="hint-btn" onclick="useHint()">💡 Hint</button>
+                        <button class="tool-btn" id="chop-btn" onclick="useChop()">✂️ Chop</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="hint-display" class="hint-display"></div>
+            
+            <div class="question-text" id="q-text">Loading question...</div>
+            <div class="options-grid" id="options-grid"></div>
+
+            <div id="feedback" class="feedback-box"></div>
+            <button id="next-btn" class="action-btn" onclick="nextCard()">Next Question ➔</button>
+            
+            <div id="file-alert" style="margin-top: 1.5rem; text-align: center; color: var(--error); font-size: 0.85rem; display: none;">
+                Note: Loaded Advanced Fallback Deck because the associated .md file was not found.
+            </div>
+        </div>
+
+        <details id="images-box" class="addon-details">
+            <summary>🖼️ Contextual Reference Images</summary>
+            <div class="addon-content">
+                <div id="images-row" class="media-row"></div>
+            </div>
+        </details>
+
+        <details id="auto-dict-box" class="addon-details" open>
+            <summary>📖 Contextual Vocabulary</summary>
+            <div class="addon-content">
+                <div id="dict-relevant" class="auto-dict-grid"></div>
+                <hr id="dict-divider" class="dict-divider">
+                <div id="dict-other" class="auto-dict-grid"></div>
+            </div>
+        </details>
+
+        <details id="stats-box" class="addon-details" style="display:block;" open>
+            <summary>📊 Performance Benchmarks & Tracking</summary>
+            <div class="addon-content">
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-val" id="stat-session-time">00:00</div><div class="stat-label">Current Session</div></div>
+                    <div class="stat-card"><div class="stat-val" id="stat-total-time">00:00</div><div class="stat-label">All-Time Studied</div></div>
+                    <div class="stat-card"><div class="stat-val" id="stat-avg-time">0s</div><div class="stat-label">Avg Time / Card</div></div>
+                    <div class="stat-card"><div class="stat-val" id="stat-accuracy">0%</div><div class="stat-label">Global Accuracy</div></div>
+                    <div class="stat-card"><div class="stat-val" id="stat-visits">1</div><div class="stat-label">Total Visits</div></div>
+                    <div class="stat-card"><div class="stat-val" id="stat-tools">0</div><div class="stat-label">Tools Used</div></div>
+                </div>
+            </div>
+        </details>
+
+        <div id="end-screen" class="end-screen">
+            <h2>Deck Conquered!</h2>
+            <p id="final-score" style="margin-bottom: 2rem; color: var(--text-main); font-size:1.1rem;"></p>
+            <button class="action-btn" style="display:block;" onclick="restartDrill()">Restart Drill</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- ENGINE STATE ---
+        let mcqState = { originalDeck: [], deck: [], idx: 0, attempts: 0, correct: 0 };
+        let penaltyUsed = false; // Note: Only Hint triggers this now. Chop is penalty-free.
+        let lockBoard = false;
+        let chopsUsed = 0;
+        let tooltipsOn = true;
+        let currentFileName = "";
+        let currentSearchQuery = "";
+        
+        const dictCache = {};
+        const stopWords = new Set(['what', 'is', 'the', 'of', 'to', 'in', 'and', 'for', 'with', 'on', 'that', 'this', 'by', 'as', 'are', 'be', 'from', 'or', 'it', 'at', 'which', 'when', 'how', 'why', 'where', 'who', 'will', 'would', 'can', 'could', 'should', 'has', 'have', 'had', 'not', 'only', 'all', 'any', 'some', 'many', 'most', 'other', 'such', 'their', 'they', 'them', 'these', 'those', 'then', 'than', 'there', 'was', 'were', 'following', 'true', 'false', 'about', 'does', 'do', 'did', 'each', 'every', 'because', 'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'under']);
+
+        // Advanced Fallback Deck to accurately test the Auto-Dictionary sorting and extraction
+        const fallbackDeck = [{
+            q: "The sternocleidomastoid muscle is responsible for which of the following physiological actions?",
+            opts: [
+                { text: "Bilateral contraction causes flexion of the cervical vertebral column.", tooltip: "This is correct. Both sides firing pulls the head forward." },
+                { text: "Unilateral contraction causes ipsilateral rotation of the cranium.", tooltip: "Incorrect. It causes contralateral (opposite side) rotation." },
+                { text: "It acts as a primary agonist for mandibular depression during mastication.", tooltip: "Incorrect. Mastication involves the masseter and temporalis." },
+                { text: "It stabilizes the glenohumeral joint during appendicular abduction.", tooltip: "Incorrect. This describes rotator cuff muscles." }
+            ],
+            correctAns: "Bilateral contraction causes flexion of the cervical vertebral column.",
+            exp: "The sternocleidomastoid flexes the cervical spine bilaterally and rotates the head contralaterally.",
+            hint: "Think about the cervical region and how it connects to the sternum and clavicle."
+        }];
+
+        // --- SESSION TRACKING LOGIC ---
+        let sessionTimer = 0; 
+        let globalStats = { visits: 0, totalTime: 0, totalCards: 0, correctCards: 0, toolsUsed: 0 };
+        let statsInterval = null;
+
+        function initTracking() {
+            let cacheKey = 'stats_' + currentFileName;
+            let saved = localStorage.getItem(cacheKey);
+            if (saved) { try { globalStats = JSON.parse(saved); } catch(e) {} }
+            globalStats.visits += 1;
+            saveTracking();
+
+            if(statsInterval) clearInterval(statsInterval);
+            statsInterval = setInterval(() => {
+                sessionTimer++;
+                updateTrackingUI();
+                if (sessionTimer % 5 === 0) saveTracking();
+            }, 1000);
+        }
+
+        function saveTracking() {
+            let cacheKey = 'stats_' + currentFileName;
+            let toSave = { ...globalStats, totalTime: globalStats.totalTime + sessionTimer };
+            localStorage.setItem(cacheKey, JSON.stringify(toSave));
+        }
+
+        function updateTrackingUI() {
+            document.getElementById('stat-session-time').innerText = formatTime(sessionTimer);
+            document.getElementById('stat-total-time').innerText = formatTime(globalStats.totalTime + sessionTimer);
+            document.getElementById('stat-visits').innerText = globalStats.visits;
+            document.getElementById('stat-tools').innerText = globalStats.toolsUsed;
+
+            let avgTime = globalStats.totalCards > 0 ? Math.round((globalStats.totalTime + sessionTimer) / globalStats.totalCards) : 0;
+            document.getElementById('stat-avg-time').innerText = avgTime + "s";
+
+            let acc = globalStats.totalCards > 0 ? Math.round((globalStats.correctCards / globalStats.totalCards) * 100) : 0;
+            document.getElementById('stat-accuracy').innerText = acc + "%";
+        }
+
+        function formatTime(seconds) {
+            let h = Math.floor(seconds / 3600);
+            let m = Math.floor((seconds % 3600) / 60);
+            let s = seconds % 60;
+            if (h > 0) return `${h}h ${m}m`;
+            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        // --- UTILS ---
+        function shuffle(arr) {
+            let a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        // --- MARKDOWN PARSER ---
+        async function fetchAndParseMarkdown() {
+            try {
+                let path = window.location.pathname;
+                let pageName = path.split("/").pop() || "index.html";
+                let mdName = pageName.replace(/\.html$/, ".md");
+                if (!mdName.endsWith('.md')) mdName += '.md'; 
+                currentFileName = mdName;
+
+                let titleBase = mdName.replace('.md', '').replace(/_/g, ' ').toUpperCase();
+                document.getElementById('page-title').innerText = titleBase;
+
+                const response = await fetch(mdName);
+                if (!response.ok) throw new Error("File not found");
+                
+                const mdText = await response.text();
+                processMarkdown(mdText);
+
+            } catch (err) {
+                if(!currentFileName) currentFileName = "fallback.md";
+                document.getElementById('file-alert').style.display = 'block';
+                setupDecks(fallbackDeck);
+                startDrill();
+            }
+        }
+
+        function processMarkdown(text) {
+            const blocks = text.split(/(?=^# Q:)/m).filter(b => b.trim());
+            let parsedDeck = [];
+
+            blocks.forEach((block) => {
+                const lines = block.split('\n').map(l => l.trim()).filter(l => l);
+                let q = "", exp = "", hint = "", correctAns = "";
+                let opts = [];
+                let currentOpt = null;
+
+                lines.forEach(line => {
+                    if (line.startsWith('# Q:')) {
+                        q = line.substring(4).trim();
+                    } else if (line.startsWith('?')) {
+                        hint = line.substring(1).trim();
+                    } else if (line.startsWith('- [x]') || line.startsWith('- [X]')) {
+                        let text = line.substring(5).trim();
+                        currentOpt = { text: text, tooltip: "" };
+                        opts.push(currentOpt);
+                        correctAns = text;
+                    } else if (line.startsWith('- [ ]')) {
+                        let text = line.substring(5).trim();
+                        currentOpt = { text: text, tooltip: "" };
+                        opts.push(currentOpt);
+                    } else if (line.startsWith('^') && currentOpt) {
+                        currentOpt.tooltip = line.substring(1).trim();
+                    } else if (line.startsWith('>')) {
+                        exp += line.substring(1).trim() + " ";
+                    }
+                });
+
+                if (q && correctAns) {
+                    parsedDeck.push({ q, opts, correctAns, exp: exp.trim(), hint });
+                }
+            });
+
+            if (parsedDeck.length === 0) {
+                document.getElementById('file-alert').style.display = 'block';
+                setupDecks(fallbackDeck);
+            } else {
+                setupDecks(parsedDeck);
+            }
+            startDrill();
+        }
+
+        function setupDecks(sourceArray) {
+            mcqState.originalDeck = sourceArray.map((card, i) => ({ ...card, id: i, status: 'unseen' }));
+            mcqState.deck = shuffle([...mcqState.originalDeck]);
+        }
+
+        // --- DRILL ENGINE ---
+        function startDrill() {
+            initTracking();
+            document.getElementById('target-area').style.display = 'flex';
+            loadCard();
+        }
+
+        function restartDrill() {
+            document.getElementById('end-screen').style.display = 'none';
+            document.getElementById('target-area').style.display = 'flex';
+            mcqState.idx = 0;
+            mcqState.attempts = 0;
+            mcqState.correct = 0;
+            
+            mcqState.originalDeck.forEach(c => c.status = 'unseen');
+            mcqState.deck = shuffle([...mcqState.originalDeck]);
+            loadCard();
+        }
+
+        function loadCard() {
+            if (mcqState.idx >= mcqState.deck.length) {
+                endDrill();
+                return;
+            }
+
+            lockBoard = false;
+            penaltyUsed = false;
+            chopsUsed = 0;
+            
+            const currentCard = mcqState.deck[mcqState.idx];
+
+            document.getElementById('q-text').innerHTML = currentCard.q;
+            document.getElementById('prog-text').innerText = `Question ${mcqState.idx + 1} of ${mcqState.deck.length}`;
+            
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            
+            document.getElementById('hint-display').style.display = 'none';
+            document.getElementById('hint-btn').disabled = !currentCard.hint; 
+            document.getElementById('chop-btn').disabled = false;
+
+            const grid = document.getElementById('options-grid');
+            grid.innerHTML = '';
+            
+            let shuffledOpts = shuffle(currentCard.opts);
+            shuffledOpts.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.dataset.correct = (opt.text === currentCard.correctAns);
+                
+                let html = `<span class="opt-text">${opt.text}</span>`;
+                if (opt.tooltip) {
+                    html += `<div class="opt-tooltip">💡 ${opt.tooltip}</div>`;
+                }
+                btn.innerHTML = html;
+                
+                btn.onclick = () => handleGuess(btn, opt.text);
+                btn.addEventListener('mouseenter', () => sortVocab(opt.text));
+                btn.addEventListener('mouseleave', () => resetVocab());
+                grid.appendChild(btn);
+            });
+
+            document.getElementById('q-text').addEventListener('mouseenter', () => sortVocab(currentCard.q));
+            document.getElementById('q-text').addEventListener('mouseleave', () => resetVocab());
+
+            document.getElementById('images-box').style.display = 'none';
+            document.getElementById('auto-dict-box').style.display = 'none';
+
+            generateSearchQuery(currentCard);
+            runAutoDictionary(currentCard);
+            fetchMedia();
+        }
+
+        // --- TOOLS ---
+        function toggleTooltips() {
+            tooltipsOn = !tooltipsOn;
+            const btn = document.getElementById('tooltip-btn');
+            const grid = document.getElementById('options-grid');
+            
+            if (tooltipsOn) {
+                btn.classList.add('active');
+                grid.classList.remove('hide-tooltips');
+            } else {
+                btn.classList.remove('active');
+                grid.classList.add('hide-tooltips');
+            }
+        }
+
+        function useHint() {
+            if (lockBoard) return;
+            const currentCard = mcqState.deck[mcqState.idx];
+            if (!currentCard.hint) return;
+
+            penaltyUsed = true;
+            globalStats.toolsUsed++;
+            updateTrackingUI();
+
+            document.getElementById('hint-display').innerHTML = `<strong>Hint:</strong> ${currentCard.hint}`;
+            document.getElementById('hint-display').style.display = 'block';
+            document.getElementById('hint-btn').disabled = true;
+        }
+
+        function useChop() {
+            if (lockBoard || chopsUsed >= 2) return;
+            
+            const allBtns = Array.from(document.querySelectorAll('.option-btn'));
+            const availableWrongBtns = allBtns.filter(b => b.dataset.correct === "false" && !b.classList.contains('dimmed'));
+
+            if (availableWrongBtns.length > 0) {
+                // CHOP FIX: Using a chop is no longer a penalty. It simply eliminates an option.
+                chopsUsed++;
+                globalStats.toolsUsed++;
+                updateTrackingUI();
+
+                const btnToChop = availableWrongBtns[Math.floor(Math.random() * availableWrongBtns.length)];
+                btnToChop.classList.add('dimmed');
+                btnToChop.disabled = true;
+
+                if (availableWrongBtns.length === 1 || chopsUsed >= 2) {
+                    document.getElementById('chop-btn').disabled = true;
+                }
+            }
+        }
+
+        function openYouTube() {
+            if (currentSearchQuery) {
+                window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(currentSearchQuery)}`, '_blank');
+            }
+        }
+
+        // --- TABLE OF CONTENTS ---
+        function toggleToC() {
+            const dropdown = document.getElementById('toc-dropdown');
+            if (dropdown.style.display === 'flex') {
+                dropdown.style.display = 'none';
+            } else {
+                renderToC();
+                dropdown.style.display = 'flex';
+            }
+        }
+
+        function renderToC() {
+            const content = document.getElementById('toc-content');
+            content.innerHTML = '';
+
+            mcqState.originalDeck.forEach(card => {
+                const item = document.createElement('div');
+                item.className = 'toc-item';
+                item.innerHTML = `
+                    <div class="toc-status ${card.status}"></div>
+                    <div class="toc-text">${card.q}</div>
+                `;
+                item.onclick = () => jumpToCard(card.id);
+                content.appendChild(item);
+            });
+        }
+
+        function jumpToCard(id) {
+            document.getElementById('toc-dropdown').style.display = 'none';
+            const baseCard = mcqState.originalDeck.find(c => c.id === id);
+            
+            let futureIdx = mcqState.deck.findIndex((c, i) => i >= mcqState.idx && c.id === id);
+            
+            if (futureIdx !== -1) {
+                mcqState.idx = futureIdx;
+            } else {
+                mcqState.deck.splice(mcqState.idx, 0, baseCard);
+            }
+            loadCard();
+        }
+
+        // --- VOCABULARY & MEDIA ENGINES ---
+        function generateSearchQuery(card) {
+            let rawWords = card.correctAns.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/);
+            let uniqueWords = [...new Set(rawWords)].filter(w => w.length > 3 && !stopWords.has(w));
+            
+            if (uniqueWords.length === 0) {
+                let qWords = card.q.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/);
+                uniqueWords = [...new Set(qWords)].filter(w => w.length > 5 && !stopWords.has(w)).slice(0, 2);
+            }
+            currentSearchQuery = uniqueWords.slice(0, 3).join(" ");
+        }
+
+        async function fetchMedia() {
+            if (!currentSearchQuery) return;
+
+            let collectedImages = [];
+            
+            async function fetchWikiImages(query) {
+                try {
+                    const imgUrl = `https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&format=json&piprop=thumbnail&pithumbsize=400&generator=search&gsrsearch=${encodeURIComponent(query)}&gsrlimit=10&origin=*`;
+                    const res = await fetch(imgUrl);
+                    const data = await res.json();
+                    let imgs = [];
+                    if (data.query && data.query.pages) {
+                        Object.values(data.query.pages).forEach(page => {
+                            if (page.thumbnail && page.thumbnail.source) {
+                                imgs.push({ src: page.thumbnail.source, alt: page.title });
+                            }
+                        });
+                    }
+                    return imgs;
+                } catch(e) { return []; }
+            }
+
+            // Attempt 1: Full Query
+            collectedImages = await fetchWikiImages(currentSearchQuery);
+
+            // Attempt 2: Split Query into Single Words
+            let words = currentSearchQuery.split(" ");
+            for (let i = 0; i < words.length && collectedImages.length < 5; i++) {
+                let fallback = await fetchWikiImages(words[i]);
+                fallback.forEach(img => {
+                    if (!collectedImages.find(ci => ci.src === img.src)) collectedImages.push(img);
+                });
+            }
+
+            // Attempt 3: Generic Anatomical Fallbacks if API absolutely fails or yields < 5
+            if (collectedImages.length < 5) {
+                const staticFallbacks = [
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Human_anatomy.svg/400px-Human_anatomy.svg.png",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/DNA_Double_Helix.png/400px-DNA_Double_Helix.png",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Cell_anatomy.jpg/400px-Cell_anatomy.jpg",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Brain_chris_chan_01.jpg/400px-Brain_chris_chan_01.jpg",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Heart_diagram-en.svg/400px-Heart_diagram-en.svg.png"
+                ];
+                while(collectedImages.length < 5) {
+                    collectedImages.push({ src: staticFallbacks[collectedImages.length % staticFallbacks.length], alt: "Reference Image" });
+                }
+            }
+
+            collectedImages = collectedImages.slice(0, 5); // Ensure EXACTLY 5 images
+
+            const imgRow = document.getElementById('images-row');
+            imgRow.innerHTML = '';
+            
+            collectedImages.forEach(img => {
+                imgRow.innerHTML += `<a href="${img.src.replace('400px', '1000px')}" target="_blank"><img src="${img.src}" alt="${img.alt}"></a>`;
+            });
+            document.getElementById('images-box').style.display = 'block';
+        }
+
+        async function runAutoDictionary(currentCard) {
+            const dictBox = document.getElementById('auto-dict-box');
+            const otherGrid = document.getElementById('dict-other');
+            const relGrid = document.getElementById('dict-relevant');
+            
+            document.getElementById('dict-divider').style.display = 'none';
+            relGrid.innerHTML = '';
+            
+            let textToAnalyze = currentCard.q;
+            let isSentenceOptions = currentCard.opts.some(opt => opt.text.split(' ').length > 3);
+            if (isSentenceOptions) {
+                currentCard.opts.forEach(opt => textToAnalyze += " " + opt.text);
+            }
+
+            let rawWords = textToAnalyze.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/);
+            let uniqueWords = [...new Set(rawWords)].filter(w => w.length > 4 && !stopWords.has(w));
+            uniqueWords.sort((a, b) => b.length - a.length);
+
+            const wordsToFetch = uniqueWords.slice(0, 8); 
+
+            if (wordsToFetch.length === 0) {
+                dictBox.style.display = 'none';
+                return;
+            }
+
+            dictBox.style.display = 'block';
+            otherGrid.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; font-style:italic;">Scanning vocabulary...</div>';
+
+            let htmlOutput = '';
+            
+            await Promise.all(wordsToFetch.map(async (word) => {
+                if (dictCache[word]) {
+                    htmlOutput += dictCache[word];
+                    return;
+                }
+                
+                try {
+                    const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        let meaningStr = "";
+                        data[0].meanings.slice(0, 2).forEach(m => {
+                           meaningStr += `<span class="dict-pos">${m.partOfSpeech}.</span> ${m.definitions[0].definition} `; 
+                        });
+
+                        const entryHtml = `
+                            <div class="dict-item" data-word="${word}">
+                                <div class="dict-word">${word}</div>
+                                <div class="dict-def">${meaningStr.trim()}</div>
+                            </div>`;
+                            
+                        dictCache[word] = entryHtml; 
+                        htmlOutput += entryHtml;
+                    }
+                } catch (e) { /* Silently ignore API misses */ }
+            }));
+
+            if(htmlOutput) {
+                otherGrid.innerHTML = htmlOutput;
+            } else {
+                dictBox.style.display = 'none';
+            }
+        }
+
+        function sortVocab(hoverText) {
+            const raw = hoverText.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/);
+            const hoverWords = new Set(raw);
+            
+            const dictItems = Array.from(document.querySelectorAll('.dict-item'));
+            const relGrid = document.getElementById('dict-relevant');
+            const otherGrid = document.getElementById('dict-other');
+            const divider = document.getElementById('dict-divider');
+
+            let foundRelevant = false;
+
+            dictItems.forEach(item => {
+                if (hoverWords.has(item.dataset.word)) {
+                    relGrid.appendChild(item);
+                    foundRelevant = true;
+                } else {
+                    otherGrid.appendChild(item);
+                }
+            });
+
+            divider.style.display = foundRelevant ? 'block' : 'none';
+        }
+
+        function resetVocab() {
+            const dictItems = Array.from(document.querySelectorAll('.dict-item'));
+            const otherGrid = document.getElementById('dict-other');
+            dictItems.forEach(item => otherGrid.appendChild(item));
+            document.getElementById('dict-divider').style.display = 'none';
+        }
+
+        // --- GUESS EVALUATION ---
+        function handleGuess(btn, guessedAns) {
+            if (lockBoard) return;
+            lockBoard = true;
+            document.getElementById('hint-btn').disabled = true;
+            document.getElementById('chop-btn').disabled = true;
+
+            const currentCard = mcqState.deck[mcqState.idx];
+            const fb = document.getElementById('feedback');
+            const allBtns = document.querySelectorAll('.option-btn');
+            
+            mcqState.attempts++;
+            globalStats.totalCards++;
+            
+            const isCorrect = (guessedAns === currentCard.correctAns);
+
+            if (isCorrect) {
+                if (penaltyUsed) {
+                    currentCard.status = 'learning';
+                    btn.classList.add('correct-penalty');
+                    mcqState.deck.push(mcqState.deck[mcqState.idx]); 
+                    fb.innerHTML = `<strong style="color:var(--hard);">⚠️ Correct (Hint Used).</strong><br><br>${currentCard.exp}<br><br><em style="color:var(--accent);">Card recycled to the back of the deck.</em>`;
+                    fb.style.borderLeftColor = 'var(--hard)';
+                } else {
+                    currentCard.status = 'mastered';
+                    btn.classList.add('correct');
+                    mcqState.correct++;
+                    globalStats.correctCards++;
+                    fb.innerHTML = `<strong style="color:var(--success);">✅ Correct!</strong><br><br>${currentCard.exp}`;
+                    fb.style.borderLeftColor = 'var(--success)';
+                }
+            } else {
+                currentCard.status = 'learning';
+                btn.classList.add('wrong');
+                mcqState.deck.push(mcqState.deck[mcqState.idx]); 
+                
+                allBtns.forEach(b => {
+                    if (b.dataset.correct === "true") b.classList.add('correct');
+                });
+
+                let prefix = penaltyUsed ? `<strong style="color:var(--error);">❌ Incorrect (Hint Used).</strong>` : `<strong style="color:var(--error);">❌ Incorrect.</strong>`;
+                fb.innerHTML = `${prefix}<br><br>${currentCard.exp}<br><br><em style="color:var(--accent);">Card recycled to the back of the deck.</em>`;
+                fb.style.borderLeftColor = 'var(--error)';
+            }
+            
+            updateTrackingUI();
+
+            allBtns.forEach(b => {
+                b.disabled = true;
+                if (!b.classList.contains('correct') && !b.classList.contains('correct-penalty') && !b.classList.contains('wrong')) {
+                    b.classList.add('dimmed');
+                }
+            });
+
+            document.getElementById('prog-text').innerText = `Question ${mcqState.idx + 1} of ${mcqState.deck.length}`;
+            fb.style.display = 'block';
+            document.getElementById('next-btn').style.display = 'block';
+        }
+
+        function nextCard() {
+            mcqState.idx++;
+            loadCard();
+        }
+
+        function endDrill() {
+            document.getElementById('target-area').style.display = 'none';
+            document.getElementById('images-box').style.display = 'none';
+            document.getElementById('auto-dict-box').style.display = 'none';
+            document.getElementById('end-screen').style.display = 'block';
+            
+            const pct = Math.round((mcqState.correct / mcqState.attempts) * 100) || 0;
+            document.getElementById('final-score').innerHTML = `You answered <strong>${mcqState.correct}</strong> questions correctly on the first try (without hints) out of <strong>${mcqState.attempts}</strong> total attempts (${pct}% accuracy).`;
+        }
+
+        window.onload = fetchAndParseMarkdown;
+
+    </script>
+</body>
+</html>
