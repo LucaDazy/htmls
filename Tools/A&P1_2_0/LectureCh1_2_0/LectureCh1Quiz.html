@@ -668,14 +668,19 @@
 
         function jumpToCard(id) {
             dom.tocDropdown.style.display = 'none';
-            const baseCard = mcqState.originalDeck.find(c => c.id === id);
             
-            let futureIdx = mcqState.deck.findIndex((c, i) => i >= mcqState.idx && c.id === id);
-            
-            if (futureIdx !== -1) {
-                mcqState.idx = futureIdx;
+            const targetIdxInDeck = mcqState.deck.findIndex(c => c.id === id);
+
+            if (targetIdxInDeck !== -1) {
+                // If the card is still in the deck, move it to the current position
+                const [cardToMove] = mcqState.deck.splice(targetIdxInDeck, 1);
+                mcqState.deck.splice(mcqState.idx, 0, cardToMove);
             } else {
-                mcqState.deck.splice(mcqState.idx, 0, baseCard);
+                // If the card was already answered, get a fresh copy from the original deck
+                const freshCard = mcqState.originalDeck.find(c => c.id === id);
+                if (freshCard) {
+                    mcqState.deck.splice(mcqState.idx, 0, freshCard);
+                }
             }
             loadCard();
         }
