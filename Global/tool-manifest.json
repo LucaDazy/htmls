@@ -17,6 +17,12 @@
         "sort2": 0
       },
       {
+        "name": "LectureCh1",
+        "path": "Tools/A&P1_2_0/LectureCh1_2_0/LectureCh1Quiz.html",
+        "sort1": 2,
+        "sort2": 0
+      },
+      {
         "name": "RatStructures",
         "path": "Tools/A&P1_2_0/RatStructures_1_0/RatStructures.html",
         "sort1": 1,
