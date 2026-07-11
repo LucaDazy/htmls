@@ -23,6 +23,12 @@
         "sort2": 1
       },
       {
+        "name": "PosNegReg",
+        "path": "Tools/A&P1_2_0/PosNegReg_1_1/PosNegReg.html",
+        "sort1": 1,
+        "sort2": 1
+      },
+      {
         "name": "Bones&Muscles",
         "path": "Tools/A&P1_2_0/Bones&Muscles_0_0/Bones&Muscles.html",
         "sort1": 0,
