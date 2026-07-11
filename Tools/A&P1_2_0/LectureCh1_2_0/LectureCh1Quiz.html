@@ -287,6 +287,71 @@
     </div> <!-- close .content-wrapper -->
 
     <script>
+        // --- DOM ELEMENT CACHE ---
+        const dom = {
+            pageTitle: document.getElementById('page-title'),
+            targetArea: document.getElementById('target-area'),
+            progText: document.getElementById('prog-text'),
+            tooltipBtn: document.getElementById('tooltip-btn'),
+            tocBtn: document.getElementById('table-btn'),
+            tocDropdown: document.getElementById('toc-dropdown'),
+            tocContent: document.getElementById('toc-content'),
+            hintBtn: document.getElementById('hint-btn'),
+            chopBtn: document.getElementById('chop-btn'),
+            hintDisplay: document.getElementById('hint-display'),
+            qText: document.getElementById('q-text'),
+            optionsGrid: document.getElementById('options-grid'),
+            feedback: document.getElementById('feedback'),
+            nextBtn: document.getElementById('next-btn'),
+            fileAlert: document.getElementById('file-alert'),
+            imagesBox: document.getElementById('images-box'),
+            imagesRow: document.getElementById('images-row'),
+            autoDictBox: document.getElementById('auto-dict-box'),
+            dictRelevant: document.getElementById('dict-relevant'),
+            dictDivider: document.getElementById('dict-divider'),
+            dictOther: document.getElementById('dict-other'),
+            statsBox: document.getElementById('stats-box'),
+            statSessionTime: document.getElementById('stat-session-time'),
+            statTotalTime: document.getElementById('stat-total-time'),
+            statAvgTime: document.getElementById('stat-avg-time'),
+            statAccuracy: document.getElementById('stat-accuracy'),
+            statVisits: document.getElementById('stat-visits'),
+            statTools: document.getElementById('stat-tools'),
+            endScreen: document.getElementById('end-screen'),
+            finalScore: document.getElementById('final-score'),
+        };
+        
+        // --- UI STATE PERSISTENCE ---
+        let uiState = { tooltips: true, openDetails: { images: false, dictionary: true, stats: true } };
+        const uiStateKey = 'uiState_universal_quiz';
+
+        function saveUiState() {
+            uiState.openDetails.images = dom.imagesBox.open;
+            uiState.openDetails.dictionary = dom.autoDictBox.open;
+            uiState.openDetails.stats = dom.statsBox.open;
+            localStorage.setItem(uiStateKey, JSON.stringify(uiState));
+        }
+
+        function loadUiState() {
+            const saved = localStorage.getItem(uiStateKey);
+            if(saved) {
+                try { uiState = JSON.parse(saved); } catch(e) { /* Use default */ }
+            }
+            // Apply tooltips state
+            tooltipsOn = uiState.tooltips;
+            if(tooltipsOn) {
+                dom.tooltipBtn.classList.add('active');
+                dom.optionsGrid.classList.remove('hide-tooltips');
+            } else {
+                dom.tooltipBtn.classList.remove('active');
+                dom.optionsGrid.classList.add('hide-tooltips');
+            }
+            // Apply details open/closed state
+            dom.imagesBox.open = uiState.openDetails.images;
+            dom.autoDictBox.open = uiState.openDetails.dictionary;
+            dom.statsBox.open = uiState.openDetails.stats;
+        }
+
         // --- ENGINE STATE ---
         let mcqState = { originalDeck: [], deck: [], idx: 0, attempts: 0, correct: 0 };
         let penaltyUsed = false; // Note: Only Hint triggers this now. Chop is penalty-free.
@@ -340,16 +405,16 @@
         }
 
         function updateTrackingUI() {
-            document.getElementById('stat-session-time').innerText = formatTime(sessionTimer);
-            document.getElementById('stat-total-time').innerText = formatTime(globalStats.totalTime + sessionTimer);
-            document.getElementById('stat-visits').innerText = globalStats.visits;
-            document.getElementById('stat-tools').innerText = globalStats.toolsUsed;
+            dom.statSessionTime.innerText = formatTime(sessionTimer);
+            dom.statTotalTime.innerText = formatTime(globalStats.totalTime + sessionTimer);
+            dom.statVisits.innerText = globalStats.visits;
+            dom.statTools.innerText = globalStats.toolsUsed;
 
             let avgTime = globalStats.totalCards > 0 ? Math.round((globalStats.totalTime + sessionTimer) / globalStats.totalCards) : 0;
-            document.getElementById('stat-avg-time').innerText = avgTime + "s";
+            dom.statAvgTime.innerText = avgTime + "s";
 
             let acc = globalStats.totalCards > 0 ? Math.round((globalStats.correctCards / globalStats.totalCards) * 100) : 0;
-            document.getElementById('stat-accuracy').innerText = acc + "%";
+            dom.statAccuracy.innerText = acc + "%";
         }
 
         function formatTime(seconds) {
@@ -378,7 +443,7 @@
                 
                 // Set page title from HTML filename
                 let titleBase = pageName.replace(/\.html$/, '');
-                document.getElementById('page-title').innerText = titleBase;
+                dom.pageTitle.innerText = titleBase;
                 
                 let mdName = pageName.replace(/\.html$/, ".md");
                 if (!mdName.endsWith('.md')) mdName += '.md'; 
@@ -392,7 +457,7 @@
 
             } catch (err) {
                 if(!currentFileName) currentFileName = "fallback.md";
-                document.getElementById('file-alert').style.display = 'block';
+                dom.fileAlert.style.display = 'block';
                 setupDecks(fallbackDeck);
                 startDrill();
             }
@@ -435,7 +500,7 @@
             });
 
             if (parsedDeck.length === 0) {
-                document.getElementById('file-alert').style.display = 'block';
+                dom.fileAlert.style.display = 'block';
                 setupDecks(fallbackDeck);
             } else {
                 setupDecks(parsedDeck);
@@ -451,13 +516,14 @@
         // --- DRILL ENGINE ---
         function startDrill() {
             initTracking();
-            document.getElementById('target-area').style.display = 'flex';
+            loadUiState();
+            dom.targetArea.style.display = 'flex';
             loadCard();
         }
 
         function restartDrill() {
-            document.getElementById('end-screen').style.display = 'none';
-            document.getElementById('target-area').style.display = 'flex';
+            dom.endScreen.style.display = 'none';
+            dom.targetArea.style.display = 'flex';
             mcqState.idx = 0;
             mcqState.attempts = 0;
             mcqState.correct = 0;
@@ -479,18 +545,17 @@
             
             const currentCard = mcqState.deck[mcqState.idx];
 
-            document.getElementById('q-text').innerHTML = currentCard.q;
-            document.getElementById('prog-text').innerText = `Question ${mcqState.idx + 1} of ${mcqState.deck.length}`;
+            dom.qText.innerHTML = currentCard.q;
+            dom.progText.innerText = `Question ${mcqState.idx + 1} of ${mcqState.deck.length}`;
             
-            document.getElementById('feedback').classList.remove('visible');
-            document.getElementById('next-btn').classList.remove('visible');
+            dom.feedback.classList.remove('visible');
+            dom.nextBtn.classList.remove('visible');
             
-            document.getElementById('hint-display').style.display = 'none';
-            document.getElementById('hint-btn').disabled = !currentCard.hint; 
-            document.getElementById('chop-btn').disabled = false;
+            dom.hintDisplay.style.display = 'none';
+            dom.hintBtn.disabled = !currentCard.hint; 
+            dom.chopBtn.disabled = false;
 
-            const grid = document.getElementById('options-grid');
-            grid.innerHTML = '';
+            dom.optionsGrid.innerHTML = '';
             
             let shuffledOpts = shuffle(currentCard.opts);
             shuffledOpts.forEach(opt => {
@@ -506,15 +571,13 @@
                 
                 btn.onclick = () => handleGuess(btn, opt.text);
                 btn.addEventListener('mouseenter', () => sortVocab(opt.text));
-                btn.addEventListener('mouseleave', () => resetVocab());
-                grid.appendChild(btn);
+                dom.optionsGrid.appendChild(btn);
             });
 
-            document.getElementById('q-text').addEventListener('mouseenter', () => sortVocab(currentCard.q));
-            document.getElementById('q-text').addEventListener('mouseleave', () => resetVocab());
+            dom.qText.addEventListener('mouseenter', () => sortVocab(currentCard.q));
 
-            document.getElementById('images-box').style.display = 'none';
-            document.getElementById('auto-dict-box').style.display = 'none';
+            dom.imagesBox.style.display = 'none';
+            dom.autoDictBox.style.display = 'none';
 
             generateSearchQuery(currentCard);
             runAutoDictionary(currentCard);
@@ -524,16 +587,16 @@
         // --- TOOLS ---
         function toggleTooltips() {
             tooltipsOn = !tooltipsOn;
-            const btn = document.getElementById('tooltip-btn');
-            const grid = document.getElementById('options-grid');
+            uiState.tooltips = tooltipsOn;
             
             if (tooltipsOn) {
-                btn.classList.add('active');
-                grid.classList.remove('hide-tooltips');
+                dom.tooltipBtn.classList.add('active');
+                dom.optionsGrid.classList.remove('hide-tooltips');
             } else {
-                btn.classList.remove('active');
-                grid.classList.add('hide-tooltips');
+                dom.tooltipBtn.classList.remove('active');
+                dom.optionsGrid.classList.add('hide-tooltips');
             }
+            saveUiState();
         }
 
         function useHint() {
@@ -545,9 +608,9 @@
             globalStats.toolsUsed++;
             updateTrackingUI();
 
-            document.getElementById('hint-display').innerHTML = `<strong>Hint:</strong> ${currentCard.hint}`;
-            document.getElementById('hint-display').style.display = 'block';
-            document.getElementById('hint-btn').disabled = true;
+            dom.hintDisplay.innerHTML = `<strong>Hint:</strong> ${currentCard.hint}`;
+            dom.hintDisplay.style.display = 'block';
+            dom.hintBtn.disabled = true;
         }
 
         function useChop() {
@@ -567,7 +630,7 @@
                 btnToChop.disabled = true;
 
                 if (availableWrongBtns.length === 1 || chopsUsed >= 2) {
-                    document.getElementById('chop-btn').disabled = true;
+                    dom.chopBtn.disabled = true;
                 }
             }
         }
@@ -580,18 +643,16 @@
 
         // --- TABLE OF CONTENTS ---
         function toggleToC() {
-            const dropdown = document.getElementById('toc-dropdown');
-            if (dropdown.style.display === 'flex') {
-                dropdown.style.display = 'none';
+            if (dom.tocDropdown.style.display === 'flex') {
+                dom.tocDropdown.style.display = 'none';
             } else {
                 renderToC();
-                dropdown.style.display = 'flex';
+                dom.tocDropdown.style.display = 'flex';
             }
         }
 
         function renderToC() {
-            const content = document.getElementById('toc-content');
-            content.innerHTML = '';
+            dom.tocContent.innerHTML = '';
 
             mcqState.originalDeck.forEach(card => {
                 const item = document.createElement('div');
@@ -606,7 +667,7 @@
         }
 
         function jumpToCard(id) {
-            document.getElementById('toc-dropdown').style.display = 'none';
+            dom.tocDropdown.style.display = 'none';
             const baseCard = mcqState.originalDeck.find(c => c.id === id);
             
             let futureIdx = mcqState.deck.findIndex((c, i) => i >= mcqState.idx && c.id === id);
@@ -681,22 +742,17 @@
 
             collectedImages = collectedImages.slice(0, 5); // Ensure EXACTLY 5 images
 
-            const imgRow = document.getElementById('images-row');
-            imgRow.innerHTML = '';
+            dom.imagesRow.innerHTML = '';
             
             collectedImages.forEach(img => {
-                imgRow.innerHTML += `<a href="${img.src.replace('400px', '1000px')}" target="_blank"><img src="${img.src}" alt="${img.alt}"></a>`;
+                dom.imagesRow.innerHTML += `<a href="${img.src.replace('400px', '1000px')}" target="_blank"><img src="${img.src}" alt="${img.alt}"></a>`;
             });
-            document.getElementById('images-box').style.display = 'block';
+            dom.imagesBox.style.display = 'block';
         }
 
         async function runAutoDictionary(currentCard) {
-            const dictBox = document.getElementById('auto-dict-box');
-            const otherGrid = document.getElementById('dict-other');
-            const relGrid = document.getElementById('dict-relevant');
-            
-            document.getElementById('dict-divider').style.display = 'none';
-            relGrid.innerHTML = '';
+            dom.dictDivider.style.display = 'none';
+            dom.dictRelevant.innerHTML = '';
             
             let textToAnalyze = currentCard.q;
             let isSentenceOptions = currentCard.opts.some(opt => opt.text.split(' ').length > 3);
@@ -711,12 +767,12 @@
             const wordsToFetch = uniqueWords.slice(0, 8); 
 
             if (wordsToFetch.length === 0) {
-                dictBox.style.display = 'none';
+                dom.autoDictBox.style.display = 'none';
                 return;
             }
 
-            dictBox.style.display = 'block';
-            otherGrid.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; font-style:italic;">Scanning vocabulary...</div>';
+            dom.autoDictBox.style.display = 'block';
+            dom.dictOther.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; font-style:italic;">Scanning vocabulary...</div>';
 
             let htmlOutput = '';
             
@@ -748,9 +804,9 @@
             }));
 
             if(htmlOutput) {
-                otherGrid.innerHTML = htmlOutput;
+                dom.dictOther.innerHTML = htmlOutput;
             } else {
-                dictBox.style.display = 'none';
+                dom.autoDictBox.style.display = 'none';
             }
         }
 
@@ -758,12 +814,8 @@
             const raw = hoverText.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/);
             const hoverWords = new Set(raw);
             
-            const relGrid = document.getElementById('dict-relevant');
-            const otherGrid = document.getElementById('dict-other');
-            const divider = document.getElementById('dict-divider');
-
-            const itemsToMoveToRelevant = Array.from(otherGrid.querySelectorAll('.dict-item')).filter(item => hoverWords.has(item.dataset.word));
-            const itemsToMoveToOther = Array.from(relGrid.querySelectorAll('.dict-item')).filter(item => !hoverWords.has(item.dataset.word));
+            const itemsToMoveToRelevant = Array.from(dom.dictOther.querySelectorAll('.dict-item')).filter(item => hoverWords.has(item.dataset.word));
+            const itemsToMoveToOther = Array.from(dom.dictRelevant.querySelectorAll('.dict-item')).filter(item => !hoverWords.has(item.dataset.word));
             const allToMove = [...itemsToMoveToRelevant, ...itemsToMoveToOther];
             
             if (allToMove.length === 0) return;
@@ -771,29 +823,12 @@
             allToMove.forEach(item => item.classList.add('hidden'));
 
             setTimeout(() => {
-                itemsToMoveToRelevant.forEach(item => relGrid.appendChild(item));
-                itemsToMoveToOther.forEach(item => otherGrid.appendChild(item));
+                itemsToMoveToRelevant.forEach(item => dom.dictRelevant.appendChild(item));
+                itemsToMoveToOther.forEach(item => dom.dictOther.appendChild(item));
                 
-                divider.style.display = relGrid.children.length > 0 ? 'block' : 'none';
+                dom.dictDivider.style.display = dom.dictRelevant.children.length > 0 ? 'block' : 'none';
                 
                 allToMove.forEach(item => item.classList.remove('hidden'));
-            }, 300);
-        }
-
-        function resetVocab() {
-            const relGrid = document.getElementById('dict-relevant');
-            const otherGrid = document.getElementById('dict-other');
-            const itemsToMove = Array.from(relGrid.querySelectorAll('.dict-item'));
-            const divider = document.getElementById('dict-divider');
-
-            if (itemsToMove.length === 0) return;
-
-            itemsToMove.forEach(item => item.classList.add('hidden'));
-
-            setTimeout(() => {
-                itemsToMove.forEach(item => otherGrid.appendChild(item));
-                divider.style.display = 'none';
-                itemsToMove.forEach(item => item.classList.remove('hidden'));
             }, 300);
         }
 
@@ -801,11 +836,10 @@
         function handleGuess(btn, guessedAns) {
             if (lockBoard) return;
             lockBoard = true;
-            document.getElementById('hint-btn').disabled = true;
-            document.getElementById('chop-btn').disabled = true;
+            dom.hintBtn.disabled = true;
+            dom.chopBtn.disabled = true;
 
             const currentCard = mcqState.deck[mcqState.idx];
-            const fb = document.getElementById('feedback');
             const allBtns = document.querySelectorAll('.option-btn');
             
             mcqState.attempts++;
@@ -818,15 +852,15 @@
                     currentCard.status = 'learning';
                     btn.classList.add('correct-penalty');
                     mcqState.deck.push(mcqState.deck[mcqState.idx]); 
-                    fb.innerHTML = `<strong style="color:var(--hard);">⚠️ Correct (Hint Used).</strong><br><br>${currentCard.exp}<br><br><em style="color:var(--accent);">Card recycled to the back of the deck.</em>`;
-                    fb.style.borderLeftColor = 'var(--hard)';
+                    dom.feedback.innerHTML = `<strong style="color:var(--hard);">⚠️ Correct (Hint Used).</strong><br><br>${currentCard.exp}<br><br><em style="color:var(--accent);">Card recycled to the back of the deck.</em>`;
+                    dom.feedback.style.borderLeftColor = 'var(--hard)';
                 } else {
                     currentCard.status = 'mastered';
                     btn.classList.add('correct');
                     mcqState.correct++;
                     globalStats.correctCards++;
-                    fb.innerHTML = `<strong style="color:var(--success);">✅ Correct!</strong><br><br>${currentCard.exp}`;
-                    fb.style.borderLeftColor = 'var(--success)';
+                    dom.feedback.innerHTML = `<strong style="color:var(--success);">✅ Correct!</strong><br><br>${currentCard.exp}`;
+                    dom.feedback.style.borderLeftColor = 'var(--success)';
                 }
             } else {
                 currentCard.status = 'learning';
@@ -838,8 +872,8 @@
                 });
 
                 let prefix = penaltyUsed ? `<strong style="color:var(--error);">❌ Incorrect (Hint Used).</strong>` : `<strong style="color:var(--error);">❌ Incorrect.</strong>`;
-                fb.innerHTML = `${prefix}<br><br>${currentCard.exp}<br><br><em style="color:var(--accent);">Card recycled to the back of the deck.</em>`;
-                fb.style.borderLeftColor = 'var(--error)';
+                dom.feedback.innerHTML = `${prefix}<br><br>${currentCard.exp}<br><br><em style="color:var(--accent);">Card recycled to the back of the deck.</em>`;
+                dom.feedback.style.borderLeftColor = 'var(--error)';
             }
             
             updateTrackingUI();
@@ -851,9 +885,9 @@
                 }
             });
 
-            document.getElementById('prog-text').innerText = `Question ${mcqState.idx + 1} of ${mcqState.deck.length}`;
-            fb.classList.add('visible');
-            document.getElementById('next-btn').classList.add('visible');
+            dom.progText.innerText = `Question ${mcqState.idx + 1} of ${mcqState.deck.length}`;
+            dom.feedback.classList.add('visible');
+            dom.nextBtn.classList.add('visible');
         }
 
         function nextCard() {
@@ -862,15 +896,18 @@
         }
 
         function endDrill() {
-            document.getElementById('target-area').style.display = 'none';
-            document.getElementById('images-box').style.display = 'none';
-            document.getElementById('auto-dict-box').style.display = 'none';
-            document.getElementById('end-screen').style.display = 'block';
+            dom.targetArea.style.display = 'none';
+            dom.imagesBox.style.display = 'none';
+            dom.autoDictBox.style.display = 'none';
+            dom.endScreen.style.display = 'block';
             
             const pct = Math.round((mcqState.correct / mcqState.attempts) * 100) || 0;
-            document.getElementById('final-score').innerHTML = `You answered <strong>${mcqState.correct}</strong> questions correctly on the first try (without hints) out of <strong>${mcqState.attempts}</strong> total attempts (${pct}% accuracy).`;
+            dom.finalScore.innerHTML = `You answered <strong>${mcqState.correct}</strong> questions correctly on the first try (without hints) out of <strong>${mcqState.attempts}</strong> total attempts (${pct}% accuracy).`;
         }
 
+        dom.imagesBox.addEventListener('toggle', saveUiState);
+        dom.autoDictBox.addEventListener('toggle', saveUiState);
+        dom.statsBox.addEventListener('toggle', saveUiState);
         window.onload = fetchAndParseMarkdown;
 
     </script>
