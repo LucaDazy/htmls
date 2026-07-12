@@ -5,8 +5,8 @@
     "sort2": 0,
     "tools": [
       {
-        "name": "AnatomicalPosition",
-        "path": "Tools/A&P1_2_0/AnatomicalPosition_1_3/AnatomicalPosition.html",
+        "name": "AnatomicalDirection",
+        "path": "Tools/A&P1_2_0/AnatomicalDirection_1_3/AnatomicalDirection.html",
         "sort1": 1,
         "sort2": 3
       },
