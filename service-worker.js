@@ -13,6 +13,7 @@ const urlsToCache = [
   'Global/tool-manifest.json',
   'Tools/A&P1_2_0/AnatomicalPositions_1_1/AnatomicalPositions.html',
   'Tools/A&P1_2_0/LectureCh1_2_0/LectureCh1Quiz.html',
+  'Tools/A&P1_2_0/AnatomicalPosition_1_3/AnatomicalPosition.html',
   // Core SVGs
   'Global/SVGs/logo.svg',
   'Global/SVGs/avatar.svg',
