@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BI231 - MURDERLINCS Triage Engine</title>
+    <style>
+        :root {
+            --bg-color: #323437;
+            --panel-bg: #2c2e31;
+            --hover-bg: #3a3d40;
+            --text-main: #d1d0c5;
+            --text-muted: #646669;
+            --accent: #e2b714;
+            --error: #ca4754;
+            --success: #8cc84b;
+            --hard: #e27d60; 
+            --organ-color: #7ba3d1;
+            --func-color: #a4d17b;
+        }
+
+        body {
+            background-color: var(--bg-color); color: var(--text-main);
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 2rem; margin: 0; min-height: 100vh;
+        }
+
+        h1 { color: var(--accent); margin-bottom: 0.5rem; text-align: center; }
+        .subtitle { color: var(--text-muted); margin-bottom: 2rem; text-align: center; font-size: 0.95rem; }
+
+        .container {
+            width: 100%; max-width: 1000px; display: flex; flex-direction: column; 
+            align-items: center; gap: 1.5rem; position: relative;
+        }
+
+        /* Top Bar / Tools */
+        .header-row {
+            display: flex; justify-content: space-between; align-items: center; width: 100%;
+            background: var(--panel-bg); padding: 1rem 1.5rem; border-radius: 8px;
+            border: 1px solid var(--text-muted); box-sizing: border-box; flex-wrap: wrap; gap: 1rem;
+        }
+        .progress-text { font-size: 0.95rem; color: var(--text-muted); font-weight: bold; }
+        .tool-btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .tool-btn {
+            background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted);
+            padding: 0.4rem 0.8rem; font-family: inherit; font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s;
+        }
+        .tool-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: rgba(226, 183, 20, 0.1); }
+        .tool-btn:disabled { opacity: 0.3; cursor: default; }
+
+        /* The Asset Scanner (Target Box) */
+        .scanner-box {
+            background: #18191a; border: 2px solid var(--accent); border-radius: 8px;
+            padding: 2rem; box-shadow: inset 0 0 30px rgba(0,0,0,0.5), 0 4px 15px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; align-items: center; width: 100%; box-sizing: border-box;
+            min-height: 250px; justify-content: center; position: relative;
+        }
+        .asset-type-badge {
+            position: absolute; top: 1rem; left: 1rem; padding: 0.3rem 0.8rem; border-radius: 4px;
+            font-weight: bold; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .asset-type-badge.organ { background: rgba(123, 163, 209, 0.2); color: var(--organ-color); border: 1px solid var(--organ-color); }
+        .asset-type-badge.func { background: rgba(164, 209, 123, 0.2); color: var(--func-color); border: 1px solid var(--func-color); }
+
+        .asset-text {
+            font-size: 1.4rem; line-height: 1.6; color: var(--text-main); text-align: center; 
+            max-width: 800px; font-weight: bold;
+        }
+
+        /* MURDERLINCS Sorting Bins */
+        .bins-container {
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 0.8rem; width: 100%;
+            background: var(--panel-bg); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--text-muted); box-sizing: border-box;
+        }
+        .bin-btn {
+            background: var(--bg-color); border: 2px solid var(--text-muted); color: var(--text-main);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 80px; height: 80px; border-radius: 8px; cursor: pointer; transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        .bin-btn .big-letter { font-size: 1.8rem; font-weight: bold; color: var(--accent); margin-bottom: 0.2rem; }
+        .bin-btn .sub-text { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; }
+        
+        .bin-btn:hover:not(:disabled):not(.dimmed) { border-color: var(--accent); transform: translateY(-3px); background: var(--hover-bg); }
+        .bin-btn.correct { border-color: var(--success) !important; background: rgba(140, 200, 75, 0.15) !important; box-shadow: 0 0 15px rgba(140, 200, 75, 0.4); }
+        .bin-btn.correct-penalty { border-color: var(--hard) !important; background: rgba(226, 125, 96, 0.15) !important; }
+        .bin-btn.wrong { border-color: var(--error) !important; background: rgba(202, 71, 84, 0.15) !important; animation: shake 0.3s; }
+        .bin-btn.dimmed { opacity: 0.15; pointer-events: none; border-color: #222; }
+        .bin-btn:disabled { cursor: default; transform: none; }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        /* Feedback Box */
+        .feedback-box {
+            padding: 1.2rem; border-radius: 4px; display: none; line-height: 1.5; font-size: 1.05rem;
+            background: rgba(0,0,0,0.2); border-left: 4px solid var(--accent); width: 100%; box-sizing: border-box; margin-top: 1rem;
+        }
+
+        .action-btn {
+            background: var(--bg-color); border: 2px solid var(--accent); color: var(--accent); padding: 1rem;
+            font-family: inherit; font-size: 1.05rem; cursor: pointer; border-radius: 6px; transition: 0.2s; width: 100%;
+            margin-top: 1rem; font-weight: bold; display: none; text-align: center;
+        }
+        .action-btn:hover { background: var(--accent); color: var(--bg-color); }
+
+        /* Session Tracking Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem; text-align: center; width: 100%; margin-top: 1rem;}
+        .stat-card { background: var(--panel-bg); border: 1px solid var(--text-muted); padding: 1.5rem 1rem; border-radius: 6px; display: flex; flex-direction: column; gap: 0.5rem; }
+        .stat-val { color: var(--accent); font-size: 1.5rem; font-weight: bold; }
+        .stat-label { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Reference Modal */
+        .modal-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color);
+            border-radius: 8px; z-index: 1000; border: 2px solid var(--accent); display: none; flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem;
+            border-bottom: 1px dashed var(--text-muted); background: var(--panel-bg); border-radius: 8px 8px 0 0;
+        }
+        .modal-header h3 { margin: 0; color: var(--accent); font-size: 1.2rem; }
+        .modal-close { background: transparent; border: none; color: var(--error); font-weight: bold; font-size: 1.2rem; cursor: pointer; }
+        .modal-content { padding: 1.5rem; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 1.5rem; }
+        
+        .ref-system-card { border-left: 3px solid var(--accent); padding-left: 1rem; background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 0 6px 6px 0;}
+        .ref-sys-title { font-size: 1.1rem; color: var(--accent); font-weight: bold; margin-bottom: 0.5rem; text-transform: uppercase;}
+        .ref-organs { font-size: 0.9rem; color: var(--organ-color); margin-bottom: 0.5rem; }
+        .ref-funcs { font-size: 0.9rem; color: var(--func-color); line-height: 1.4; }
+
+        .end-screen { text-align: center; display: none; background: var(--panel-bg); padding: 3rem; border-radius: 8px; border: 2px solid var(--success); width: 100%; box-sizing: border-box;}
+        .end-screen h2 { color: var(--success); margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+
+    <h1>MURDERLINCS Triage Engine</h1>
+    <div class="subtitle">Table 2.1: Organ Systems of the Body</div>
+
+    <div class="container">
+        
+        <div class="header-row">
+            <div class="progress-text" id="prog-text">Loading...</div>
+            <div class="tool-btns">
+                <button class="tool-btn" onclick="openReference()">📋 View System Roster</button>
+                <button class="tool-btn" id="hint-btn" onclick="useHint()">💡 Hint</button>
+                <button class="tool-btn" id="chop-btn" onclick="useChop()">✂️ Triage (Chop)</button>
+            </div>
+        </div>
+
+        <div id="target-area" style="width:100%; display: flex; flex-direction: column; gap: 1.5rem;">
+            
+            <div class="scanner-box" id="scanner-box">
+                <div class="asset-type-badge" id="asset-badge">LOADING</div>
+                <div class="asset-text" id="q-text">Initializing biological assets...</div>
+            </div>
+
+            <div class="bins-container" id="bins-grid">
+                <button class="bin-btn" data-sys="Muscular" onclick="handleGuess(this)"><div class="big-letter">M</div><div class="sub-text">uscular</div></button>
+                <button class="bin-btn" data-sys="Urinary" onclick="handleGuess(this)"><div class="big-letter">U</div><div class="sub-text">rinary</div></button>
+                <button class="bin-btn" data-sys="Respiratory" onclick="handleGuess(this)"><div class="big-letter">R</div><div class="sub-text">espiratory</div></button>
+                <button class="bin-btn" data-sys="Digestive" onclick="handleGuess(this)"><div class="big-letter">D</div><div class="sub-text">igestive</div></button>
+                <button class="bin-btn" data-sys="Endocrine" onclick="handleGuess(this)"><div class="big-letter">E</div><div class="sub-text">ndocrine</div></button>
+                <button class="bin-btn" data-sys="Reproductive" onclick="handleGuess(this)"><div class="big-letter">R</div><div class="sub-text">eproductive</div></button>
+                <button class="bin-btn" data-sys="Lymphatic" onclick="handleGuess(this)"><div class="big-letter">L</div><div class="sub-text">ymphatic</div></button>
+                <button class="bin-btn" data-sys="Integumentary" onclick="handleGuess(this)"><div class="big-letter">I</div><div class="sub-text">ntegumentary</div></button>
+                <button class="bin-btn" data-sys="Nervous" onclick="handleGuess(this)"><div class="big-letter">N</div><div class="sub-text">ervous</div></button>
+                <button class="bin-btn" data-sys="Cardiovascular" onclick="handleGuess(this)"><div class="big-letter">C</div><div class="sub-text">ardio...</div></button>
+                <button class="bin-btn" data-sys="Skeletal" onclick="handleGuess(this)"><div class="big-letter">S</div><div class="sub-text">keletal</div></button>
+            </div>
+
+            <div id="feedback" class="feedback-box"></div>
+            <button id="next-btn" class="action-btn" onclick="nextCard()">Next Asset ➔</button>
+
+        </div>
+
+        <div class="stats-grid" id="stats-area">
+            <div class="stat-card"><div class="stat-val" id="stat-session-time">00:00</div><div class="stat-label">Current Session</div></div>
+            <div class="stat-card"><div class="stat-val" id="stat-accuracy">0%</div><div class="stat-label">Accuracy</div></div>
+            <div class="stat-card"><div class="stat-val" id="stat-cards">0</div><div class="stat-label">Cards Sorted</div></div>
+        </div>
+
+        <div id="ref-modal" class="modal-overlay">
+            <div class="modal-header">
+                <h3>📋 System Reference (Table 2.1)</h3>
+                <button class="modal-close" onclick="closeReference()">✖</button>
+            </div>
+            <div id="ref-content" class="modal-content">
+                </div>
+        </div>
+
+        <div id="end-screen" class="end-screen">
+            <h2>Triage Complete!</h2>
+            <p id="final-score" style="margin-bottom: 2rem; color: var(--text-main); font-size:1.1rem;"></p>
+            <button class="action-btn" style="display:block;" onclick="init()">Restart Protocol</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- DATA DECK (Extracted exactly from Table 2.1) ---
+        const rawData = [
+            // INTEGUMENTARY
+            { sys: "Integumentary", type: "organ", text: "Skin, hair, and nails; cutaneous sense organs and glands", exp: "These form the external body covering." },
+            { sys: "Integumentary", type: "func", text: "Protects deeper organs from mechanical, chemical, and bacterial injury, and from drying out", exp: "This is the primary defensive barrier of the Integumentary system." },
+            { sys: "Integumentary", type: "func", text: "Excretes salts and urea", exp: "Sweat glands in the Integumentary system handle this excretion." },
+            { sys: "Integumentary", type: "func", text: "Aids in regulation of body temperature", exp: "Sweating and capillary dilation in the Integumentary system control heat." },
+            { sys: "Integumentary", type: "func", text: "Produces vitamin D", exp: "Synthesized in the Integumentary system (skin) via sunlight." },
+            
+            // SKELETAL
+            { sys: "Skeletal", type: "organ", text: "Bones, cartilages, tendons, ligaments, and joints", exp: "These form the framework of the Skeletal system." },
+            { sys: "Skeletal", type: "func", text: "Body support and protection of internal organs", exp: "The rigid structure of the Skeletal system provides this support." },
+            { sys: "Skeletal", type: "func", text: "Provides levers for muscular action", exp: "Muscles pull on the Skeletal system to create movement." },
+            { sys: "Skeletal", type: "func", text: "Cavities provide a site for blood cell formation", exp: "Bone marrow inside the Skeletal system is where blood cells form." },
+            { sys: "Skeletal", type: "func", text: "Bones store minerals", exp: "Calcium and phosphorus are stored in the Skeletal system." },
+
+            // MUSCULAR
+            { sys: "Muscular", type: "organ", text: "Muscles attached to the skeleton", exp: "These constitute the Muscular system." },
+            { sys: "Muscular", type: "func", text: "Primary function is to contract or shorten; allow locomotion, grasping, and facial expression", exp: "Movement is the hallmark of the Muscular system." },
+            { sys: "Muscular", type: "func", text: "Generates heat", exp: "The metabolic activity of the Muscular system contracting generates significant body heat." },
+
+            // NERVOUS
+            { sys: "Nervous", type: "organ", text: "Brain, spinal cord, nerves, and sensory receptors", exp: "These are the command and communication channels of the Nervous system." },
+            { sys: "Nervous", type: "func", text: "Allows body to detect changes in its internal and external environment and to respond by activating muscles or glands", exp: "This rapid response loop is controlled by the Nervous system." },
+            { sys: "Nervous", type: "func", text: "Helps maintain homeostasis of the body via rapid transmission of electrical signals", exp: "Electrical signaling is the unique mechanism of the Nervous system." },
+
+            // ENDOCRINE
+            { sys: "Endocrine", type: "organ", text: "Pituitary, thymus, thyroid, parathyroid, adrenal, and pineal glands; ovaries, testes, and pancreas", exp: "These hormone-secreting glands make up the Endocrine system." },
+            { sys: "Endocrine", type: "func", text: "Helps maintain body homeostasis, promotes growth and development", exp: "Long-term regulation is a key function of the Endocrine system." },
+            { sys: "Endocrine", type: "func", text: "Produces chemical messengers called hormones that travel in the blood to exert their effect(s) on various target organs", exp: "Hormone production is the defining trait of the Endocrine system." },
+
+            // CARDIOVASCULAR
+            { sys: "Cardiovascular", type: "organ", text: "Heart and blood vessels", exp: "These form the closed loop of the Cardiovascular system." },
+            { sys: "Cardiovascular", type: "func", text: "Primarily a transport system that carries blood containing oxygen, carbon dioxide, nutrients, wastes, ions, hormones", exp: "Transportation of bulk materials is done by the Cardiovascular system." },
+            { sys: "Cardiovascular", type: "func", text: "Blood is propelled through the blood vessels by the pumping action of the heart", exp: "The mechanical pump of the Cardiovascular system." },
+            { sys: "Cardiovascular", type: "func", text: "Antibodies and other protein molecules in the blood protect the body", exp: "While immunity is linked to lymphatics, these protective proteins travel within the Cardiovascular system." },
+
+            // LYMPHATIC
+            { sys: "Lymphatic", type: "organ", text: "Lymphatic vessels, lymph nodes, spleen, and thymus", exp: "These structures manage fluid and immunity in the Lymphatic system." },
+            { sys: "Lymphatic", type: "func", text: "Picks up fluid leaked from the blood vessels and returns it to the blood", exp: "Fluid reclamation is a primary duty of the Lymphatic system." },
+            { sys: "Lymphatic", type: "func", text: "Cleanses blood of pathogens and other debris", exp: "Nodes within the Lymphatic system filter the fluid." },
+            { sys: "Lymphatic", type: "func", text: "Houses lymphocytes that act via the immune response to protect the body from foreign substances", exp: "Immune cells reside within the Lymphatic system." },
+
+            // RESPIRATORY
+            { sys: "Respiratory", type: "organ", text: "Nasal cavity, pharynx, larynx, trachea, bronchi, and lungs", exp: "These airways and gas-exchange organs form the Respiratory system." },
+            { sys: "Respiratory", type: "func", text: "Keeps the blood continuously supplied with oxygen while removing carbon dioxide", exp: "Gas exchange is the core purpose of the Respiratory system." },
+            { sys: "Respiratory", type: "func", text: "Contributes to the acid-base balance of the blood", exp: "By exhaling CO2, the Respiratory system controls blood acidity." },
+
+            // DIGESTIVE
+            { sys: "Digestive", type: "organ", text: "Oral cavity, pharynx, esophagus, stomach, small and large intestines, and accessory structures including teeth, salivary glands, liver, and pancreas", exp: "This continuous tube and its helpers make up the Digestive system." },
+            { sys: "Digestive", type: "func", text: "Breaks down ingested foods to smaller particles, which can be absorbed into the blood", exp: "Mechanical and chemical breakdown occurs in the Digestive system." },
+            { sys: "Digestive", type: "func", text: "Undigested residue removed from the body as feces", exp: "Solid waste elimination is handled by the Digestive system." },
+
+            // URINARY
+            { sys: "Urinary", type: "organ", text: "Kidneys, ureters, bladder, and urethra", exp: "These filtering and storage organs form the Urinary system." },
+            { sys: "Urinary", type: "func", text: "Rids the body of nitrogen-containing wastes including urea, uric acid, and ammonia", exp: "Filtering protein-breakdown waste is done by the Urinary system." },
+            { sys: "Urinary", type: "func", text: "Maintains water, electrolyte, and acid-base balance of blood", exp: "The kidneys in the Urinary system fine-tune blood composition." },
+
+            // REPRODUCTIVE
+            { sys: "Reproductive", type: "organ", text: "Male: testes, prostate gland, scrotum, penis, and duct system. Female: ovaries, uterine tubes, uterus, mammary glands, and vagina", exp: "These sex-specific organs comprise the Reproductive system." },
+            { sys: "Reproductive", type: "func", text: "Provides gametes called sperm or eggs for perpetuation of the species", exp: "Generating offspring is the goal of the Reproductive system." },
+            { sys: "Reproductive", type: "func", text: "Uterus houses the developing fetus until birth; mammary glands provide nutrition for the infant", exp: "Fetal support and early nourishment are functions of the female Reproductive system." }
+        ];
+
+        // --- ENGINE STATE ---
+        let mcqState = { deck: [], idx: 0, attempts: 0, correct: 0 };
+        let lockBoard = false;
+        let chopsUsed = 0;
+        let penaltyUsed = false;
+        
+        // Tracking
+        let sessionTimer = 0; 
+        let statsInterval = null;
+
+        // --- UTILS ---
+        function shuffle(arr) {
+            let a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function formatTime(seconds) {
+            let m = Math.floor(seconds / 60);
+            let s = seconds % 60;
+            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        // --- CORE ENGINE ---
+        function init() {
+            mcqState = { deck: shuffle([...rawData]), idx: 0, attempts: 0, correct: 0 };
+            sessionTimer = 0;
+            
+            document.getElementById('end-screen').style.display = 'none';
+            document.getElementById('target-area').style.display = 'flex';
+            document.getElementById('stats-area').style.display = 'grid';
+            
+            buildReferenceModal();
+
+            if(statsInterval) clearInterval(statsInterval);
+            statsInterval = setInterval(() => {
+                sessionTimer++;
+                document.getElementById('stat-session-time').innerText = formatTime(sessionTimer);
+            }, 1000);
+
+            loadCard();
+        }
+
+        function loadCard() {
+            if (mcqState.idx >= mcqState.deck.length) {
+                endDrill();
+                return;
+            }
+
+            lockBoard = false;
+            chopsUsed = 0;
+            penaltyUsed = false;
+            
+            const currentCard = mcqState.deck[mcqState.idx];
+
+            document.getElementById('prog-text').innerText = `Asset ${mcqState.idx + 1} of ${mcqState.deck.length}`;
+            
+            // Set Scanner Type
+            const badge = document.getElementById('asset-badge');
+            if (currentCard.type === 'organ') {
+                badge.className = 'asset-type-badge organ';
+                badge.innerText = 'ASSET: MAJOR COMPONENT ORGANS';
+            } else {
+                badge.className = 'asset-type-badge func';
+                badge.innerText = 'ASSET: SYSTEM FUNCTION';
+            }
+            
+            document.getElementById('q-text').innerText = `"${currentCard.text}"`;
+            
+            // Reset UI
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('chop-btn').disabled = false;
+            document.getElementById('hint-btn').disabled = false;
+            
+            // Reset Bins
+            document.querySelectorAll('.bin-btn').forEach(btn => {
+                btn.classList.remove('correct', 'correct-penalty', 'wrong', 'dimmed');
+                btn.disabled = false;
+            });
+        }
+
+        function useHint() {
+            if (lockBoard) return;
+            const currentCard = mcqState.deck[mcqState.idx];
+            
+            penaltyUsed = true;
+            document.getElementById('hint-btn').disabled = true;
+
+            const allBins = Array.from(document.querySelectorAll('.bin-btn'));
+            const correctBin = allBins.find(b => b.dataset.sys === currentCard.sys);
+            const wrongBins = shuffle(allBins.filter(b => b.dataset.sys !== currentCard.sys));
+            
+            // Keep correct and 2 random wrongs active
+            const keepActive = [correctBin, wrongBins[0], wrongBins[1]];
+            
+            allBins.forEach(b => {
+                if (!keepActive.includes(b)) {
+                    b.classList.add('dimmed');
+                    b.disabled = true;
+                }
+            });
+        }
+
+        function useChop() {
+            if (lockBoard || chopsUsed >= 5) return;
+            
+            const currentCard = mcqState.deck[mcqState.idx];
+            const allBins = Array.from(document.querySelectorAll('.bin-btn'));
+            const availableWrongBtns = allBins.filter(b => b.dataset.sys !== currentCard.sys && !b.classList.contains('dimmed'));
+
+            if (availableWrongBtns.length > 0) {
+                chopsUsed++;
+                // Chop 2 wrong bins per click to make it faster
+                for(let i=0; i<2; i++) {
+                    if (availableWrongBtns.length > 0) {
+                        const idx = Math.floor(Math.random() * availableWrongBtns.length);
+                        const btnToChop = availableWrongBtns.splice(idx, 1)[0];
+                        btnToChop.classList.add('dimmed');
+                        btnToChop.disabled = true;
+                    }
+                }
+
+                if (availableWrongBtns.length === 0 || chopsUsed >= 5) {
+                    document.getElementById('chop-btn').disabled = true;
+                }
+            }
+        }
+
+        function handleGuess(btn) {
+            if (lockBoard || btn.disabled) return;
+            lockBoard = true;
+            document.getElementById('chop-btn').disabled = true;
+            document.getElementById('hint-btn').disabled = true;
+
+            const currentCard = mcqState.deck[mcqState.idx];
+            const fb = document.getElementById('feedback');
+            const allBins = document.querySelectorAll('.bin-btn');
+            const guessedSys = btn.dataset.sys;
+            
+            mcqState.attempts++;
+            document.getElementById('stat-cards').innerText = mcqState.attempts;
+            
+            const isCorrect = (guessedSys === currentCard.sys);
+
+            if (isCorrect) {
+                if (penaltyUsed) {
+                    btn.classList.add('correct-penalty');
+                    mcqState.deck.push(mcqState.deck[mcqState.idx]); // Recycle
+                    fb.innerHTML = `<strong style="color:var(--hard);">⚠️ Routed (Hint Used).</strong><br><br>${currentCard.exp}<br><br><em style="color:var(--accent);">Card recycled to the back of the deck.</em>`;
+                    fb.style.borderLeftColor = 'var(--hard)';
+                } else {
+                    btn.classList.add('correct');
+                    mcqState.correct++;
+                    fb.innerHTML = `<strong style="color:var(--success);">✅ Successfully Routed!</strong><br><br>${currentCard.exp}`;
+                    fb.style.borderLeftColor = 'var(--success)';
+                }
+            } else {
+                btn.classList.add('wrong');
+                mcqState.deck.push(mcqState.deck[mcqState.idx]); // Recycle
+                
+                // Show correct bin
+                allBins.forEach(b => {
+                    if (b.dataset.sys === currentCard.sys) b.classList.add('correct');
+                });
+
+                fb.innerHTML = `<strong style="color:var(--error);">❌ Misrouted Asset.</strong><br><br>That asset belongs to the <strong>${currentCard.sys}</strong> system.<br><br>${currentCard.exp}<br><br><em style="color:var(--accent);">Card recycled to the back of the deck.</em>`;
+                fb.style.borderLeftColor = 'var(--error)';
+            }
+            
+            // Update Accuracy Stat
+            let acc = Math.round((mcqState.correct / mcqState.attempts) * 100);
+            document.getElementById('stat-accuracy').innerText = acc + "%";
+
+            // Dim everything else
+            allBins.forEach(b => {
+                b.disabled = true;
+                if (!b.classList.contains('correct') && !b.classList.contains('correct-penalty') && !b.classList.contains('wrong')) {
+                    b.classList.add('dimmed');
+                }
+            });
+
+            fb.style.display = 'block';
+            document.getElementById('next-btn').style.display = 'block';
+        }
+
+        function nextCard() {
+            mcqState.idx++;
+            loadCard();
+        }
+
+        function endDrill() {
+            clearInterval(statsInterval);
+            document.getElementById('target-area').style.display = 'none';
+            document.getElementById('stats-area').style.display = 'none';
+            document.getElementById('end-screen').style.display = 'block';
+            
+            const pct = Math.round((mcqState.correct / mcqState.attempts) * 100) || 0;
+            document.getElementById('final-score').innerHTML = `You correctly routed <strong>${mcqState.correct}</strong> biological assets without hints out of <strong>${mcqState.attempts}</strong> total attempts (${pct}% accuracy).`;
+        }
+
+        // --- REFERENCE MODAL ---
+        function buildReferenceModal() {
+            const content = document.getElementById('ref-content');
+            content.innerHTML = '';
+            
+            const sysMap = {};
+            rawData.forEach(card => {
+                if (!sysMap[card.sys]) sysMap[card.sys] = { organs: [], funcs: [] };
+                if (card.type === 'organ') sysMap[card.sys].organs.push(card.text);
+                else sysMap[card.sys].funcs.push(card.text);
+            });
+
+            // Iterate in MURDERLINCS order
+            const order = ["Muscular", "Urinary", "Respiratory", "Digestive", "Endocrine", "Reproductive", "Lymphatic", "Integumentary", "Nervous", "Cardiovascular", "Skeletal"];
+            
+            order.forEach(sys => {
+                const data = sysMap[sys];
+                if(data) {
+                    const funcList = data.funcs.map(f => `• ${f}`).join('<br>');
+                    const orgList = data.organs.join('; ');
+                    
+                    content.innerHTML += `
+                        <div class="ref-system-card">
+                            <div class="ref-sys-title">${sys} System</div>
+                            <div class="ref-organs"><strong>Organs:</strong> ${orgList}</div>
+                            <div class="ref-funcs">${funcList}</div>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        function openReference() { document.getElementById('ref-modal').style.display = 'flex'; }
+        function closeReference() { document.getElementById('ref-modal').style.display = 'none'; }
+
+        // Boot
+        init();
+
+    </script>
+</body>
+</html>
