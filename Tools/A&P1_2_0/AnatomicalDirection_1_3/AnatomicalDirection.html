@@ -41,6 +41,8 @@
         .organism-badge { background: rgba(165, 104, 157, 0.2); color: var(--accent); padding: 0.4rem 1rem; border-radius: 20px; font-weight: bold; border: 1px solid var(--accent); letter-spacing: 1px; font-size: 0.9rem; font-family: var(--font-family-mono); }
         .legend-box { background: rgba(0,0,0,0.6); padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid var(--text-muted); font-size: 0.85rem; font-family: var(--font-family-mono); }
         .legend-box span { vertical-align: middle; }
+        .legend-box .legend-ref { color: var(--minimal-white); }
+        .legend-box .legend-tar { color: var(--accent); }
 
         .svg-container { width: 100%; height: 450px; display: flex; align-items: center; justify-content: center; }
         svg { width: 100%; height: 100%; }
@@ -81,6 +83,8 @@
 
         .end-screen { text-align: center; display: none; background: var(--panel-bg); padding: 3rem; border-radius: 8px; border: 2px solid var(--success); width: 100%; box-sizing: border-box;}
         .end-screen h2 { color: var(--success); margin-bottom: 1rem; }
+        #final-score { margin-bottom: 2rem; color: var(--text-main); font-size:1.1rem; }
+        .end-screen .action-btn { display: block; }
     </style>
 </head>
 <body>
@@ -114,7 +118,7 @@
                 <div class="arena-header">
                     <div class="organism-badge" id="org-badge">[BIPED]</div>
                     <div class="legend-box">
-                        <span style="color:var(--minimal-white)">⚪ Ref</span> ➔ <span style="color:var(--accent)">🟡 Target</span>
+                        <span class="legend-ref">⚪ Ref</span> ➔ <span class="legend-tar">🟡 Target</span>
                     </div>
                 </div>
 
@@ -211,8 +215,8 @@
 
         <div id="end-screen" class="end-screen">
             <h2>Vectors Mastered!</h2>
-            <p id="final-score" style="margin-bottom: 2rem; color: var(--text-main); font-size:1.1rem;"></p>
-            <button class="action-btn" style="display:block;" onclick="init()">Restart Drill</button>
+            <p id="final-score"></p>
+            <button class="action-btn" onclick="init()">Restart Drill</button>
         </div>
 
     </div> <!-- close .tool-container -->
@@ -220,6 +224,22 @@
         
     <script src="../../../Global/Scripts/background-animation.js" data-base-path="../../../"></script>
     <script>
+        // --- DOM ELEMENT CACHE ---
+        const dom = {
+            mainApp: document.getElementById('main-app'),
+            endScreen: document.getElementById('end-screen'),
+            finalScore: document.getElementById('final-score'),
+            orgBadge: document.getElementById('org-badge'),
+            progText: document.getElementById('prog-text'),
+            qText: document.getElementById('q-text'),
+            feedback: document.getElementById('feedback'),
+            nextBtn: document.getElementById('next-btn'),
+            chopBtn: document.getElementById('chop-btn'),
+            renderMannequin: document.getElementById('render-mannequin'),
+            renderVector: document.getElementById('render-vector'),
+            optionsGrid: document.getElementById('options-grid')
+        };
+        
         // --- DATA DECK (UPGRADED WITH TRAPS) ---
         const vectors = [
             // BIPED TRAPS (Anatomical Position)
@@ -290,8 +310,8 @@
         function init() {
             mcqState = { deck: shuffle([...vectors]), idx: 0, attempts: 0, correct: 0 };
             
-            document.getElementById('end-screen').style.display = 'none';
-            document.getElementById('main-app').style.display = 'grid';
+            dom.endScreen.style.display = 'none';
+            dom.mainApp.style.display = 'grid';
 
             loadCard();
         }
@@ -308,23 +328,23 @@
             
             const currentCard = mcqState.deck[mcqState.idx];
 
-            document.getElementById('org-badge').innerText = `[${currentCard.type}]`;
-            document.getElementById('prog-text').innerText = `Vector ${mcqState.idx + 1} of ${mcqState.deck.length}`;
+            dom.orgBadge.innerText = `[${currentCard.type}]`;
+            dom.progText.innerText = `Vector ${mcqState.idx + 1} of ${mcqState.deck.length}`;
             
-            document.getElementById('q-text').innerHTML = `The <span class="tar">[${currentCard.tar.lbl.toUpperCase()}]</span> is ________ to the <span class="ref">[${currentCard.ref.lbl.toUpperCase()}]</span>.`;
+            dom.qText.innerHTML = `The <span class="tar">[${currentCard.tar.lbl.toUpperCase()}]</span> is ________ to the <span class="ref">[${currentCard.ref.lbl.toUpperCase()}]</span>.`;
             
-            document.getElementById('feedback').style.display = 'none';
-            document.getElementById('next-btn').style.display = 'none';
-            document.getElementById('chop-btn').disabled = false;
+            dom.feedback.style.display = 'none';
+            dom.nextBtn.style.display = 'none';
+            dom.chopBtn.disabled = false;
             
-            document.querySelectorAll('.term-btn').forEach(btn => {
+            dom.optionsGrid.querySelectorAll('.term-btn').forEach(btn => {
                 btn.className = 'term-btn';
                 btn.disabled = false;
             });
 
-            document.getElementById('render-mannequin').setAttribute('href', `#${currentCard.view}`);
+            dom.renderMannequin.setAttribute('href', `#${currentCard.view}`);
             
-            const vecGroup = document.getElementById('render-vector');
+            const vecGroup = dom.renderVector;
             const v = calculateVectorLine(currentCard.ref.x, currentCard.ref.y, currentCard.tar.x, currentCard.tar.y, 15);
             
             vecGroup.innerHTML = `
@@ -338,7 +358,7 @@
             if (lockBoard || chopsUsed >= 2) return;
             
             const currentCard = mcqState.deck[mcqState.idx];
-            const allBtns = Array.from(document.querySelectorAll('.term-btn'));
+            const allBtns = Array.from(dom.optionsGrid.querySelectorAll('.term-btn'));
             const availableWrongBtns = allBtns.filter(b => !currentCard.ans.includes(b.dataset.term) && !b.classList.contains('dimmed'));
 
             if (availableWrongBtns.length > 0) {
@@ -354,7 +374,7 @@
                 chopsUsed++;
 
                 if (availableWrongBtns.length <= 4 || chopsUsed >= 2) {
-                    document.getElementById('chop-btn').disabled = true;
+                    dom.chopBtn.disabled = true;
                 }
             }
         }
@@ -363,8 +383,8 @@
             if (lockBoard || btn.disabled || btn.classList.contains('correct')) return;
 
             const currentCard = mcqState.deck[mcqState.idx];
-            const fb = document.getElementById('feedback');
-            const allBtns = document.querySelectorAll('.term-btn');
+            const fb = dom.feedback;
+            const allBtns = dom.optionsGrid.querySelectorAll('.term-btn');
             const guessedTerm = btn.dataset.term;
             
             const isCorrect = currentCard.ans.includes(guessedTerm);
@@ -376,7 +396,7 @@
                 // Have they found ALL required terms?
                 if (currentFound.length === currentCard.ans.length) {
                     lockBoard = true;
-                    document.getElementById('chop-btn').disabled = true;
+                    dom.chopBtn.disabled = true;
                     
                     mcqState.attempts++; 
                     mcqState.correct++;
@@ -390,7 +410,7 @@
                     });
                     
                     fb.style.display = 'block';
-                    document.getElementById('next-btn').style.display = 'block';
+                    dom.nextBtn.style.display = 'block';
                 } else {
                     // Found one, need more
                     const remaining = currentCard.ans.length - currentFound.length;
@@ -404,7 +424,7 @@
             } else {
                 // Wrong guess = failed card
                 lockBoard = true;
-                document.getElementById('chop-btn').disabled = true;
+                dom.chopBtn.disabled = true;
                 mcqState.attempts++;
                 
                 btn.classList.add('wrong');
@@ -421,7 +441,7 @@
                 });
 
                 fb.style.display = 'block';
-                document.getElementById('next-btn').style.display = 'block';
+                dom.nextBtn.style.display = 'block';
             }
         }
 
@@ -431,11 +451,11 @@
         }
 
         function endDrill() {
-            document.getElementById('main-app').style.display = 'none';
-            document.getElementById('end-screen').style.display = 'block';
+            dom.mainApp.style.display = 'none';
+            dom.endScreen.style.display = 'block';
             
             const pct = Math.round((mcqState.correct / mcqState.attempts) * 100) || 0;
-            document.getElementById('final-score').innerHTML = `You mapped <strong>${mcqState.correct}</strong> vectors correctly out of <strong>${mcqState.attempts}</strong> total attempts (${pct}% accuracy).`;
+            dom.finalScore.innerHTML = `You mapped <strong>${mcqState.correct}</strong> vectors correctly out of <strong>${mcqState.attempts}</strong> total attempts (${pct}% accuracy).`;
         }
 
         // Boot
