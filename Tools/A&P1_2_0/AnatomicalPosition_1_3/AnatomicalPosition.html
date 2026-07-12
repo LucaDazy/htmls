@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BI231 - Directional Vectors Master</title>
+    <style>
+        :root {
+            --bg-color: #323437;
+            --panel-bg: #2c2e31;
+            --hover-bg: #3a3d40;
+            --text-main: #d1d0c5;
+            --text-muted: #646669;
+            --accent: #e2b714;
+            --error: #ca4754;
+            --success: #8cc84b;
+            --hard: #e27d60; 
+            --ref-color: #ffffff;
+            --tar-color: #e2b714;
+        }
+
+        body {
+            background-color: var(--bg-color); color: var(--text-main);
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 2rem; margin: 0; min-height: 100vh;
+        }
+
+        h1 { color: var(--accent); margin-bottom: 0.5rem; text-align: center; }
+        .subtitle { color: var(--text-muted); margin-bottom: 2rem; text-align: center; }
+
+        .container {
+            width: 100%; max-width: 1100px; display: grid; grid-template-columns: 1fr; gap: 1.5rem;
+        }
+
+        /* Primer Details */
+        details.primer-details { width: 100%; background: var(--panel-bg); border-radius: 8px; padding: 0.5rem 1.5rem; box-sizing: border-box; border: 1px solid var(--text-muted); margin-bottom: 1rem; }
+        details.primer-details summary { font-weight: bold; color: var(--accent); cursor: pointer; padding: 1rem 0; outline: none; text-transform: uppercase; letter-spacing: 1px; }
+        .primer-content { padding-bottom: 1.5rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-main); border-top: 1px dashed var(--text-muted); margin-top: 0.5rem; padding-top: 1rem;}
+        .primer-content strong { color: var(--success); }
+
+        /* Main App Grid */
+        .app-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; width: 100%; }
+        @media (min-width: 900px) { .app-grid { grid-template-columns: 1.2fr 1fr; } }
+
+        /* Visual Arena (Left) */
+        .visual-arena {
+            background: #18191a; border-radius: 8px; border: 2px solid var(--text-muted);
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.8); position: relative; overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+        
+        .arena-header {
+            position: absolute; top: 1rem; left: 1rem; right: 1rem; display: flex; justify-content: space-between; z-index: 10;
+        }
+        .organism-badge {
+            background: rgba(226, 183, 20, 0.2); color: var(--accent); padding: 0.4rem 1rem;
+            border-radius: 20px; font-weight: bold; border: 1px solid var(--accent); letter-spacing: 1px; font-size: 0.9rem;
+        }
+        .legend-box {
+            background: rgba(0,0,0,0.6); padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid var(--text-muted); font-size: 0.85rem;
+        }
+
+        .svg-container { width: 100%; height: 450px; display: flex; align-items: center; justify-content: center; }
+        svg { width: 100%; height: 100%; }
+
+        /* Mannequin Styles */
+        .mannequin { fill: #222; stroke: #444; stroke-width: 4; stroke-linejoin: round; }
+        
+        /* Animated Vector Styles */
+        .ref-dot { fill: var(--ref-color); stroke: #000; stroke-width: 2; }
+        .tar-dot { fill: var(--tar-color); stroke: #000; stroke-width: 2; }
+        .vector-line {
+            fill: none; stroke: var(--tar-color); stroke-width: 5;
+            stroke-dasharray: 10 10; animation: flow 1s linear infinite;
+        }
+        @keyframes flow { to { stroke-dashoffset: -20; } }
+
+        /* Control Board (Right) */
+        .control-board {
+            background: var(--panel-bg); border: 2px solid var(--accent); border-radius: 8px;
+            padding: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: flex; flex-direction: column;
+        }
+
+        .header-row {
+            display: flex; justify-content: space-between; align-items: center; width: 100%;
+            border-bottom: 1px dashed var(--text-muted); padding-bottom: 0.8rem; margin-bottom: 1.5rem;
+        }
+        .progress-text { font-size: 0.95rem; color: var(--text-muted); font-weight: bold; }
+        .tool-btn {
+            background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted);
+            padding: 0.4rem 0.8rem; font-family: inherit; font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s;
+        }
+        .tool-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: rgba(226, 183, 20, 0.1); }
+        .tool-btn:disabled { opacity: 0.3; cursor: default; }
+
+        .objective-text { font-size: 1.2rem; line-height: 1.6; color: var(--text-main); margin-bottom: 1.5rem; }
+        .objective-text span.ref { color: var(--ref-color); font-weight: bold; }
+        .objective-text span.tar { color: var(--tar-color); font-weight: bold; text-shadow: 0 0 8px rgba(226, 183, 20, 0.4); }
+
+        /* Paired Term Grid */
+        .term-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; width: 100%; }
+        .term-btn {
+            background: var(--bg-color); border: 2px solid var(--text-muted); color: var(--text-main);
+            padding: 0.8rem 0.5rem; font-family: inherit; font-size: 0.95rem; font-weight: bold; cursor: pointer;
+            border-radius: 6px; transition: all 0.2s; text-align: center; text-transform: uppercase;
+        }
+        .term-btn:hover:not(:disabled):not(.dimmed) { border-color: var(--accent); background: var(--hover-bg); transform: translateY(-2px); }
+        
+        .term-btn.correct { border-color: var(--success); color: var(--success); background: rgba(140, 200, 75, 0.15); box-shadow: 0 0 15px rgba(140, 200, 75, 0.3); }
+        .term-btn.wrong { border-color: var(--error); color: var(--error); background: rgba(202, 71, 84, 0.15); }
+        .term-btn.dimmed { opacity: 0.2; pointer-events: none; border-color: var(--text-muted); }
+        .term-btn:disabled { cursor: default; transform: none; }
+
+        /* Feedback Box */
+        .feedback-box {
+            margin-top: 1.5rem; padding: 1.2rem; border-radius: 4px; display: none; line-height: 1.5; font-size: 1.05rem;
+            background: rgba(0,0,0,0.2); border-left: 4px solid var(--accent); width: 100%; box-sizing: border-box;
+        }
+
+        .action-btn {
+            background: var(--bg-color); border: 2px solid var(--accent); color: var(--accent); padding: 1rem;
+            font-family: inherit; font-size: 1.05rem; cursor: pointer; border-radius: 6px; transition: 0.2s; width: 100%;
+            margin-top: 1.5rem; font-weight: bold; display: none;
+        }
+        .action-btn:hover { background: var(--accent); color: var(--bg-color); }
+
+        .end-screen { text-align: center; display: none; background: var(--panel-bg); padding: 3rem; border-radius: 8px; border: 2px solid var(--success); width: 100%; box-sizing: border-box;}
+        .end-screen h2 { color: var(--success); margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+
+    <h1>Vector Relationship Engine</h1>
+    <div class="subtitle">Biped vs. Quadruped Directional Term Mapping</div>
+
+    <div class="container">
+        
+        <details class="primer-details">
+            <summary>💡 Rules & Common Traps (Read First)</summary>
+            <div class="primer-content">
+                <strong>MULTI-SELECT REQUIRED:</strong> Many vectors have more than one valid term (e.g. Ventral AND Anterior). If multiple terms apply, you must click <strong>all</strong> of them to pass the card.<br><br>
+                <strong>The "Anatomical Position" Trap:</strong> Remember that in bipeds, Anatomical Position means arms are at the sides with <em>palms facing forward</em>. This rotates the radius and thumb to the outside.<br><br>
+                <strong>The Biped vs Quadruped Trap:</strong> Posture changes everything. 
+                <ul>
+                    <li>In humans, the belly faces forward. So <strong>Ventral = Anterior</strong>.</li>
+                    <li>In dogs, the belly faces the floor. So <strong>Ventral = Inferior</strong>.</li>
+                    <li>In dogs, they move nose-first. So <strong>Anterior = Cephalad (Head)</strong>.</li>
+                </ul>
+                <strong>The Appendage Trap:</strong> When comparing two points on the <em>same limb</em>, always prioritize Proximal/Distal over Superior/Inferior.
+            </div>
+        </details>
+
+        <div class="app-grid" id="main-app">
+            
+            <div class="visual-arena">
+                <div class="arena-header">
+                    <div class="organism-badge" id="org-badge">[BIPED]</div>
+                    <div class="legend-box">
+                        <span style="color:var(--ref-color)">⚪ Ref</span> ➔ <span style="color:var(--tar-color)">🟡 Target</span>
+                    </div>
+                </div>
+
+                <div class="svg-container">
+                    <svg id="dynamic-svg" viewBox="0 0 500 500" preserveAspectRatio="xMidYMid meet">
+                        <defs>
+                            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--tar-color)" />
+                            </marker>
+                            
+                            <g id="biped-side">
+                                <path class="mannequin" d="M 250 50 C 280 50, 280 100, 260 120 C 270 140, 300 170, 300 240 C 300 320, 290 400, 290 450 C 290 480, 260 480, 240 450 L 240 280 C 210 260, 200 160, 240 120 C 230 100, 220 50, 250 50 Z" />
+                            </g>
+                            
+                            <g id="biped-front">
+                                <ellipse class="mannequin" cx="250" cy="70" rx="30" ry="40" />
+                                <rect class="mannequin" x="235" y="100" width="30" height="20" />
+                                <path class="mannequin" d="M 180 130 C 250 110, 320 130, 320 130 L 300 300 L 200 300 Z" /> <path class="mannequin" d="M 180 130 L 130 250 L 140 330 L 170 330 L 160 250 L 195 160" /> <path class="mannequin" d="M 320 130 L 370 250 L 360 330 L 330 330 L 340 250 L 305 160" /> <path class="mannequin" d="M 200 300 L 180 450 L 220 450 L 245 300" /> <path class="mannequin" d="M 300 300 L 320 450 L 280 450 L 255 300" /> </g>
+
+                            <g id="quadruped-side">
+                                <path class="mannequin" d="M 120 160 C 80 160, 50 190, 50 210 C 100 230, 130 230, 150 200 Z" />
+                                <path class="mannequin" d="M 120 160 C 100 120, 130 110, 140 150" /> <path class="mannequin" d="M 140 180 C 200 150, 350 150, 420 180 C 450 200, 420 280, 380 280 C 300 300, 200 300, 160 270 C 130 250, 130 200, 140 180 Z" />
+                                <path class="mannequin" d="M 410 180 C 450 160, 480 180, 460 200" fill="none"/>
+                                <path class="mannequin" d="M 180 270 L 160 400 L 190 400 L 210 270" />
+                                <path class="mannequin" d="M 200 270 L 190 380 L 220 380 L 230 270" />
+                                <path class="mannequin" d="M 370 270 L 350 400 L 380 400 L 400 270" />
+                                <path class="mannequin" d="M 390 270 L 380 380 L 410 380 L 420 270" />
+                            </g>
+
+                            <g id="cross-section">
+                                <circle cx="250" cy="250" r="160" fill="#dbbea1" stroke="#b08d6a" stroke-width="8" /> <circle cx="250" cy="250" r="120" fill="#a84343" /> <circle cx="250" cy="250" r="50" fill="#e8e6e1" /> <text x="250" y="80" fill="#222" font-size="14" text-anchor="middle" font-weight="bold">SKIN (Integument)</text>
+                                <text x="250" y="170" fill="#222" font-size="14" text-anchor="middle" font-weight="bold">MUSCLE</text>
+                                <text x="250" y="255" fill="#222" font-size="14" text-anchor="middle" font-weight="bold">BONE</text>
+                            </g>
+
+                            <g id="organ-heart">
+                                <path d="M 200 120 L 230 70 L 260 120 Z" fill="#6c8fb5" />
+                                <path d="M 240 120 L 260 60 L 290 120 Z" fill="#ba5c5c" />
+                                <path d="M 270 120 L 300 80 L 320 120 Z" fill="#6c8fb5" />
+                                <path class="mannequin" d="M 250 120 C 400 120, 380 250, 270 380 C 150 250, 100 120, 250 120 Z" fill="#9c3b3b" stroke-width="6"/>
+                            </g>
+
+                            <g id="tissue-epi">
+                                <rect x="80" y="320" width="340" height="20" fill="#555" />
+                                <text x="250" y="360" fill="var(--text-muted)" font-size="14" text-anchor="middle" font-weight="bold">BASEMENT MEMBRANE (Attached)</text>
+                                <rect x="80" y="180" width="340" height="140" fill="#d4cca9" stroke="#333" stroke-width="4"/>
+                                <circle cx="130" cy="250" r="15" fill="#555" />
+                                <circle cx="250" cy="250" r="15" fill="#555" />
+                                <circle cx="370" cy="250" r="15" fill="#555" />
+                                <text x="250" y="150" fill="var(--text-muted)" font-size="14" text-anchor="middle" font-weight="bold">FREE SURFACE (Lumen / Exterior)</text>
+                            </g>
+                        </defs>
+                        
+                        <use id="render-mannequin" href="#biped-side" x="0" y="0" />
+                        
+                        <g id="render-vector"></g>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="control-board" id="target-area">
+                <div class="header-row">
+                    <div class="progress-text" id="prog-text">Loading...</div>
+                    <button class="tool-btn" id="chop-btn" onclick="useChop()">✂️ Chop (50/50)</button>
+                </div>
+                
+                <div class="objective-text" id="q-text">
+                    The <span class="tar">[TARGET]</span> is ________ to the <span class="ref">[REFERENCE]</span>.
+                </div>
+                
+                <div class="term-grid" id="options-grid">
+                    <button class="term-btn" data-term="Superior" onclick="handleGuess(this)">Superior</button>
+                    <button class="term-btn" data-term="Inferior" onclick="handleGuess(this)">Inferior</button>
+                    <button class="term-btn" data-term="Anterior" onclick="handleGuess(this)">Anterior</button>
+                    <button class="term-btn" data-term="Posterior" onclick="handleGuess(this)">Posterior</button>
+                    <button class="term-btn" data-term="Ventral" onclick="handleGuess(this)">Ventral</button>
+                    <button class="term-btn" data-term="Dorsal" onclick="handleGuess(this)">Dorsal</button>
+                    <button class="term-btn" data-term="Cephalad" onclick="handleGuess(this)">Cephalad</button>
+                    <button class="term-btn" data-term="Caudal" onclick="handleGuess(this)">Caudal</button>
+                    <button class="term-btn" data-term="Medial" onclick="handleGuess(this)">Medial</button>
+                    <button class="term-btn" data-term="Lateral" onclick="handleGuess(this)">Lateral</button>
+                    <button class="term-btn" data-term="Proximal" onclick="handleGuess(this)">Proximal</button>
+                    <button class="term-btn" data-term="Distal" onclick="handleGuess(this)">Distal</button>
+                    <button class="term-btn" data-term="Superficial" onclick="handleGuess(this)">Superficial</button>
+                    <button class="term-btn" data-term="Deep" onclick="handleGuess(this)">Deep</button>
+                    <button class="term-btn" data-term="Apical" onclick="handleGuess(this)">Apical</button>
+                    <button class="term-btn" data-term="Basal" onclick="handleGuess(this)">Basal</button>
+                </div>
+
+                <div id="feedback" class="feedback-box"></div>
+                <button id="next-btn" class="action-btn" onclick="nextCard()">Next Vector ➔</button>
+            </div>
+        </div>
+
+        <div id="end-screen" class="end-screen">
+            <h2>Vectors Mastered!</h2>
+            <p id="final-score" style="margin-bottom: 2rem; color: var(--text-main); font-size:1.1rem;"></p>
+            <button class="action-btn" style="display:block;" onclick="init()">Restart Drill</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- DATA DECK (UPGRADED WITH TRAPS) ---
+        const vectors = [
+            // BIPED TRAPS (Anatomical Position)
+            { view: "biped-front", type: "BIPED", ref: {x: 160, y: 310, lbl: "Pinky (Digit 5)"}, tar: {x: 130, y: 310, lbl: "Thumb (Digit 1)"}, ans: ["Lateral"], exp: "<strong>TRAP:</strong> In standard Anatomical Position, the palms face <em>forward</em>. This rotates the forearm so the thumb points away from the body. Therefore, the thumb is Lateral to the pinky." },
+            { view: "biped-front", type: "BIPED", ref: {x: 370, y: 310, lbl: "Thumb"}, tar: {x: 340, y: 310, lbl: "Pinky"}, ans: ["Medial"], exp: "<strong>TRAP:</strong> Because palms face forward in anatomical position, the pinky is closer to the midline of the body than the thumb." },
+            
+            // BIPED APPENDAGE TRAPS
+            { view: "biped-front", type: "BIPED", ref: {x: 140, y: 300, lbl: "Wrist"}, tar: {x: 170, y: 220, lbl: "Elbow"}, ans: ["Proximal"], exp: "<strong>TRAP:</strong> When comparing two points on the <em>same limb</em>, always use Proximal/Distal instead of Superior/Inferior. The elbow is closer to the trunk attachment, so it is Proximal." },
+            { view: "biped-side", type: "BIPED", ref: {x: 250, y: 200, lbl: "Hip"}, tar: {x: 250, y: 350, lbl: "Knee"}, ans: ["Distal"], exp: "<strong>TRAP:</strong> Even though the knee is 'below' the hip, because they are on the same limb, you must use Distal (further from trunk attachment)." },
+
+            // STANDARD BIPED
+            { view: "biped-side", type: "BIPED", ref: {x: 270, y: 200, lbl: "Spine"}, tar: {x: 295, y: 200, lbl: "Sternum"}, ans: ["Anterior", "Ventral"], exp: "In bipeds, moving toward the front of the body is Anterior. Because the belly is also on the front, Ventral is perfectly synonymous." },
+            { view: "biped-side", type: "BIPED", ref: {x: 290, y: 300, lbl: "Navel"}, tar: {x: 240, y: 300, lbl: "Glutes"}, ans: ["Posterior", "Dorsal"], exp: "Moving toward the back of a biped is Posterior. Because the spine/back is here, Dorsal is synonymous." },
+            { view: "biped-side", type: "BIPED", ref: {x: 250, y: 300, lbl: "Tailbone"}, tar: {x: 250, y: 80, lbl: "Crown"}, ans: ["Cephalad", "Superior"], exp: "Cephalad specifically means 'towards the head'. In a standing biped, this perfectly aligns with the Superior axis." },
+            
+            // QUADRUPED TRAPS
+            { view: "quadruped-side", type: "QUADRUPED", ref: {x: 400, y: 200, lbl: "Tail"}, tar: {x: 100, y: 200, lbl: "Snout"}, ans: ["Anterior", "Cephalad"], exp: "<strong>TRAP:</strong> Animals move nose-first. Therefore, the snout is the Anterior (front-leading) end. It is also Cephalad (towards head). It is NOT 'Ventral'." },
+            { view: "quadruped-side", type: "QUADRUPED", ref: {x: 150, y: 200, lbl: "Neck"}, tar: {x: 400, y: 200, lbl: "Tail"}, ans: ["Posterior", "Caudal"], exp: "<strong>TRAP:</strong> The trailing end of a moving quadruped is Posterior. It is also Caudal (towards tail)." },
+            { view: "quadruped-side", type: "QUADRUPED", ref: {x: 280, y: 160, lbl: "Spine"}, tar: {x: 280, y: 280, lbl: "Belly"}, ans: ["Ventral", "Inferior"], exp: "<strong>TRAP:</strong> Ventral always means belly-side. Because a dog stands on four legs, its belly points to the floor, making Ventral synonymous with Inferior! In humans, Ventral is Anterior." },
+            { view: "quadruped-side", type: "QUADRUPED", ref: {x: 250, y: 280, lbl: "Belly"}, tar: {x: 250, y: 160, lbl: "Spine"}, ans: ["Dorsal", "Superior"], exp: "<strong>TRAP:</strong> Dorsal always means back-side. In a quadruped, the back faces the sky, making Dorsal synonymous with Superior!" },
+            { view: "quadruped-side", type: "QUADRUPED", ref: {x: 380, y: 280, lbl: "Hip"}, tar: {x: 370, y: 380, lbl: "Paw"}, ans: ["Distal"], exp: "Moving down the limb away from the trunk attachment is Distal (avoid using inferior for limbs)." },
+
+            // NEW: CROSS SECTIONS (Superficial/Deep)
+            { view: "cross-section", type: "TISSUE LAYERS", ref: {x: 250, y: 250, lbl: "Bone"}, tar: {x: 150, y: 150, lbl: "Skin"}, ans: ["Superficial"], exp: "<strong>TRAP:</strong> Do not use 'Superior' or 'Outside'. When moving from the core of the body towards the outer skin boundary, the correct anatomical term is Superficial." },
+            { view: "cross-section", type: "TISSUE LAYERS", ref: {x: 150, y: 150, lbl: "Skin"}, tar: {x: 250, y: 200, lbl: "Muscle"}, ans: ["Deep"], exp: "Moving inward, away from the surface of the body, is Deep." },
+
+            // NEW: ORGANS & HISTOLOGY (Apical/Basal)
+            { view: "organ-heart", type: "ORGAN", ref: {x: 250, y: 100, lbl: "Top (Vessels)"}, tar: {x: 270, y: 360, lbl: "Bottom Point"}, ans: ["Apical", "Inferior"], exp: "The pointed tip of a conical organ (like the bottom of the heart or top of the lungs) is the Apex / Apical surface." },
+            { view: "organ-heart", type: "ORGAN", ref: {x: 270, y: 360, lbl: "Apex"}, tar: {x: 250, y: 100, lbl: "Top (Vessels)"}, ans: ["Basal", "Superior"], exp: "The broad, flat region of a conical organ (like the top of the heart where vessels attach) is the Base / Basal surface." },
+            { view: "tissue-epi", type: "HISTOLOGY", ref: {x: 250, y: 320, lbl: "Attached Membrane"}, tar: {x: 250, y: 180, lbl: "Free Surface"}, ans: ["Apical", "Superficial"], exp: "In cellular tissues, the free/exposed surface facing the lumen or exterior is always the Apical surface." },
+            { view: "tissue-epi", type: "HISTOLOGY", ref: {x: 250, y: 180, lbl: "Free Surface"}, tar: {x: 250, y: 320, lbl: "Attached Membrane"}, ans: ["Basal", "Deep"], exp: "In cellular tissues, the side attached to the underlying connective basement membrane is always the Basal surface." }
+        ];
+
+        // --- ENGINE STATE ---
+        let mcqState = { deck: [], idx: 0, attempts: 0, correct: 0 };
+        let lockBoard = false;
+        let chopsUsed = 0;
+        let currentFound = []; 
+
+        // --- UTILS ---
+        function shuffle(arr) {
+            let a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        // Vector Offset Math
+        function calculateVectorLine(x1, y1, x2, y2, offset) {
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            const length = Math.sqrt(dx * dx + dy * dy);
+            if (length === 0) return {x1, y1, x2, y2};
+            
+            const nx = dx / length;
+            const ny = dy / length;
+            
+            return {
+                startX: x1 + (nx * offset),
+                startY: y1 + (ny * offset),
+                endX: x2 - (nx * (offset + 10)), 
+                endY: y2 - (ny * (offset + 10))
+            };
+        }
+
+        function init() {
+            mcqState = { deck: shuffle([...vectors]), idx: 0, attempts: 0, correct: 0 };
+            
+            document.getElementById('end-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'grid';
+
+            loadCard();
+        }
+
+        function loadCard() {
+            if (mcqState.idx >= mcqState.deck.length) {
+                endDrill();
+                return;
+            }
+
+            lockBoard = false;
+            chopsUsed = 0;
+            currentFound = []; 
+            
+            const currentCard = mcqState.deck[mcqState.idx];
+
+            document.getElementById('org-badge').innerText = `[${currentCard.type}]`;
+            document.getElementById('prog-text').innerText = `Vector ${mcqState.idx + 1} of ${mcqState.deck.length}`;
+            
+            document.getElementById('q-text').innerHTML = `The <span class="tar">[${currentCard.tar.lbl.toUpperCase()}]</span> is ________ to the <span class="ref">[${currentCard.ref.lbl.toUpperCase()}]</span>.`;
+            
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('chop-btn').disabled = false;
+            
+            document.querySelectorAll('.term-btn').forEach(btn => {
+                btn.className = 'term-btn';
+                btn.disabled = false;
+            });
+
+            document.getElementById('render-mannequin').setAttribute('href', `#${currentCard.view}`);
+            
+            const vecGroup = document.getElementById('render-vector');
+            const v = calculateVectorLine(currentCard.ref.x, currentCard.ref.y, currentCard.tar.x, currentCard.tar.y, 15);
+            
+            vecGroup.innerHTML = `
+                <line x1="${v.startX}" y1="${v.startY}" x2="${v.endX}" y2="${v.endY}" class="vector-line" marker-end="url(#arrow)" />
+                <circle cx="${currentCard.ref.x}" cy="${currentCard.ref.y}" r="8" class="ref-dot" />
+                <circle cx="${currentCard.tar.x}" cy="${currentCard.tar.y}" r="10" class="tar-dot" />
+            `;
+        }
+
+        function useChop() {
+            if (lockBoard || chopsUsed >= 2) return;
+            
+            const currentCard = mcqState.deck[mcqState.idx];
+            const allBtns = Array.from(document.querySelectorAll('.term-btn'));
+            const availableWrongBtns = allBtns.filter(b => !currentCard.ans.includes(b.dataset.term) && !b.classList.contains('dimmed'));
+
+            if (availableWrongBtns.length > 0) {
+                // Chop 4 wrong answers at a time for speed
+                for(let i=0; i<4; i++) {
+                    if (availableWrongBtns.length > 0) {
+                        const idx = Math.floor(Math.random() * availableWrongBtns.length);
+                        const btnToChop = availableWrongBtns.splice(idx, 1)[0];
+                        btnToChop.classList.add('dimmed');
+                        btnToChop.disabled = true;
+                    }
+                }
+                chopsUsed++;
+
+                if (availableWrongBtns.length <= 4 || chopsUsed >= 2) {
+                    document.getElementById('chop-btn').disabled = true;
+                }
+            }
+        }
+
+        function handleGuess(btn) {
+            if (lockBoard || btn.disabled || btn.classList.contains('correct')) return;
+
+            const currentCard = mcqState.deck[mcqState.idx];
+            const fb = document.getElementById('feedback');
+            const allBtns = document.querySelectorAll('.term-btn');
+            const guessedTerm = btn.dataset.term;
+            
+            const isCorrect = currentCard.ans.includes(guessedTerm);
+
+            if (isCorrect) {
+                btn.classList.add('correct');
+                currentFound.push(guessedTerm);
+                
+                // Have they found ALL required terms?
+                if (currentFound.length === currentCard.ans.length) {
+                    lockBoard = true;
+                    document.getElementById('chop-btn').disabled = true;
+                    
+                    mcqState.attempts++; 
+                    mcqState.correct++;
+                    
+                    fb.innerHTML = `<strong style="color:var(--success);">✅ Correct!</strong><br><br>${currentCard.exp}`;
+                    fb.style.borderLeftColor = 'var(--success)';
+                    
+                    allBtns.forEach(b => {
+                        b.disabled = true;
+                        if (!b.classList.contains('correct')) b.classList.add('dimmed');
+                    });
+                    
+                    fb.style.display = 'block';
+                    document.getElementById('next-btn').style.display = 'block';
+                } else {
+                    // Found one, need more
+                    const remaining = currentCard.ans.length - currentFound.length;
+                    const plural = remaining > 1 ? "terms" : "term";
+                    
+                    fb.innerHTML = `<strong style="color:var(--accent);">⭐ Good!</strong><br><br>But there is still <strong>${remaining} more valid ${plural}</strong> that applies to this vector. Select it to complete the card.`;
+                    fb.style.borderLeftColor = 'var(--accent)';
+                    fb.style.display = 'block';
+                }
+
+            } else {
+                // Wrong guess = failed card
+                lockBoard = true;
+                document.getElementById('chop-btn').disabled = true;
+                mcqState.attempts++;
+                
+                btn.classList.add('wrong');
+                mcqState.deck.push(mcqState.deck[mcqState.idx]); // Recycle
+                
+                fb.innerHTML = `<strong style="color:var(--error);">❌ Incorrect.</strong><br><br>The correct term(s) required: <strong>${currentCard.ans.join(' and ')}</strong>.<br><br>${currentCard.exp}<br><br><em style="color:var(--accent);">Card recycled to the back of the deck.</em>`;
+                fb.style.borderLeftColor = 'var(--error)';
+                
+                allBtns.forEach(b => {
+                    b.disabled = true;
+                    if (!b.classList.contains('correct') && !b.classList.contains('wrong')) {
+                        b.classList.add('dimmed');
+                    }
+                });
+
+                fb.style.display = 'block';
+                document.getElementById('next-btn').style.display = 'block';
+            }
+        }
+
+        function nextCard() {
+            mcqState.idx++;
+            loadCard();
+        }
+
+        function endDrill() {
+            document.getElementById('main-app').style.display = 'none';
+            document.getElementById('end-screen').style.display = 'block';
+            
+            const pct = Math.round((mcqState.correct / mcqState.attempts) * 100) || 0;
+            document.getElementById('final-score').innerHTML = `You mapped <strong>${mcqState.correct}</strong> vectors correctly out of <strong>${mcqState.attempts}</strong> total attempts (${pct}% accuracy).`;
+        }
+
+        // Boot
+        init();
+
+    </script>
+</body>
+</html>
