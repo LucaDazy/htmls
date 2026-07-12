@@ -1,6 +1,6 @@
 // service-worker.js with heavy logging
 
-const CACHE_NAME = 'study-hub-cache-v13'; // Incremented version to trigger update
+const CACHE_NAME = 'study-hub-cache-v14'; // Incremented version to trigger update
 const LOG_PREFIX = '[ServiceWorker]';
 console.log(`${LOG_PREFIX} Script loading. Cache name: ${CACHE_NAME}`);
 
@@ -11,7 +11,7 @@ const urlsToCache = [
   'Global/Css/animations.css',
   'Global/Scripts/background-animation.js',
   'Global/tool-manifest.json',
-  'Tools/A&P1_2_0/AnatomicalPositions_1_1/AnatomicalPositions.html',
+  'Tools/A&P1_2_0/AnatomicalPositions_1_2/AnatomicalPositions.html',
   'Tools/A&P1_2_0/LectureCh1_2_0/LectureCh1Quiz.html',
   'Tools/A&P1_2_0/AnatomicalPosition_1_3/AnatomicalPosition.html',
   // Core SVGs

@@ -131,7 +131,7 @@
         .end-screen h2 { color: var(--success); margin-bottom: 1rem; }
     </style>
 </head>
-<body>
+<body class="content-wrapper">
     <canvas id="background-canvas"></canvas>
     <img src="../../../Global/SVGs/logo.svg" alt="Study Hub Logo" class="corner-logo">
     <img src="../../../Global/SVGs/avatar.svg" alt="Avatar" class="corner-avatar">
@@ -139,7 +139,7 @@
     <h1>Vector Relationship Engine</h1>
     <div class="subtitle">Biped vs. Quadruped Directional Term Mapping</div>
 
-    <div class="container">
+    <div class="tool-container">
         
         <details class="primer-details">
             <summary>💡 Rules & Common Traps (Read First)</summary>
@@ -263,8 +263,15 @@
             <button class="action-btn" style="display:block;" onclick="init()">Restart Drill</button>
         </div>
 
-    </div>
+        <div id="end-screen" class="end-screen">
+            <h2>Vectors Mastered!</h2>
+            <p id="final-score" style="margin-bottom: 2rem; color: var(--text-main); font-size:1.1rem;"></p>
+            <button class="action-btn" style="display:block;" onclick="init()">Restart Drill</button>
+        </div>
 
+    </div> <!-- close .tool-container -->
+    
+    <script src="../../../Global/Scripts/background-animation.js" data-base-path="../../../"></script>
     <script>
         // --- DATA DECK (UPGRADED WITH TRAPS) ---
         const vectors = [
