@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Epithelial Handout</title>
+    <style>
+        :root {
+            --bg-color: #323437;
+            --panel-bg: #2c2e31;
+            --hover-bg: #3a3d40;
+            --text-main: #d1d0c5;
+            --text-muted: #646669;
+            --accent: #e2b714;
+            --error: #ca4754;
+            --success: #8cc84b;
+            --hard: #e27d60; 
+        }
+
+        body {
+            background-color: var(--bg-color); color: var(--text-main);
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 2rem; margin: 0; min-height: 100vh;
+        }
+
+        h1 { color: var(--accent); margin-bottom: 2rem; text-align: center; }
+
+        .container {
+            width: 100%; max-width: 1100px; display: flex; flex-direction: column; 
+            align-items: center; gap: 1.5rem; position: relative;
+        }
+
+        /* Top Bar / Tools */
+        .header-row {
+            display: flex; justify-content: space-between; align-items: center; width: 100%;
+            background: var(--panel-bg); padding: 1rem 1.5rem; border-radius: 8px;
+            border: 1px solid var(--text-muted); box-sizing: border-box; flex-wrap: wrap; gap: 1rem;
+        }
+        .progress-text { font-size: 0.95rem; color: var(--text-muted); font-weight: bold; }
+        
+        .tool-btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .tool-btn {
+            background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted);
+            padding: 0.4rem 0.8rem; font-family: inherit; font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s;
+        }
+        .tool-btn.active { border-color: var(--accent); color: var(--accent); }
+        .tool-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: rgba(226, 183, 20, 0.1); }
+        .tool-btn:disabled { opacity: 0.3; cursor: default; }
+
+        /* The Blueprint Scanner (Target Box) */
+        .scanner-box {
+            background: #18191a; border: 2px solid var(--accent); border-radius: 8px;
+            padding: 2.5rem; box-shadow: inset 0 0 30px rgba(0,0,0,0.5), 0 4px 15px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; align-items: center; width: 100%; box-sizing: border-box;
+            min-height: 200px; justify-content: center; position: relative;
+        }
+        .asset-type-badge {
+            position: absolute; top: 1rem; left: 1rem; padding: 0.3rem 0.8rem; border-radius: 4px;
+            font-weight: bold; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;
+            background: rgba(226, 183, 20, 0.2); color: var(--accent); border: 1px solid var(--accent);
+        }
+
+        .asset-text {
+            font-size: 1.4rem; line-height: 1.6; color: var(--text-main); text-align: center; 
+            max-width: 800px; font-weight: bold;
+        }
+
+        /* Hint Display */
+        .hint-display {
+            background: rgba(226, 183, 20, 0.1); border: 1px solid var(--accent); color: var(--accent);
+            padding: 1rem; border-radius: 6px; font-size: 0.95rem; margin-top: 1rem; display: none; line-height: 1.5; width: 100%; box-sizing: border-box;
+        }
+
+        /* Hierarchy Columns */
+        .hierarchy-grid {
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; width: 100%;
+        }
+        
+        .column {
+            background: var(--panel-bg); border: 1px solid var(--text-muted); border-radius: 8px;
+            padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; opacity: 0.4; pointer-events: none;
+            transition: 0.3s; position: relative;
+        }
+        .column.active { opacity: 1; pointer-events: all; border-color: var(--accent); box-shadow: 0 0 15px rgba(226, 183, 20, 0.1);}
+        
+        .col-header {
+            display: flex; justify-content: space-between; align-items: center;
+            font-weight: bold; color: var(--text-muted); text-transform: uppercase;
+            letter-spacing: 1px; font-size: 0.85rem; margin-bottom: 0.5rem; border-bottom: 1px dashed var(--text-muted); padding-bottom: 0.8rem;
+        }
+
+        .step-hint-btn {
+            background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted);
+            padding: 0.2rem 0.6rem; font-family: inherit; font-size: 0.75rem; cursor: pointer; border-radius: 4px; transition: 0.2s;
+        }
+        .step-hint-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: rgba(226, 183, 20, 0.1); }
+        .step-hint-btn:disabled { opacity: 0.2; cursor: default; }
+
+        /* Tier Buttons & Tooltips */
+        .tier-btn {
+            background: var(--bg-color); border: 2px solid var(--text-muted); color: var(--text-main);
+            padding: 1rem; border-radius: 6px; font-family: inherit; font-size: 0.95rem; cursor: pointer;
+            transition: all 0.2s; font-weight: bold; position: relative;
+        }
+        
+        .tier-btn-text { pointer-events: none; }
+        
+        .opt-tooltip {
+            position: absolute; bottom: 115%; left: 50%; transform: translateX(-50%) translateY(10px);
+            background: var(--bg-color); color: var(--accent); padding: 0.8rem 1rem;
+            border-radius: 6px; border: 1px solid var(--accent); font-size: 0.85rem;
+            width: max-content; max-width: 260px; white-space: normal;
+            z-index: 100; opacity: 0; visibility: hidden; transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5); pointer-events: none; text-align: center; font-weight: normal; line-height: 1.4;
+        }
+        .opt-tooltip::after {
+            content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+            border-width: 6px; border-style: solid; border-color: var(--accent) transparent transparent transparent;
+        }
+
+        .tier-btn:hover:not(:disabled):not(.dimmed) { border-color: var(--accent); transform: translateY(-2px); background: var(--hover-bg); }
+        .tier-btn:hover:not(:disabled):not(.dimmed) .opt-tooltip { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+        
+        .hierarchy-grid.hide-tooltips .opt-tooltip { display: none !important; }
+
+        .tier-btn.selected { border-color: var(--accent) !important; background: rgba(226, 183, 20, 0.2) !important; color: var(--accent); }
+        .tier-btn.wrong { border-color: var(--error) !important; background: rgba(202, 71, 84, 0.2) !important; animation: shake 0.3s; }
+        .tier-btn.dimmed { opacity: 0.2; pointer-events: none; border-color: #222; }
+        .tier-btn:disabled { cursor: default; transform: none; }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        /* Feedback Box */
+        .feedback-box {
+            padding: 1.5rem; border-radius: 4px; display: none; line-height: 1.6; font-size: 1.05rem;
+            background: rgba(0,0,0,0.2); border-left: 4px solid var(--accent); width: 100%; box-sizing: border-box;
+        }
+
+        .action-btn {
+            background: var(--bg-color); border: 2px solid var(--accent); color: var(--accent); padding: 1rem;
+            font-family: inherit; font-size: 1.05rem; cursor: pointer; border-radius: 6px; transition: 0.2s; width: 100%;
+            margin-top: 1rem; font-weight: bold; display: none; text-align: center;
+        }
+        .action-btn:hover { background: var(--accent); color: var(--bg-color); }
+
+        /* Session Tracking Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem; text-align: center; width: 100%; margin-top: 1rem;}
+        .stat-card { background: var(--panel-bg); border: 1px solid var(--text-muted); padding: 1.5rem 1rem; border-radius: 6px; display: flex; flex-direction: column; gap: 0.5rem; }
+        .stat-val { color: var(--accent); font-size: 1.5rem; font-weight: bold; }
+        .stat-label { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        .end-screen { text-align: center; display: none; background: var(--panel-bg); padding: 3rem; border-radius: 8px; border: 2px solid var(--success); width: 100%; box-sizing: border-box;}
+        .end-screen h2 { color: var(--success); margin-bottom: 1rem; }
+
+        @media (max-width: 800px) {
+            .hierarchy-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Epithelial Handout</h1>
+
+    <div class="container">
+        
+        <div class="header-row">
+            <div class="progress-text" id="prog-text">Loading...</div>
+            <div class="tool-btns">
+                <button class="tool-btn active" id="tooltip-btn" onclick="toggleTooltips()">👁️ Tooltips</button>
+                <button class="tool-btn" id="chop-btn" onclick="useChop()">✂️ Chop</button>
+            </div>
+        </div>
+
+        <div id="target-area" style="width:100%; display: flex; flex-direction: column; gap: 1.5rem;">
+            
+            <div class="scanner-box" id="scanner-box">
+                <div class="asset-type-badge" id="asset-badge">BIOLOGICAL TARGET</div>
+                <div class="asset-text" id="q-text">Initializing blueprint...</div>
+                <div id="hint-display" class="hint-display"></div>
+            </div>
+
+            <div class="hierarchy-grid" id="hierarchy-grid">
+                <div class="column active" id="col-1">
+                    <div class="col-header">
+                        <span>1. Primary Class</span>
+                        <button class="step-hint-btn" id="hint-btn-1" onclick="useStepHint(1)">💡 Hint</button>
+                    </div>
+                    <div id="t1-options" style="display:flex; flex-direction:column; gap:1rem;">
+                        </div>
+                </div>
+
+                <div class="column" id="col-2">
+                    <div class="col-header">
+                        <span>2. Sub-Category</span>
+                        <button class="step-hint-btn" id="hint-btn-2" onclick="useStepHint(2)">💡 Hint</button>
+                    </div>
+                    <div id="t2-options" style="display:flex; flex-direction:column; gap:1rem;">
+                        </div>
+                </div>
+
+                <div class="column" id="col-3">
+                    <div class="col-header">
+                        <span>3. Specific Tissue</span>
+                        <button class="step-hint-btn" id="hint-btn-3" onclick="useStepHint(3)">💡 Hint</button>
+                    </div>
+                    <div id="t3-options" style="display:flex; flex-direction:column; gap:1rem;">
+                        </div>
+                </div>
+            </div>
+
+            <div id="feedback" class="feedback-box"></div>
+            <button id="next-btn" class="action-btn" onclick="nextCard()">Synthesize Next Target ➔</button>
+
+        </div>
+
+        <div class="stats-grid" id="stats-area">
+            <div class="stat-card"><div class="stat-val" id="stat-session-time">00:00</div><div class="stat-label">Current Session</div></div>
+            <div class="stat-card"><div class="stat-val" id="stat-accuracy">0%</div><div class="stat-label">Synthesis Accuracy</div></div>
+            <div class="stat-card"><div class="stat-val" id="stat-cards">0</div><div class="stat-label">Tissues Built</div></div>
+        </div>
+
+        <div id="end-screen" class="end-screen">
+            <h2>Synthesis Complete!</h2>
+            <p id="final-score" style="margin-bottom: 2rem; color: var(--text-main); font-size:1.1rem;"></p>
+            <button class="action-btn" style="display:block;" onclick="init()">Restart Protocol</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- TISSUE HIERARCHY LOGIC MAP ---
+        const structureMap = {
+            "Epithelial": {
+                "Simple": ["Squamous", "Cuboidal", "Columnar"],
+                "Stratified": ["Squamous", "Cuboidal", "Columnar", "Transitional"],
+                "Pseudostratified": ["Ciliated", "Non-Ciliated"]
+            },
+            "Connective": {
+                "Loose": ["Areolar", "Adipose", "Reticular"],
+                "Dense": ["Regular", "Irregular", "Elastic Tissue"],
+                "Fluid": ["Blood", "Lymph"],
+                "Supporting": ["Hyaline Cartilage", "Elastic Cartilage", "Fibrocartilage", "Bone"]
+            },
+            "Muscle": {
+                "Voluntary": ["Skeletal"],
+                "Involuntary": ["Cardiac", "Smooth"]
+            },
+            "Neural": {
+                "Conduction": ["Neurons"],
+                "Support": ["Glia"]
+            }
+        };
+
+        // --- DEFINITIONS FOR TOOLTIPS (Extracted exactly from the handout) ---
+        const defs = {
+            "Epithelial": "Covers the basal lamina; provides protection, secretion, and absorption.",
+            "Connective": "Supports, protects, insulates, and binds together other tissues.",
+            "Muscle": "Specialized for contraction.",
+            "Neural": "Specialized for conduction of electrical impulses.",
+            "Simple": "One layer of cells.",
+            "Stratified": "Several layers of cells.",
+            "Pseudostratified": "One layer of differing heights.",
+            "Squamous": "Thin, flat cells.",
+            "Cuboidal": "Cubelike, box shape.",
+            "Columnar": "Tall cells.",
+            "Transitional": "Stretches; resembles cuboidal and squamous.",
+            "Ciliated": "Propels mucus.",
+            "Non-Ciliated": "Secretes substances; lacks cilia.",
+            "Loose": "Packing materials of the body. Fills spaces, cushions, stores lipids, provides diffusion routes.",
+            "Dense": "Dense regular, dense irregular, and elastic. Matrix contains densely packed fibers.",
+            "Fluid": "Cells suspended in a water matrix.",
+            "Supporting": "Densely packed fibers; cartilage and bone.",
+            "Areolar": "Least specialized. Ground substance accounts for most volume. Separates skin from deeper structures.",
+            "Adipose": "Adipocytes account for most of its volume. Padding, shock absorption, insulation.",
+            "Reticular": "Complex 3-D network (stroma) found in spleen, liver, lymph nodes, bone marrow.",
+            "Regular": "Collagen fibers are parallel. Tendons, ligaments.",
+            "Irregular": "Collagen fibers in a meshwork. Strengthens areas with stress from many directions (dermis, capsules).",
+            "Elastic Tissue": "Dense regular tissue dominated by elastic fibers. Walls of large arteries.",
+            "Blood": "Contains blood cells (erythrocytes, leukocytes) and fragments (platelets) in fluid matrix.",
+            "Lymph": "Fluid matrix tissue related to immune defense.",
+            "Hyaline Cartilage": "Most common cartilage. Tough but flexible. Ribs, sternum, trachea.",
+            "Elastic Cartilage": "Contains many elastic fibers. Resilient and very flexible. Outer ear, epiglottis.",
+            "Fibrocartilage": "Little ground substance, many collagen fibers. Extremely durable and tough. Between vertebrae, pelvis.",
+            "Bone": "Osteocytes in crystalline matrix of calcium phosphate salts.",
+            "Voluntary": "Responsible for gross body movements and locomotion.",
+            "Involuntary": "Contracts independent of conscious control.",
+            "Skeletal": "Large multinucleate striated cells.",
+            "Cardiac": "Striated cardiocytes with intercalated discs and pacemaker cells.",
+            "Smooth": "Small, spindle-shaped, nonstriated cells with a single central nucleus.",
+            "Conduction": "Conduction of electrical impulses.",
+            "Support": "Supporting cells.",
+            "Neurons": "Long cells (up to 1 meter) with dendrites and 1 long axon.",
+            "Glia": "Support cells of the neural tissue."
+        };
+
+        // --- DATA DECK WITH LAYERED HINTS ---
+        const rawData = [
+            // EPITHELIAL
+            { 
+                text: "Air sacs of lungs, lining of ventral body cavity (serosa)", 
+                path: ["Epithelial", "Simple", "Squamous"], 
+                exp: "Thin, flat cells perfectly designed for diffusion and filtration.", 
+                hint1: "This tissue covers surfaces and handles diffusion/filtration.",
+                hint2: "It only needs one layer of cells to cover the basal lamina so gas can pass easily.",
+                hint3: "The cells must be as thin and flat as possible."
+            },
+            { 
+                text: "Kidney tubules, ducts & secretory portion of small glands, ovary surface", 
+                path: ["Epithelial", "Simple", "Cuboidal"], 
+                exp: "Cubelike, box-shaped cells with round nuclei designed for secretion & absorption.", 
+                hint1: "This tissue covers surfaces and handles secretion/absorption.",
+                hint2: "It consists of just one layer of cells to allow materials to pass.",
+                hint3: "The cells are box-shaped with round nuclei to hold secretory machinery."
+            },
+            { 
+                text: "Lining of the small bronchi and uterine tubes", 
+                path: ["Epithelial", "Simple", "Columnar"], 
+                exp: "Specifically the Ciliated type of Simple Columnar, used to propel mucus.", 
+                hint1: "This tissue lines surfaces and provides secretion.",
+                hint2: "It only has one layer of cells.",
+                hint3: "These are tall cells that use cilia to propel mucus or eggs."
+            },
+            { 
+                text: "Most of the digestive tract", 
+                path: ["Epithelial", "Simple", "Columnar"], 
+                exp: "Specifically the Non-Ciliated type. Tall cells with round or oval nuclei designed for absorption and secretion of mucus/enzymes.", 
+                hint1: "This tissue lines the gut for intense absorption.",
+                hint2: "It requires only one layer of cells so nutrients can easily enter the bloodstream.",
+                hint3: "The cells must be tall to pack in absorptive machinery."
+            },
+            { 
+                text: "Trachea & upper respiratory system", 
+                path: ["Epithelial", "Pseudostratified", "Ciliated"], 
+                exp: "One layer of differing heights that secretes and propels mucus.", 
+                hint1: "This tissue lines the respiratory tract.",
+                hint2: "It is technically one layer, but the differing cell heights make it look like multiple layers.",
+                hint3: "It needs hairs to actively propel mucus out of the lungs."
+            },
+            { 
+                text: "Epidermis of the skin", 
+                path: ["Epithelial", "Stratified", "Squamous"], 
+                exp: "A thick, keratinized membrane with several layers designed for high-stress protection.", 
+                hint1: "This tissue covers the external body surface for heavy protection.",
+                hint2: "It requires several layers of cells to withstand constant abrasion.",
+                hint3: "The uppermost cells are thin and flat."
+            },
+            { 
+                text: "Lining of the mouth, esophagus, and vagina", 
+                path: ["Epithelial", "Stratified", "Squamous"], 
+                exp: "A thick, non-keratinized membrane with several layers for protection in moist areas.", 
+                hint1: "This tissue protects moist internal tubes from rough friction (like swallowing food).",
+                hint2: "It requires several layers of cells to act as a thick shield.",
+                hint3: "The cells facing the lumen are thin and flat."
+            },
+            { 
+                text: "Ureters, urinary bladder, and part of urethra", 
+                path: ["Epithelial", "Stratified", "Transitional"], 
+                exp: "Resembles cuboidal or columnar, but superficial cells are squamouslike. It is built to stretch.", 
+                hint1: "This tissue lines hollow organs that hold liquid.",
+                hint2: "It consists of several layers of cells to prevent leaks.",
+                hint3: "The cells must be able to stretch and change shape as the bladder fills."
+            },
+            
+            // CONNECTIVE
+            { 
+                text: "Layer that separates skin from deeper structures (Padding)", 
+                path: ["Connective", "Loose", "Areolar"], 
+                exp: "The least specialized connective tissue. Highly vascularized to allow diffusion to epithelia.", 
+                hint1: "Functions to support, protect, insulate, and bind together other tissues.",
+                hint2: "It acts as the 'packing materials' of the body, filling spaces.",
+                hint3: "It is the least specialized type; its ground substance accounts for most of its volume."
+            },
+            { 
+                text: "Stores lipids, absorbs shock, and acts as an insulator", 
+                path: ["Connective", "Loose", "Adipose"], 
+                exp: "Adipocytes account for most of its volume. Includes white fat and brown fat.", 
+                hint1: "Functions to support, protect, insulate, and bind together other tissues.",
+                hint2: "It acts as a soft 'packing material' that provides insulation.",
+                hint3: "This tissue is essentially just fat cells."
+            },
+            { 
+                text: "Spleen, liver, lymph nodes, bone marrow", 
+                path: ["Connective", "Loose", "Reticular"], 
+                exp: "Reticular fibers create a complex 3-D network called the stroma to serve as a framework for functional cells.", 
+                hint1: "Functions to support, protect, insulate, and bind together other tissues.",
+                hint2: "It acts as the 'packing materials' inside soft organs.",
+                hint3: "Fibers create a complex 3-D network (stroma) to hold soft organs together."
+            },
+            { 
+                text: "Tendons, Ligaments, and Aponeuroses", 
+                path: ["Connective", "Dense", "Regular"], 
+                exp: "Collagen fibers are parallel to each other, perfectly aligned with the forces applied to the tissue.", 
+                hint1: "Functions to bind together other tissues.",
+                hint2: "It is dominated by densely packed extracellular fibers to resist extreme pulling forces.",
+                hint3: "The collagen fibers are perfectly parallel to each other."
+            },
+            { 
+                text: "Dermis of the skin, fibrous capsules of internal organs", 
+                path: ["Connective", "Dense", "Irregular"], 
+                exp: "Collagen fibers form a meshwork with no pattern to strengthen and support areas experiencing stress from many directions.", 
+                hint1: "Functions to bind and protect tissues.",
+                hint2: "It is dominated by densely packed extracellular fibers.",
+                hint3: "The collagen fibers are in a random meshwork to handle stress from many directions."
+            },
+            { 
+                text: "Walls of large arteries, stabilizing ligaments of vertebrae", 
+                path: ["Connective", "Dense", "Elastic Tissue"], 
+                exp: "A dense connective tissue dominated heavily by wavy elastic fibers.", 
+                hint1: "Functions to bind and support.",
+                hint2: "It is dominated by densely packed extracellular fibers.",
+                hint3: "It is dominated by wavy fibers that allow arteries to stretch and bounce back."
+            },
+            { 
+                text: "Specific proportions of cells suspended in a water matrix", 
+                path: ["Connective", "Fluid", "Blood"], 
+                exp: "Contains a liquid matrix (plasma) and formed elements (erythrocytes, leukocytes, platelets).", 
+                hint1: "A highly specialized tissue that supports the body systemically.",
+                hint2: "The only connective tissue that flows as a liquid.",
+                hint3: "Contains red and white cells."
+            },
+            { 
+                text: "Connections between ribs and sternum, nasal cartilages, trachea", 
+                path: ["Connective", "Supporting", "Hyaline Cartilage"], 
+                exp: "The most common cartilage. It is tough but flexible.", 
+                hint1: "Functions to support and protect the body's framework.",
+                hint2: "The matrix contains densely packed fibers for rigid/semi-rigid support.",
+                hint3: "It is the most common type of gristle; tough but flexible."
+            },
+            { 
+                text: "Between vertebrae, and the pelvis", 
+                path: ["Connective", "Supporting", "Fibrocartilage"], 
+                exp: "Has little ground substance and many collagen fibers, making it extremely durable and tough.", 
+                hint1: "Functions to support and protect.",
+                hint2: "The matrix contains densely packed fibers for heavy structural support.",
+                hint3: "It is extremely durable and tough to handle massive crushing weight."
+            },
+            { 
+                text: "Osteocytes in lacunae surrounded by a crystalline matrix of calcium phosphate salts", 
+                path: ["Connective", "Supporting", "Bone"], 
+                exp: "Allows for a strong, somewhat flexible combination.", 
+                hint1: "Functions to support and protect.",
+                hint2: "The matrix contains densely packed fibers for rigid structural support.",
+                hint3: "The hardest supporting tissue in the body, made of calcium."
+            },
+
+            // MUSCLE
+            { 
+                text: "Large multinucleate cells (up to 1 foot in length) attached to the skeleton", 
+                path: ["Muscle", "Voluntary", "Skeletal"], 
+                exp: "Striated voluntary muscle responsible for gross body movements.", 
+                hint1: "Made of cells that are specialized for contraction.",
+                hint2: "Responsible for gross body movements and locomotion under conscious control.",
+                hint3: "These are large, striated fibers that attach to bones."
+            },
+            { 
+                text: "Cardiocytes containing intercalated discs and pacemaker cells", 
+                path: ["Muscle", "Involuntary", "Cardiac"], 
+                exp: "Striated involuntary muscle found in the heart.", 
+                hint1: "Made of cells that are specialized for contraction.",
+                hint2: "Contracts independently of conscious control.",
+                hint3: "Found only in the heart, utilizing intercalated discs."
+            },
+            { 
+                text: "Small, spindle-shaped cells around walls of vessels and hollow organs", 
+                path: ["Muscle", "Involuntary", "Smooth"], 
+                exp: "Nonstriated involuntary muscle with a single central nucleus.", 
+                hint1: "Made of cells that are specialized for contraction.",
+                hint2: "Contracts independently of conscious control.",
+                hint3: "These cells lack striations and squeeze your intestines and blood vessels."
+            },
+
+            // NEURAL
+            { 
+                text: "Large cell body with many dendrites and 1 long axon", 
+                path: ["Neural", "Conduction", "Neurons"], 
+                exp: "The longest cells in the body (up to 1 meter). Most cannot divide.", 
+                hint1: "Specialized for electrical impulses.",
+                hint2: "These are the active transmitting cells.",
+                hint3: "The actual 'wires' that carry the electrical signal."
+            }
+        ];
+
+        // --- ENGINE STATE ---
+        let mcqState = { deck: [], idx: 0, attempts: 0, correct: 0 };
+        let currentPathIndex = 0; 
+        let lockBoard = false;
+        let chopsUsed = 0;
+        let cardFailed = false; 
+        let tooltipsOn = true;
+        
+        let sessionTimer = 0; 
+        let statsInterval = null;
+
+        // --- UTILS ---
+        function shuffle(arr) {
+            let a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function formatTime(seconds) {
+            let m = Math.floor(seconds / 60);
+            let s = seconds % 60;
+            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function createTierButton(val, tierIndex) {
+            const btn = document.createElement('button');
+            btn.className = `tier-btn t${tierIndex+1}-btn`;
+            btn.dataset.val = val;
+            
+            let html = `<span class="tier-btn-text">${val}</span>`;
+            if (defs[val]) {
+                html += `<div class="opt-tooltip">${defs[val]}</div>`;
+            }
+            btn.innerHTML = html;
+            
+            btn.onclick = () => handleSelection(tierIndex, val, btn);
+            return btn;
+        }
+
+        // --- CORE ENGINE ---
+        function init() {
+            mcqState = { deck: shuffle([...rawData]), idx: 0, attempts: 0, correct: 0 };
+            sessionTimer = 0;
+            
+            document.getElementById('end-screen').style.display = 'none';
+            document.getElementById('target-area').style.display = 'flex';
+            document.getElementById('stats-area').style.display = 'grid';
+
+            if(statsInterval) clearInterval(statsInterval);
+            statsInterval = setInterval(() => {
+                sessionTimer++;
+                document.getElementById('stat-session-time').innerText = formatTime(sessionTimer);
+            }, 1000);
+
+            loadCard();
+        }
+
+        function loadCard() {
+            if (mcqState.idx >= mcqState.deck.length) {
+                endDrill();
+                return;
+            }
+
+            lockBoard = false;
+            chopsUsed = 0;
+            currentPathIndex = 0;
+            cardFailed = false;
+            
+            const currentCard = mcqState.deck[mcqState.idx];
+
+            document.getElementById('prog-text').innerText = `Target ${mcqState.idx + 1} of ${mcqState.deck.length}`;
+            document.getElementById('q-text').innerText = `"${currentCard.text}"`;
+            
+            // Reset UI
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('chop-btn').disabled = false;
+            
+            document.getElementById('hint-display').style.display = 'none';
+            document.getElementById('hint-btn-1').disabled = false;
+            document.getElementById('hint-btn-2').disabled = true;
+            document.getElementById('hint-btn-3').disabled = true;
+            
+            // Reset Columns
+            document.getElementById('col-1').classList.add('active');
+            document.getElementById('col-2').classList.remove('active');
+            document.getElementById('col-3').classList.remove('active');
+            
+            const t1Container = document.getElementById('t1-options');
+            t1Container.innerHTML = '';
+            ["Epithelial", "Connective", "Muscle", "Neural"].forEach(val => {
+                t1Container.appendChild(createTierButton(val, 0));
+            });
+            
+            document.getElementById('t2-options').innerHTML = '';
+            document.getElementById('t3-options').innerHTML = '';
+        }
+
+        function renderNextColumn(tierIndex, previousSelection) {
+            if (tierIndex === 1) {
+                const col2 = document.getElementById('col-2');
+                const t2Container = document.getElementById('t2-options');
+                t2Container.innerHTML = '';
+                
+                const subs = Object.keys(structureMap[previousSelection]);
+                subs.forEach(sub => {
+                    t2Container.appendChild(createTierButton(sub, 1));
+                });
+                
+                document.getElementById('hint-btn-2').disabled = false;
+                col2.classList.add('active');
+            } 
+            else if (tierIndex === 2) {
+                const col3 = document.getElementById('col-3');
+                const t3Container = document.getElementById('t3-options');
+                t3Container.innerHTML = '';
+                
+                const currentCard = mcqState.deck[mcqState.idx];
+                const t1Choice = currentCard.path[0];
+                const specifics = structureMap[t1Choice][previousSelection];
+                
+                specifics.forEach(spec => {
+                    t3Container.appendChild(createTierButton(spec, 2));
+                });
+                
+                document.getElementById('hint-btn-3').disabled = false;
+                col3.classList.add('active');
+            }
+        }
+
+        function toggleTooltips() {
+            tooltipsOn = !tooltipsOn;
+            const btn = document.getElementById('tooltip-btn');
+            const grid = document.getElementById('hierarchy-grid');
+            
+            if (tooltipsOn) {
+                btn.classList.add('active');
+                grid.classList.remove('hide-tooltips');
+            } else {
+                btn.classList.remove('active');
+                grid.classList.add('hide-tooltips');
+            }
+        }
+
+        function useStepHint(tier) {
+            if (lockBoard) return;
+            const currentCard = mcqState.deck[mcqState.idx];
+            
+            cardFailed = true; 
+            
+            // Get the specific hint for this tier (hint1, hint2, hint3)
+            const hintText = currentCard[`hint${tier}`];
+            
+            document.getElementById('hint-display').innerHTML = `<strong>💡 Hint:</strong> ${hintText}`;
+            document.getElementById('hint-display').style.display = 'block';
+            
+            document.getElementById(`hint-btn-${tier}`).disabled = true;
+        }
+
+        function useChop() {
+            if (lockBoard || chopsUsed >= 2) return;
+            
+            const currentCard = mcqState.deck[mcqState.idx];
+            const targetAnswer = currentCard.path[currentPathIndex];
+            
+            const activeColClass = `.t${currentPathIndex + 1}-btn`;
+            const allBtns = Array.from(document.querySelectorAll(activeColClass));
+            const availableWrongBtns = allBtns.filter(b => b.dataset.val !== targetAnswer && !b.classList.contains('dimmed') && !b.classList.contains('wrong'));
+
+            if (availableWrongBtns.length > 0) {
+                chopsUsed++;
+                const idx = Math.floor(Math.random() * availableWrongBtns.length);
+                const btnToChop = availableWrongBtns.splice(idx, 1)[0];
+                btnToChop.classList.add('dimmed');
+                btnToChop.disabled = true;
+
+                if (availableWrongBtns.length === 0 || chopsUsed >= 2) {
+                    document.getElementById('chop-btn').disabled = true;
+                }
+            }
+        }
+
+        function handleSelection(tier, val, btn) {
+            if (lockBoard || btn.disabled || tier !== currentPathIndex) return;
+
+            const currentCard = mcqState.deck[mcqState.idx];
+            
+            if (val === currentCard.path[currentPathIndex]) {
+                // Correct Choice
+                btn.classList.add('selected');
+                
+                document.querySelectorAll(`.t${tier+1}-btn`).forEach(b => {
+                    if (b !== btn) {
+                        b.classList.add('dimmed');
+                        b.disabled = true;
+                    }
+                });
+
+                document.getElementById(`col-${tier+1}`).classList.remove('active');
+                document.getElementById(`hint-btn-${tier+1}`).disabled = true; // Disable hint for finished col
+
+                currentPathIndex++;
+                
+                if (currentPathIndex === 3) {
+                    // SYNTHESIS COMPLETE
+                    lockBoard = true;
+                    document.getElementById('chop-btn').disabled = true;
+                    mcqState.attempts++;
+                    
+                    const fb = document.getElementById('feedback');
+                    
+                    if (!cardFailed) {
+                        mcqState.correct++;
+                        fb.innerHTML = `<strong style="color:var(--success);">✅ Synthesis Perfect.</strong><br><br>Path: ${currentCard.path.join(' ➔ ')}<br><br>${currentCard.exp}`;
+                        fb.style.borderLeftColor = 'var(--success)';
+                    } else {
+                        mcqState.deck.push(mcqState.deck[mcqState.idx]); 
+                        fb.innerHTML = `<strong style="color:var(--hard);">⚠️ Synthesis Completed (with errors/tools).</strong><br><br>Path: ${currentCard.path.join(' ➔ ')}<br><br>${currentCard.exp}<br><br><em style="color:var(--accent);">Target recycled for later review.</em>`;
+                        fb.style.borderLeftColor = 'var(--hard)';
+                    }
+                    
+                    fb.style.display = 'block';
+                    document.getElementById('next-btn').style.display = 'block';
+                    
+                    updateStats();
+                } else {
+                    renderNextColumn(currentPathIndex, val);
+                    chopsUsed = 0; 
+                    document.getElementById('chop-btn').disabled = false;
+                    document.getElementById('hint-display').style.display = 'none'; // Clear previous hint
+                }
+
+            } else {
+                // Wrong Choice (FAIL FORWARD LOGIC)
+                btn.classList.add('wrong');
+                btn.disabled = true;
+                cardFailed = true; 
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('stat-cards').innerText = mcqState.attempts;
+            let acc = Math.round((mcqState.correct / mcqState.attempts) * 100);
+            document.getElementById('stat-accuracy').innerText = acc + "%";
+        }
+
+        function nextCard() {
+            mcqState.idx++;
+            loadCard();
+        }
+
+        function endDrill() {
+            clearInterval(statsInterval);
+            document.getElementById('target-area').style.display = 'none';
+            document.getElementById('end-screen').style.display = 'block';
+            
+            const pct = Math.round((mcqState.correct / mcqState.attempts) * 100) || 0;
+            document.getElementById('final-score').innerHTML = `You perfectly synthesized <strong>${mcqState.correct}</strong> histological targets without errors or hints out of <strong>${mcqState.attempts}</strong> total attempts (${pct}% accuracy).`;
+        }
+
+        // Boot
+        init();
+
+    </script>
+</body>
+</html>
