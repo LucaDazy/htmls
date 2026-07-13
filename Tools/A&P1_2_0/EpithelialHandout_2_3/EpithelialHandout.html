@@ -216,7 +216,8 @@
             <button class="action-btn" style="display:block;" onclick="init()">Restart Protocol</button>
         </div>
 
-    </div>
+    </div> <!-- close .tool-container -->
+    </div> <!-- close .content-wrapper -->
 
     <script>
         // --- TISSUE HIERARCHY LOGIC MAP ---
@@ -546,14 +547,14 @@
             mcqState = { deck: shuffle([...rawData]), idx: 0, attempts: 0, correct: 0 };
             sessionTimer = 0;
             
-            document.getElementById('end-screen').style.display = 'none';
-            document.getElementById('target-area').style.display = 'flex';
-            document.getElementById('stats-area').style.display = 'grid';
+            dom.endScreen.style.display = 'none';
+            dom.targetArea.style.display = 'flex';
+            dom.statsArea.style.display = 'grid';
 
             if(statsInterval) clearInterval(statsInterval);
             statsInterval = setInterval(() => {
                 sessionTimer++;
-                document.getElementById('stat-session-time').innerText = formatTime(sessionTimer);
+                dom.statSessionTime.innerText = formatTime(sessionTimer);
             }, 1000);
 
             loadCard();
@@ -572,77 +573,70 @@
             
             const currentCard = mcqState.deck[mcqState.idx];
 
-            document.getElementById('prog-text').innerText = `Target ${mcqState.idx + 1} of ${mcqState.deck.length}`;
-            document.getElementById('q-text').innerText = `"${currentCard.text}"`;
+            dom.progText.innerText = `Target ${mcqState.idx + 1} of ${mcqState.deck.length}`;
+            dom.qText.innerText = `"${currentCard.text}"`;
             
             // Reset UI
-            document.getElementById('feedback').style.display = 'none';
-            document.getElementById('next-btn').style.display = 'none';
-            document.getElementById('chop-btn').disabled = false;
+            dom.feedback.style.display = 'none';
+            dom.nextBtn.style.display = 'none';
+            dom.chopBtn.disabled = false;
             
-            document.getElementById('hint-display').style.display = 'none';
-            document.getElementById('hint-btn-1').disabled = false;
-            document.getElementById('hint-btn-2').disabled = true;
-            document.getElementById('hint-btn-3').disabled = true;
+            dom.hintDisplay.style.display = 'none';
+            dom.hintBtn1.disabled = false;
+            dom.hintBtn2.disabled = true;
+            dom.hintBtn3.disabled = true;
             
             // Reset Columns
-            document.getElementById('col-1').classList.add('active');
-            document.getElementById('col-2').classList.remove('active');
-            document.getElementById('col-3').classList.remove('active');
+            dom.col1.classList.add('active');
+            dom.col2.classList.remove('active');
+            dom.col3.classList.remove('active');
             
-            const t1Container = document.getElementById('t1-options');
-            t1Container.innerHTML = '';
+            dom.t1Options.innerHTML = '';
             ["Epithelial", "Connective", "Muscle", "Neural"].forEach(val => {
-                t1Container.appendChild(createTierButton(val, 0));
+                dom.t1Options.appendChild(createTierButton(val, 0));
             });
             
-            document.getElementById('t2-options').innerHTML = '';
-            document.getElementById('t3-options').innerHTML = '';
+            dom.t2Options.innerHTML = '';
+            dom.t3Options.innerHTML = '';
         }
 
         function renderNextColumn(tierIndex, previousSelection) {
             if (tierIndex === 1) {
-                const col2 = document.getElementById('col-2');
-                const t2Container = document.getElementById('t2-options');
-                t2Container.innerHTML = '';
+                dom.t2Options.innerHTML = '';
                 
                 const subs = Object.keys(structureMap[previousSelection]);
                 subs.forEach(sub => {
-                    t2Container.appendChild(createTierButton(sub, 1));
+                    dom.t2Options.appendChild(createTierButton(sub, 1));
                 });
                 
-                document.getElementById('hint-btn-2').disabled = false;
-                col2.classList.add('active');
+                dom.hintBtn2.disabled = false;
+                dom.col2.classList.add('active');
             } 
             else if (tierIndex === 2) {
-                const col3 = document.getElementById('col-3');
-                const t3Container = document.getElementById('t3-options');
-                t3Container.innerHTML = '';
+                dom.t3Options.innerHTML = '';
                 
                 const currentCard = mcqState.deck[mcqState.idx];
                 const t1Choice = currentCard.path[0];
                 const specifics = structureMap[t1Choice][previousSelection];
                 
                 specifics.forEach(spec => {
-                    t3Container.appendChild(createTierButton(spec, 2));
+                    dom.t3Options.appendChild(createTierButton(spec, 2));
                 });
                 
-                document.getElementById('hint-btn-3').disabled = false;
-                col3.classList.add('active');
+                dom.hintBtn3.disabled = false;
+                dom.col3.classList.add('active');
             }
         }
 
         function toggleTooltips() {
             tooltipsOn = !tooltipsOn;
-            const btn = document.getElementById('tooltip-btn');
-            const grid = document.getElementById('hierarchy-grid');
             
             if (tooltipsOn) {
-                btn.classList.add('active');
-                grid.classList.remove('hide-tooltips');
+                dom.tooltipBtn.classList.add('active');
+                dom.hierarchyGrid.classList.remove('hide-tooltips');
             } else {
-                btn.classList.remove('active');
-                grid.classList.add('hide-tooltips');
+                dom.tooltipBtn.classList.remove('active');
+                dom.hierarchyGrid.classList.add('hide-tooltips');
             }
         }
 
@@ -655,10 +649,10 @@
             // Get the specific hint for this tier (hint1, hint2, hint3)
             const hintText = currentCard[`hint${tier}`];
             
-            document.getElementById('hint-display').innerHTML = `<strong>💡 Hint:</strong> ${hintText}`;
-            document.getElementById('hint-display').style.display = 'block';
+            dom.hintDisplay.innerHTML = `<strong>💡 Hint:</strong> ${hintText}`;
+            dom.hintDisplay.style.display = 'block';
             
-            document.getElementById(`hint-btn-${tier}`).disabled = true;
+            dom[`hintBtn${tier}`].disabled = true;
         }
 
         function useChop() {
@@ -679,7 +673,7 @@
                 btnToChop.disabled = true;
 
                 if (availableWrongBtns.length === 0 || chopsUsed >= 2) {
-                    document.getElementById('chop-btn').disabled = true;
+                    dom.chopBtn.disabled = true;
                 }
             }
         }
@@ -700,18 +694,18 @@
                     }
                 });
 
-                document.getElementById(`col-${tier+1}`).classList.remove('active');
-                document.getElementById(`hint-btn-${tier+1}`).disabled = true; // Disable hint for finished col
+                dom[`col${tier+1}`].classList.remove('active');
+                dom[`hintBtn${tier+1}`].disabled = true; // Disable hint for finished col
 
                 currentPathIndex++;
                 
                 if (currentPathIndex === 3) {
                     // SYNTHESIS COMPLETE
                     lockBoard = true;
-                    document.getElementById('chop-btn').disabled = true;
+                    dom.chopBtn.disabled = true;
                     mcqState.attempts++;
                     
-                    const fb = document.getElementById('feedback');
+                    const fb = dom.feedback;
                     
                     if (!cardFailed) {
                         mcqState.correct++;
@@ -719,19 +713,19 @@
                         fb.style.borderLeftColor = 'var(--success)';
                     } else {
                         mcqState.deck.push(mcqState.deck[mcqState.idx]); 
-                        fb.innerHTML = `<strong style="color:var(--hard);">⚠️ Synthesis Completed (with errors/tools).</strong><br><br>Path: ${currentCard.path.join(' ➔ ')}<br><br>${currentCard.exp}<br><br><em style="color:var(--accent);">Target recycled for later review.</em>`;
-                        fb.style.borderLeftColor = 'var(--hard)';
+                        fb.innerHTML = `<strong style="color:var(--accent);">⚠️ Synthesis Completed (with errors/tools).</strong><br><br>Path: ${currentCard.path.join(' ➔ ')}<br><br>${currentCard.exp}<br><br><em style="color:var(--accent);">Target recycled for later review.</em>`;
+                        fb.style.borderLeftColor = 'var(--accent)';
                     }
                     
                     fb.style.display = 'block';
-                    document.getElementById('next-btn').style.display = 'block';
+                    dom.nextBtn.style.display = 'block';
                     
                     updateStats();
                 } else {
                     renderNextColumn(currentPathIndex, val);
                     chopsUsed = 0; 
-                    document.getElementById('chop-btn').disabled = false;
-                    document.getElementById('hint-display').style.display = 'none'; // Clear previous hint
+                    dom.chopBtn.disabled = false;
+                    dom.hintDisplay.style.display = 'none'; // Clear previous hint
                 }
 
             } else {
@@ -743,9 +737,9 @@
         }
 
         function updateStats() {
-            document.getElementById('stat-cards').innerText = mcqState.attempts;
-            let acc = Math.round((mcqState.correct / mcqState.attempts) * 100);
-            document.getElementById('stat-accuracy').innerText = acc + "%";
+            dom.statCards.innerText = mcqState.attempts;
+            let acc = Math.round((mcqState.correct / mcqState.attempts) * 100) || 0;
+            dom.statAccuracy.innerText = acc + "%";
         }
 
         function nextCard() {
@@ -755,16 +749,18 @@
 
         function endDrill() {
             clearInterval(statsInterval);
-            document.getElementById('target-area').style.display = 'none';
-            document.getElementById('end-screen').style.display = 'block';
+            dom.targetArea.style.display = 'none';
+            dom.statsArea.style.display = 'none';
+            dom.endScreen.style.display = 'block';
             
             const pct = Math.round((mcqState.correct / mcqState.attempts) * 100) || 0;
-            document.getElementById('final-score').innerHTML = `You perfectly synthesized <strong>${mcqState.correct}</strong> histological targets without errors or hints out of <strong>${mcqState.attempts}</strong> total attempts (${pct}% accuracy).`;
+            dom.finalScore.innerHTML = `You perfectly synthesized <strong>${mcqState.correct}</strong> histological targets without errors or hints out of <strong>${mcqState.attempts}</strong> total attempts (${pct}% accuracy).`;
         }
 
         // Boot
         init();
 
     </script>
+    <script src="../../../Global/Scripts/background-animation.js" data-base-path="../../../"></script>
 </body>
 </html>
