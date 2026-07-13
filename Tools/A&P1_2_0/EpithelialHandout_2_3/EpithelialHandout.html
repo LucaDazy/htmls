@@ -3,30 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Epithelial Handout</title>
+    <title>Study Hub - Epithelial Tissues</title>
+    <link rel="stylesheet" href="../../../Global/Css/main.css">
+    <link rel="stylesheet" href="../../../Global/Css/animations.css">
     <style>
-        :root {
-            --bg-color: #323437;
-            --panel-bg: #2c2e31;
-            --hover-bg: #3a3d40;
-            --text-main: #d1d0c5;
-            --text-muted: #646669;
-            --accent: #e2b714;
-            --error: #ca4754;
-            --success: #8cc84b;
-            --hard: #e27d60; 
+        h1 {
+            color: var(--minimal-white);
+            font-family: var(--font-family-display);
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
         }
 
-        body {
-            background-color: var(--bg-color); color: var(--text-main);
-            font-family: 'Fira Code', 'Courier New', Courier, monospace;
-            display: flex; flex-direction: column; align-items: center;
-            padding: 2rem; margin: 0; min-height: 100vh;
-        }
-
-        h1 { color: var(--accent); margin-bottom: 2rem; text-align: center; }
-
-        .container {
+        .tool-container {
             width: 100%; max-width: 1100px; display: flex; flex-direction: column; 
             align-items: center; gap: 1.5rem; position: relative;
         }
@@ -35,22 +24,21 @@
         .header-row {
             display: flex; justify-content: space-between; align-items: center; width: 100%;
             background: var(--panel-bg); padding: 1rem 1.5rem; border-radius: 8px;
-            border: 1px solid var(--text-muted); box-sizing: border-box; flex-wrap: wrap; gap: 1rem;
+            box-sizing: border-box; flex-wrap: wrap; gap: 1rem; border-bottom: 1px dashed var(--hover-bg);
         }
-        .progress-text { font-size: 0.95rem; color: var(--text-muted); font-weight: bold; }
-        
+        .progress-text { font-family: var(--font-family-mono); font-size: 0.95rem; color: var(--text-muted); font-weight: bold; }
         .tool-btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
         .tool-btn {
-            background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted);
-            padding: 0.4rem 0.8rem; font-family: inherit; font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s;
+            background: transparent; border: 2px solid var(--text-muted); color: var(--text-muted);
+            padding: 0.4rem 0.8rem; font-family: var(--font-family-mono); font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s;
         }
         .tool-btn.active { border-color: var(--accent); color: var(--accent); }
-        .tool-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: rgba(226, 183, 20, 0.1); }
+        .tool-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: var(--hover-bg); }
         .tool-btn:disabled { opacity: 0.3; cursor: default; }
 
         /* The Blueprint Scanner (Target Box) */
         .scanner-box {
-            background: #18191a; border: 2px solid var(--accent); border-radius: 8px;
+            background: var(--hover-bg); border: 2px solid var(--accent); border-radius: 8px;
             padding: 2.5rem; box-shadow: inset 0 0 30px rgba(0,0,0,0.5), 0 4px 15px rgba(0,0,0,0.3);
             display: flex; flex-direction: column; align-items: center; width: 100%; box-sizing: border-box;
             min-height: 200px; justify-content: center; position: relative;
@@ -58,17 +46,17 @@
         .asset-type-badge {
             position: absolute; top: 1rem; left: 1rem; padding: 0.3rem 0.8rem; border-radius: 4px;
             font-weight: bold; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;
-            background: rgba(226, 183, 20, 0.2); color: var(--accent); border: 1px solid var(--accent);
+            background: rgba(165, 104, 157, 0.2); color: var(--accent); border: 1px solid var(--accent);
         }
 
         .asset-text {
             font-size: 1.4rem; line-height: 1.6; color: var(--text-main); text-align: center; 
-            max-width: 800px; font-weight: bold;
+            max-width: 800px; font-weight: bold; font-family: var(--font-family-main);
         }
 
         /* Hint Display */
         .hint-display {
-            background: rgba(226, 183, 20, 0.1); border: 1px solid var(--accent); color: var(--accent);
+            background: var(--hover-bg); border: 1px solid var(--accent); color: var(--accent);
             padding: 1rem; border-radius: 6px; font-size: 0.95rem; margin-top: 1rem; display: none; line-height: 1.5; width: 100%; box-sizing: border-box;
         }
 
@@ -82,26 +70,26 @@
             padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; opacity: 0.4; pointer-events: none;
             transition: 0.3s; position: relative;
         }
-        .column.active { opacity: 1; pointer-events: all; border-color: var(--accent); box-shadow: 0 0 15px rgba(226, 183, 20, 0.1);}
+        .column.active { opacity: 1; pointer-events: all; border-color: var(--accent); box-shadow: 0 0 15px rgba(165, 104, 157, 0.1);}
         
         .col-header {
             display: flex; justify-content: space-between; align-items: center;
-            font-weight: bold; color: var(--text-muted); text-transform: uppercase;
-            letter-spacing: 1px; font-size: 0.85rem; margin-bottom: 0.5rem; border-bottom: 1px dashed var(--text-muted); padding-bottom: 0.8rem;
+            font-family: var(--font-family-mono); color: var(--text-muted); text-transform: uppercase;
+            letter-spacing: 1px; font-size: 0.85rem; margin-bottom: 0.5rem; border-bottom: 1px dashed var(--hover-bg); padding-bottom: 0.8rem;
         }
 
         .step-hint-btn {
             background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted);
-            padding: 0.2rem 0.6rem; font-family: inherit; font-size: 0.75rem; cursor: pointer; border-radius: 4px; transition: 0.2s;
+            padding: 0.2rem 0.6rem; font-family: var(--font-family-mono); font-size: 0.75rem; cursor: pointer; border-radius: 4px; transition: 0.2s;
         }
-        .step-hint-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: rgba(226, 183, 20, 0.1); }
+        .step-hint-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: var(--hover-bg); }
         .step-hint-btn:disabled { opacity: 0.2; cursor: default; }
 
         /* Tier Buttons & Tooltips */
         .tier-btn {
             background: var(--bg-color); border: 2px solid var(--text-muted); color: var(--text-main);
-            padding: 1rem; border-radius: 6px; font-family: inherit; font-size: 0.95rem; cursor: pointer;
-            transition: all 0.2s; font-weight: bold; position: relative;
+            padding: 1rem; border-radius: 6px; font-family: var(--font-family-mono); font-size: 0.95rem; cursor: pointer;
+            transition: all 0.2s; font-weight: bold; position: relative; text-align: left;
         }
         
         .tier-btn-text { pointer-events: none; }
@@ -124,28 +112,20 @@
         
         .hierarchy-grid.hide-tooltips .opt-tooltip { display: none !important; }
 
-        .tier-btn.selected { border-color: var(--accent) !important; background: rgba(226, 183, 20, 0.2) !important; color: var(--accent); }
-        .tier-btn.wrong { border-color: var(--error) !important; background: rgba(202, 71, 84, 0.2) !important; animation: shake 0.3s; }
-        .tier-btn.dimmed { opacity: 0.2; pointer-events: none; border-color: #222; }
+        .tier-btn.selected { border-color: var(--accent) !important; background: rgba(165, 104, 157, 0.2) !important; color: var(--accent); }
+        .tier-btn.wrong { border-color: var(--error) !important; background: rgba(224, 94, 117, 0.2) !important; animation: shake 0.3s; }
+        .tier-btn.dimmed { opacity: 0.2; pointer-events: none; border-color: var(--hover-bg); }
         .tier-btn:disabled { cursor: default; transform: none; }
-
-        @keyframes shake {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
-            75% { transform: translateX(-5px); }
-            100% { transform: translateX(0); }
-        }
 
         /* Feedback Box */
         .feedback-box {
             padding: 1.5rem; border-radius: 4px; display: none; line-height: 1.6; font-size: 1.05rem;
-            background: rgba(0,0,0,0.2); border-left: 4px solid var(--accent); width: 100%; box-sizing: border-box;
+            background: var(--hover-bg); border-left: 4px solid var(--accent); width: 100%; box-sizing: border-box;
         }
 
         .action-btn {
-            background: var(--bg-color); border: 2px solid var(--accent); color: var(--accent); padding: 1rem;
-            font-family: inherit; font-size: 1.05rem; cursor: pointer; border-radius: 6px; transition: 0.2s; width: 100%;
+            background: transparent; border: 2px solid var(--accent); color: var(--accent); padding: 1rem;
+            font-family: var(--font-family-mono); font-size: 1.05rem; cursor: pointer; border-radius: 6px; transition: 0.2s; width: 100%;
             margin-top: 1rem; font-weight: bold; display: none; text-align: center;
         }
         .action-btn:hover { background: var(--accent); color: var(--bg-color); }
@@ -153,8 +133,8 @@
         /* Session Tracking Grid */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem; text-align: center; width: 100%; margin-top: 1rem;}
         .stat-card { background: var(--panel-bg); border: 1px solid var(--text-muted); padding: 1.5rem 1rem; border-radius: 6px; display: flex; flex-direction: column; gap: 0.5rem; }
-        .stat-val { color: var(--accent); font-size: 1.5rem; font-weight: bold; }
-        .stat-label { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-val { font-family: var(--font-family-mono); color: var(--accent); font-size: 1.5rem; font-weight: bold; }
+        .stat-label { font-family: var(--font-family-mono); color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
 
         .end-screen { text-align: center; display: none; background: var(--panel-bg); padding: 3rem; border-radius: 8px; border: 2px solid var(--success); width: 100%; box-sizing: border-box;}
         .end-screen h2 { color: var(--success); margin-bottom: 1rem; }
@@ -165,10 +145,14 @@
     </style>
 </head>
 <body>
+    <canvas id="background-canvas"></canvas>
+    <img src="../../../Global/SVGs/logo.svg" alt="Study Hub Logo" class="corner-logo">
+    <img src="../../../Global/SVGs/avatar.svg" alt="Avatar" class="corner-avatar">
 
-    <h1>Epithelial Handout</h1>
+    <div class="content-wrapper">
+        <h1>Epithelial Tissues</h1>
 
-    <div class="container">
+        <div class="tool-container">
         
         <div class="header-row">
             <div class="progress-text" id="prog-text">Loading...</div>
@@ -487,7 +471,35 @@
             }
         ];
 
-        // --- ENGINE STATE ---
+        // --- DOM ELEMENT CACHE ---
+                const dom = {
+                    progText: document.getElementById('prog-text'),
+                    tooltipBtn: document.getElementById('tooltip-btn'),
+                    chopBtn: document.getElementById('chop-btn'),
+                    targetArea: document.getElementById('target-area'),
+                    qText: document.getElementById('q-text'),
+                    hintDisplay: document.getElementById('hint-display'),
+                    hierarchyGrid: document.getElementById('hierarchy-grid'),
+                    col1: document.getElementById('col-1'),
+                    col2: document.getElementById('col-2'),
+                    col3:  document.getElementById('col-3'),
+                    hintBtn1: document.getElementById('hint-btn-1'),
+                    hintBtn2: document.getElementById('hint-btn-2'),
+                    hintBtn3: document.getElementById('hint-btn-3'),
+                    t1Options: document.getElementById('t1-options'),
+                    t2Options: document.getElementById('t2-options'),
+                    t3Options: document.getElementById('t3-options'),
+                    feedback: document.getElementById('feedback'),
+                    nextBtn: document.getElementById('next-btn'),
+                    statsArea: document.getElementById('stats-area'),
+                    statSessionTime: document.getElementById('stat-session-time'),
+                    statAccuracy: document.getElementById('stat-accuracy'),
+                    statCards: document.getElementById('stat-cards'),
+                    endScreen: document.getElementById('end-screen'),
+                    finalScore: document.getElementById('final-score'),
+                };
+
+                // --- ENGINE STATE ---
         let mcqState = { deck: [], idx: 0, attempts: 0, correct: 0 };
         let currentPathIndex = 0; 
         let lockBoard = false;
