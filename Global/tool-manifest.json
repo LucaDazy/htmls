@@ -17,6 +17,12 @@
         "sort2": 3
       },
       {
+        "name": "EpithelialHandout",
+        "path": "Tools/A&P1_2_0/EpithelialHandout_2_3/EpithelialHandout.html",
+        "sort1": 2,
+        "sort2": 3
+      },
+      {
         "name": "AnatomicalPositions",
         "path": "Tools/A&P1_2_0/AnatomicalPositions_1_2/AnatomicalPositions.html",
         "sort1": 1,
