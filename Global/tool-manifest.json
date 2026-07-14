@@ -53,6 +53,12 @@
         "sort2": 0
       },
       {
+        "name": "Exam1CTQs",
+        "path": "Tools/A&P1_2_0/Exam1CTQs_3_0/Exam1CTQs.html",
+        "sort1": 3,
+        "sort2": 0
+      },
+      {
         "name": "LectureCh1Quiz",
         "path": "Tools/A&P1_2_0/LectureCh1Quiz_2_0/LectureCh1Quiz.html",
         "sort1": 2,
