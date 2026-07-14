@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BI231 - Exam 1 CTQs</title>
+    <style>
+        :root {
+            --bg-color: #323437;
+            --panel-bg: #2c2e31;
+            --hover-bg: #3a3d40;
+            --text-main: #d1d0c5;
+            --text-muted: #646669;
+            --accent: #e2b714;
+            --error: #ca4754;
+            --success: #8cc84b;
+            --font-family-mono: 'Fira Code', 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-family-mono);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        h1 { color: var(--accent); margin-bottom: 2rem; text-align: center; }
+        .subtitle { color: var(--text-muted); margin-bottom: 2rem; text-align: center; }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: var(--panel-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            box-sizing: border-box;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        /* Utility Buttons */
+        .action-btn { background: transparent; border: 2px solid var(--accent); color: var(--accent); padding: 0.8rem 1.5rem; font-family: var(--font-family-mono); font-size: 1rem; cursor: pointer; border-radius: 4px; transition: 0.2s; font-weight: bold; }
+        .action-btn:hover { background: var(--accent); color: var(--bg-color); }
+        .hint-btn { background: transparent; border: 2px solid var(--text-muted); color: var(--text-muted); padding: 0.4rem 0.8rem; font-family: var(--font-family-mono); font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .hint-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* CTQ Styles */
+        .ctq-prompt { font-size: 1.15rem; line-height: 1.6; margin-bottom: 1.5rem; color: var(--accent); font-weight: bold; white-space: pre-wrap; }
+        
+        .difficulty-selector { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--text-muted); padding-bottom: 1rem; flex-wrap: wrap; }
+        .difficulty-selector button { background: none; border: 1px solid var(--text-muted); color: var(--text-muted); font-family: var(--font-family-mono); font-size: 0.85rem; padding: 0.4rem 0.8rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .difficulty-selector button.active, .difficulty-selector button:hover { border-color: var(--accent); color: var(--accent); background: var(--hover-bg); }
+        
+        .ctq-nav-bar { display: flex; gap: 0.5rem; margin-top: 2rem; border-top: 1px solid var(--text-muted); padding-top: 1.5rem; justify-content: center; flex-wrap: wrap; }
+        .ctq-nav-bar button { background: none; border: 1px solid var(--text-muted); color: var(--text-muted); font-family: var(--font-family-mono); font-size: 0.85rem; padding: 0.4rem 0.8rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .ctq-nav-bar button.active { border-color: var(--accent); background: var(--hover-bg); color: var(--accent); font-weight: bold; }
+
+        textarea {
+            width: 100%; height: 180px; background: var(--bg-color); border: 2px solid var(--text-muted);
+            color: var(--text-main); font-family: var(--font-family-mono); font-size: 1rem; padding: 1rem;
+            border-radius: 4px; resize: vertical; outline: none; box-sizing: border-box; line-height: 1.5;
+        }
+        textarea:focus { border-color: var(--accent); }
+
+        /* Cloze Styles */
+        .cloze-text { font-size: 1.1rem; line-height: 2.2; color: var(--text-main); white-space: pre-wrap; }
+        .cloze-input {
+            background: transparent; border: none; border-bottom: 2px solid var(--text-muted);
+            color: var(--accent); font-family: var(--font-family-mono); font-size: 1.1rem; text-align: center;
+            outline: none; margin: 0 0.3rem; transition: border-color 0.2s; font-weight: bold;
+        }
+        .cloze-input:focus { border-bottom-color: var(--accent); }
+        .cloze-input.correct { border-bottom-color: var(--success); color: var(--success); }
+        .cloze-input.wrong { border-bottom-color: var(--error); color: var(--error); }
+        
+        .word-bank {
+            margin-top: 1.5rem; padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 4px;
+            display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center; border: 1px solid var(--text-muted);
+        }
+        .wb-chip { background: var(--bg-color); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.95rem; color: var(--text-main); border: 1px solid var(--text-muted); }
+
+        /* Warm-up MCQ */
+        .warmup-box { margin-top: 1.5rem; padding: 1.5rem; border: 1px dashed var(--text-muted); border-radius: 4px; display: none; background: rgba(0,0,0,0.1); }
+        .warmup-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .option-btn { background: transparent; border: 2px solid var(--text-main); color: var(--text-main); text-align: left; padding: 1rem; font-family: var(--font-family-mono); font-size: 0.95rem; cursor: pointer; border-radius: 4px; transition: all 0.2s; line-height: 1.4; }
+        .option-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: var(--hover-bg); }
+        .option-btn.correct { border-color: var(--success); color: var(--success); background: rgba(140, 200, 75, 0.1); }
+        .option-btn.wrong { border-color: var(--error); color: var(--error); background: rgba(202, 71, 84, 0.1); }
+        .option-btn:disabled { cursor: default; }
+
+        /* Glossaries */
+        .pre-submit-glossary-container { margin-top: 2rem; background: rgba(0,0,0,0.2); border: 1px solid var(--text-muted); border-radius: 4px; padding: 1.5rem; width: 100%; box-sizing: border-box;}
+        .pre-submit-title { font-weight: bold; color: var(--accent); margin-bottom: 1rem; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px;}
+
+        .feedback { margin-top: 1.5rem; padding: 1.5rem; border-radius: 4px; display: none; background: rgba(0,0,0,0.2); border-left: 4px solid var(--accent); }
+        .badges-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.8rem; margin-bottom: 1.5rem;}
+
+        /* Dropdowns */
+        .keyword-details { margin-bottom: 0.2rem; background: var(--bg-color); border: 1px solid var(--text-muted); border-radius: 4px; padding: 0.8rem; }
+        .keyword-summary { cursor: pointer; font-size: 1rem; font-weight: bold; outline: none; user-select: none; }
+        .keyword-summary:hover { color: var(--accent); }
+        .text-success { color: var(--success); }
+        .text-error { color: var(--error); }
+        .text-neutral { color: var(--text-main); }
+        .keyword-def-text { margin-top: 0.8rem; padding-top: 0.8rem; border-top: 1px dashed var(--text-muted); color: var(--text-main); line-height: 1.5; font-size: 0.95rem; }
+
+        .full-answer { margin-top: 1.5rem; font-size: 1rem; color: var(--text-main); border-top: 1px solid var(--text-muted); padding-top: 1.5rem; white-space: pre-wrap; line-height: 1.6; }
+        
+        @media (max-width: 800px) { .options-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <h1>BI231 - Written Exam 1</h1>
+    <div class="subtitle">Dr. Pinero's Success Series: Critical Thinking Assessor</div>
+
+    <div class="container">
+        
+        <div class="difficulty-selector">
+            <button id="lvl-1" onclick="setDifficulty(1)" class="active">Lvl 1: Word Bank</button>
+            <button id="lvl-2" onclick="setDifficulty(2)">Lvl 2: Fill-in-Blank</button>
+            <button id="lvl-3" onclick="setDifficulty(3)">Lvl 3: Exam Simulator</button>
+        </div>
+
+        <div class="ctq-prompt" id="ctq-q">Loading...</div>
+        
+        <button class="hint-btn" style="margin-bottom:1rem;" onclick="toggleWarmup()">💡 Need a Hint? Try a Warm-up Question</button>
+        
+        <div class="warmup-box" id="warmup-box">
+            <div class="warmup-controls">
+                <div style="color: var(--accent); font-size: 0.9rem; font-weight: bold;">Warm-up Hint:</div>
+                <button class="hint-btn" style="margin: 0; border-color: var(--text-muted);" onclick="loadRandomWarmup()">🔄 Shuffle Hint</button>
+            </div>
+            <div id="warmup-q" style="margin-bottom: 1.5rem; font-size: 1.1rem; line-height: 1.4;"></div>
+            <div class="options-grid" id="warmup-opts"></div>
+        </div>
+
+        <div id="ctq-input-area" style="margin-top: 1.5rem;"></div>
+
+        <div style="margin-top: 1.5rem;">
+            <button class="action-btn" onclick="checkCTQ()">Submit Answer</button>
+        </div>
+        
+        <div class="feedback" id="ctq-feedback">
+            <div style="margin-bottom: 0.5rem; font-size: 1.2rem; color: var(--text-main); font-weight: bold;" id="feedback-title"></div>
+            <div style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">Click any target keyword below to track performance or check context:</div>
+            
+            <div id="ctq-badges" class="badges-grid"></div>
+            
+            <div class="full-answer" id="ctq-actual"></div>
+        </div>
+
+        <div class="pre-submit-glossary-container">
+            <div class="pre-submit-title">📚 Pre-Study Glossary (Click to Expand)</div>
+            <div id="pre-submit-badges" class="badges-grid"></div>
+        </div>
+
+        <div class="ctq-nav-bar" id="nav-bar">
+            </div>
+    </div>
+
+    <script>
+        // --- COMPLETE GLOSSARY (Table 2.1 & Chapter 4 Parameters) ---
+        const glossary = {
+            "epidermis": "The outermost, non-vascularized stratum of epithelial tissue serving as a primary defense shield.",
+            "dermis": "The deep, highly vascularized fibrous connective tissue matrix layer supporting skin accessories.",
+            "fluid loss": "Massive systemic drop in fluid volume triggering hypovolemic cardiovascular shock.",
+            "dehydration": "Dangerous systemic depletion of water content due to loss of protection layers.",
+            "infection": "Pathogenic colonization resulting from open access through a compromised integumentary shield.",
+            "thermoregulation": "The body's maintenance of a tight internal temperature range through sweat mechanisms.",
+            "mesenchyme": "The common embryonic tissue layer from which all structural connective variants differentiate.",
+            "extracellular matrix": "The extensive, non-living material surrounding widely separated tissue cells.",
+            "avascular": "Completely lacking direct vascular penetration channels or capillary matrices.",
+            "vascularized": "Abundantly penetrated by active blood pathways, optimizing gas and nutrient delivery.",
+            "melanin": "A complex dark pigment synthesized by melanocytes to absorb and disperse destructive waves of radiation.",
+            "dna damage": "Mutagenic alterations in the chemical structure of base pairs caused by unprotected UV exposure.",
+            "adipose": "Fat tissue; specialized groupings of adipocytes structured for shock absorption and heat retention.",
+            "insulator": "A low-conductivity matrix that blocks convective systemic heat depletion.",
+            "cleavage lines": "Structural patterns tracking the parallel alignment orientation of thick bundle fibers.",
+            "gaping": "The physical pulling apart of wounded edges when cuts cut transverse to collagen orientations.",
+            "scar formation": "The excessive accumulation of coarse fibrous tissue deposited during quick repair phases.",
+            "exocrine": "Glands pushing non-hormonal secretions out through complex duct layouts onto epithelial tissue walls.",
+            "endocrine": "Ductless glandular structures dumping chemical hormones natively into directly adjacent capillaries.",
+            "sebum": "An oily lipid product formulated to waterproof, lubricate, and condition skin structures.",
+            "barrier": "The structural concept of an uncompromised defensive seal keeping pathogens external.",
+            "fibroblasts": "Abundant active cell types responsible for spinning out proteins and long interstitial threads.",
+            "collagen": "The most common structural protein thread; straight, unbranched, and incredibly strong.",
+            "regeneration": "The rapid replacement of damaged tissue cells by clones of the exact same cell type.",
+            "necrosis": "Pathological tissue death following critical deprivation of oxygen and metabolic supplies."
+        };
+
+        // --- DRILL DATA: 10 HIGH-LEVEL CRITICAL THINKING QUESTIONS ---
+        const ctqs = [
+            {
+                q: "CTQ 1: Burn Homeostasis\nA patient has a severe burn that damages the epidermis and dermis. Why is this injury life-threatening in terms of homeostasis? [cite: 120, 121]",
+                template: "Destruction of the [epidermis] and [dermis] eliminates the body's protective layout, triggering catastrophic [fluid loss] and extreme [dehydration]. This open exposure leaves the systemic pathway highly vulnerable to lethal bacterial [infection], while also destroying capillary networks necessary for proper skin [thermoregulation].",
+                ans: "A severe burn through these structural sheets completely abolishes the safe defensive shield. This permits massive plasma and systemic fluid loss, inducing fatal dehydration. Concurrently, it exposes inner sterile beds to deadly bacterial colonization while permanently disabling sweat and vascular mechanisms required for homeostatic thermoregulation[cite: 120, 121].",
+                keywords: ["epidermis", "dermis", "fluid loss", "dehydration", "infection", "thermoregulation"],
+                warmups: [
+                    { q: "Which skin layer lacks blood vessels entirely?", opts: ["Epidermis", "Dermis", "Hypodermis", "Subcutaneous layer"], ans: 0 },
+                    { q: "What is the primary cause of immediate death following major deep burns?", opts: ["Dehydration from massive fluid loss", "Infection", "Hypothermia", "Vitamin D deficiency"], ans: 0 }
+                ]
+            },
+            {
+                q: "CTQ 2: Connective Diversity\nExplain why connective tissue can vary widely in structure but still be grouped into one category. [cite: 122]",
+                template: "Despite varying from liquid blood to rigid bone, all connective variants share a common embryonic pathway known as [mesenchyme]. Structurally, they are classified together because they consist of living cells embedded within an extensive, non-living [extracellular matrix].",
+                ans: "Connective tissues are unified taxonomically by two core principles: they differentiate from the identical embryonic stem source (mesenchyme), and their layout features widely spaced individual cell units completely surrounded by an extensive extracellular matrix rather than tightly packed cell walls[cite: 50, 122].",
+                keywords: ["mesenchyme", "extracellular matrix"],
+                warmups: [
+                    { q: "What embryonic tissue gives rise to all connective tissues?", opts: ["Mesenchyme", "Ectoderm", "Endoderm", "Stratified squamous"], ans: 0 },
+                    { q: "What are the two major components of the extracellular matrix?", opts: ["Ground substance and fibers", "Fibroblasts and fibrocytes", "Osteocytes and lacunae", "Plasma and platelets"], ans: 0 }
+                ]
+            },
+            {
+                q: "CTQ 3: Cartilage vs. Bone Healing\nWhy does cartilage heal slowly compared to bone? Explain using tissue characteristics. [cite: 123]",
+                template: "Cartilage matrix layouts are completely [avascular], meaning they lack a direct network of metabolic capillaries. In contrast, osseous tissue is highly [vascularized], ensuring rapid, abundant delivery of repair minerals and osteoblast nutrients.",
+                ans: "Cartilage matrix holds a distinct avascular property, meaning nutrient delivery relies on slow passive diffusion. Conversely, bone possesses a highly vascularized structure layout, guaranteeing a swift delivery of metabolic building materials to speed up cellular repairs[cite: 123].",
+                keywords: ["avascular", "vascularized"],
+                warmups: [
+                    { q: "Why does cartilage matrix restrict fast healing cycles?", opts: ["It is completely avascular.", "It lacks collagen fibers.", "It contains too much calcium phosphate.", "Its cells divide too rapidly."], ans: 0 },
+                    { q: "What cells maintain cartilage matrix?", opts: ["Chondrocytes", "Osteocytes", "Fibroblasts", "Adipocytes"], ans: 0 }
+                ]
+            },
+            {
+                q: "CTQ 4: Melanin Protection\nExplain how melanin production protects the body, and why individuals with less melanin are at higher risk for skin damage. [cite: 124]",
+                template: "Melanocytes produce [melanin] to form a protective umbrella over nuclei, absorbing dangerous incoming radiation. Individuals with less pigment lack this umbrella, allowing UV rays to penetrate deep into cells, triggering severe [dna damage].",
+                ans: "Melanin acts as a protective shield that absorbs and disperses ionizing UV rays. Low baselines of melanin yield less shielding coverage, leaving deep keratinocyte layers exposed to radiation that alters chemical codes and causes severe DNA damage[cite: 124].",
+                keywords: ["melanin", "dna damage"],
+                warmups: [
+                    { q: "Which cell type synthesizes melanin pigment?", opts: ["Melanocytes", "Keratinocytes", "Fibroblasts", "Merkel cells"], ans: 0 },
+                    { q: "What cellular component is melanin positioning itself to shield?", opts: ["The Nucleus (DNA)", "The Mitochondria", "The Plasma Membrane", "The Golgi Apparatus"], ans: 10 }
+                ]
+            },
+            {
+                q: "CTQ 5: Hypodermis Functions\nDescribe how the subcutaneous layer (hypodermis) contributes to temperature regulation and protection. [cite: 125]",
+                template: "The hypodermis is densely packed with [adipose] tissue. This fat layout serves as a powerful thermal [insulator] to block core heat loss, while simultaneously acting as a deep cushion to distribute external mechanical shock.",
+                ans: "The subcutaneous sheet utilizes thick beds of adipose tissue to control homeostatic profiles. This layer serves as an efficient thermal insulator to preserve metabolic heat, while working mechanically as a cushion to absorb and buffer deep organs from impact[cite: 125].",
+                keywords: ["adipose", "insulator"],
+                warmups: [
+                    { q: "What tissue type dominates the hypodermis layer?", opts: ["Adipose tissue", "Dense regular connective tissue", "Stratified squamous epithelium", "Hyaline cartilage"], ans: 0 },
+                    { q: "What is a major metabolic function of the hypodermis?", opts: ["Lipid/energy storage", "Melanin synthesis", "Vitamin D activation", "Glandular secretion"], ans: 0 }
+                ]
+            },
+            {
+                q: "CTQ 6: Tension Lines\nWhy do surgeons make incisions parallel to tension (cleavage) lines in the skin? [cite: 126]",
+                template: "Cleavage lines reflect parallel bundles of fibers. Slicing parallel to these paths prevents severe wound [gaping], which drastically accelerates healing timelines and limits excessive [scar formation].",
+                ans: "Incisions made parallel to skin cleavage lines stay aligned with the natural lay of thick bundle fibers. This design limits wound gaping, minimizing the need for dense granulation tissue plugs and minimizing long-term scar formation[cite: 126].",
+                keywords: ["cleavage lines", "gaping", "scar formation"],
+                warmups: [
+                    { q: "What specific fiber alignment dictates skin cleavage lines?", opts: ["Collagen fibers in the reticular dermis", "Elastic fibers in the epidermis", "Reticular fibers in the areolar tissue", "Keratin fibers in the stratum corneum"], ans: 0 },
+                    { q: "What happens if a surgical cut crosses tension lines perpendicularly?", opts: ["The wound gapes open and heals with increased scarring.", "The skin loses all blood supply.", "The epidermis undergoes rapid apoptosis.", "The cut heals faster cleanly."], ans: 0 }
+                ]
+            },
+            {
+                q: "CTQ 7 & 8: Glandular Matrices\nCompare exocrine and endocrine glands, and explain why exocrine glands are important in the integumentary system. [cite: 127, 128]",
+                template: "Anatomically, [exocrine] structures channel non-hormone mixtures outward using hollow paths, whereas [endocrine] tissues dump raw chemical hormones directly into nearby blood pathways. In the skin, outer ducts are critical to push out sweat and [sebum] to cool and seal the tissue.",
+                ans: "Exocrine structures retain clear connection paths (ducts) to release secretions locally onto epithelial sheets. Endocrine glands are ductless, utilizing capillary blood pathways to distribute hormones. In the skin, exocrine routes are required to carry sweat and protective sebum out to condition and clean the outer barrier[cite: 127, 128].",
+                keywords: ["exocrine", "endocrine", "sebum"],
+                warmups: [
+                    { q: "What defines an exocrine gland relative to an endocrine gland?", opts: ["The presence of a duct system to channel secretions.", "The secretion of products directly into the blood.", "The absence of epithelial cell components.", "The selective synthesis of hormones."], ans: 0 },
+                    { q: "What is the primary function of sebum?", opts: ["To waterproof and lubricate the skin and hair.", "To lower body temperature via evaporation.", "To trigger local inflammatory reactions.", "To synthesize Vitamin D under sunlight."], ans: 0 }
+                ]
+            },
+            {
+                q: "CTQ 8: Third-Degree Destruction\nA patient suffers a third-degree burn over a large area of the body. Explain how this disrupts at least three major functions of the skin. [cite: 129, 130]",
+                template: "Full-thickness burns destroy the skin's protective [barrier], exposing underlying beds to systemic collapse. This injury leaves the body unable to contain core water, causing extreme dehydration, while simultaneously destroying exocrine sweat mechanisms required for homeostatic [thermoregulation].",
+                ans: "A third-degree burn vaporizes the structural layers of the skin. This breaks the safe microbial barrier, allows unmitigated fluid evaporation that crashes blood volumes, and vaporizes the sudoriferous glands required to execute evaporative thermoregulation[cite: 129, 130].",
+                keywords: ["barrier", "thermoregulation"],
+                warmups: [
+                    { q: "What characterizes a third-degree burn structurally?", opts: ["Destruction of both the epidermis and the entire dermis layer.", "Damage limited only to the upper epithelial layers.", "Blistering confined to the papillary dermis.", "Bone exposure with zero tissue charring."], ans: 0 },
+                    { q: "Why can't a third-degree burn patient sweat in the affected zone?", opts: ["The exocrine sweat glands in the dermis have been destroyed.", "The brain ceases signaling to the skin.", "Blood flow to the area increases too much.", "The stratum corneum thickens to block it."], ans: 0 }
+                ]
+            },
+            {
+                q: "CTQ 9: Wound Tissue Repair\nDuring wound healing, describe the roles of epithelial tissue, connective tissue, and blood supply in tissue repair. [cite: 131]",
+                template: "Wound cleanups begin as the blood supply channels pathing cells to the matrix grid. Connective tissue [fibroblasts] migrate into the clot zone to lay down thick tracks of structural [collagen], while surface epithelial cells execute fast [regeneration] to seal the top.",
+                ans: "Repair cycles require multi-system coordination: vascular loops bring nutrients and clean-up macrophages; dermal fibroblasts spin dense arrays of structural collagen to close the raw wound bed; and the epithelium undergoes rapid mitotic regeneration to restore the outer edge[cite: 131].",
+                keywords: ["fibroblasts", "collagen", "regeneration"],
+                warmups: [
+                    { q: "Which cell type synthesizes the collagen matrix during wound repair?", opts: ["Fibroblasts", "Macrophage units", "Keratinocytes", "Mast cells"], ans: 0 },
+                    { q: "What is the final stage of epidermal wound healing?", opts: ["Regeneration of epithelial cells across the surface", "Formation of a deep blood clot", "Secretions of histamine by mast cells", "Calcification of the extracellular matrix"], ans: 0 }
+                ]
+            },
+            {
+                q: "CTQ 10: Bed Sore Pathophysiology\nA patient who is bedridden develops decubitus ulcers (bed sores). Explain how prolonged pressure leads to tissue damage, which tissues are affected first, and why healing is slow. [cite: 132, 133]",
+                template: "Prolonged crushing pressure collapses local dermal vessels, completely blocking oxygen delivery. This ischemia triggers rapid cellular [necrosis]. The superficial, metabolically sensitive [epidermis] layer dies off first, and recovery lags because the ongoing vascular compression starves repair zones of vital resources.",
+                ans: "Sustained pressure compresses capillary flows, starving cells of oxygen. This severe metabolic stress induces tissue necrosis. The highly active, unkeratinized layers of the epidermis die off first, and repair processes stall because compressed vessel pathways cannot deliver rebuilding blocks[cite: 132, 133].",
+                keywords: ["necrosis", "epidermis"]
+                // Note: Modified slightly to stay within the exact glossary parameters
+            }
+        ];
+
+        // --- STATE ENGINE ---
+        let ctqIndex = 0;
+        let currentDifficulty = 1;
+        let currentWarmupIndex = -1;
+
+        function setDifficulty(lvl) {
+            currentDifficulty = lvl;
+            [1, 2, 3].forEach(i => document.getElementById(`lvl-${i}`).classList.toggle('active', i === lvl));
+            loadCTQ();
+        }
+
+        function toggleWarmup() {
+            const box = document.getElementById('warmup-box');
+            if (box.style.display === 'block') {
+                box.style.display = 'none';
+            } else {
+                box.style.display = 'block';
+                if(currentWarmupIndex === -1) loadRandomWarmup();
+            }
+        }
+
+        function loadRandomWarmup() {
+            const qData = ctqs[ctqIndex];
+            if (!qData.warmups || qData.warmups.length === 0) return;
+            
+            if (qData.warmups.length > 1) {
+                let newIdx = currentWarmupIndex;
+                while (newIdx === currentWarmupIndex) {
+                    newIdx = Math.floor(Math.random() * qData.warmups.length);
+                }
+                currentWarmupIndex = newIdx;
+            } else {
+                currentWarmupIndex = 0;
+            }
+            
+            const warmup = qData.warmups[currentWarmupIndex];
+            document.getElementById('warmup-q').innerText = warmup.q;
+            const wOpts = document.getElementById('warmup-opts');
+            wOpts.innerHTML = '';
+            
+            let wOptsWithIndex = warmup.opts.map((opt, i) => ({text: opt, originalIndex: i}));
+            wOptsWithIndex = shuffleArray(wOptsWithIndex);
+
+            wOptsWithIndex.forEach((optObj) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = optObj.text;
+                btn.onclick = () => {
+                    document.querySelectorAll('#warmup-opts .option-btn').forEach(b => { b.disabled = true; });
+                    if(optObj.originalIndex === warmup.ans) { 
+                        btn.className = 'option-btn correct'; 
+                    } else { 
+                        btn.className = 'option-btn wrong'; 
+                        const correctIdx = wOptsWithIndex.findIndex(o => o.originalIndex === warmup.ans);
+                        wOpts.children[correctIdx].className = 'option-btn correct'; 
+                    }
+                };
+                wOpts.appendChild(btn);
+            });
+        }
+
+        function buildNavBar() {
+            const bar = document.getElementById('nav-bar');
+            bar.innerHTML = '';
+            ctqs.forEach((item, index) => {
+                const btn = document.createElement('button');
+                btn.id = `nav-ctq-${index}`;
+                btn.innerText = `CTQ ${index + 1}`;
+                btn.onclick = () => goToCTQ(index);
+                bar.appendChild(btn);
+            });
+        }
+
+        function goToCTQ(index) {
+            ctqIndex = index;
+            loadCTQ();
+        }
+
+        function shuffleArray(array) {
+            let arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function loadCTQ() {
+            const qData = ctqs[ctqIndex];
+            currentWarmupIndex = -1; 
+            
+            // Sync Nav highlights
+            ctqs.forEach((_, i) => {
+                const btn = document.getElementById(`nav-ctq-${i}`);
+                if(btn) btn.className = (i === ctqIndex) ? 'active' : '';
+            });
+
+            document.getElementById('ctq-q').innerText = qData.q;
+            document.getElementById('ctq-feedback').style.display = 'none';
+            document.getElementById('warmup-box').style.display = 'none';
+
+            // Build Pre-Submit Glossary Checklist
+            const preSubmitContainer = document.getElementById('pre-submit-badges');
+            preSubmitContainer.innerHTML = '';
+            [...qData.keywords].sort().forEach(kw => {
+                createDetailsElement(kw, null, preSubmitContainer, true);
+            });
+
+            // Handle input canvas generation based on tier level
+            const area = document.getElementById('ctq-input-area');
+            area.innerHTML = '';
+
+            if (currentDifficulty === 3) {
+                area.innerHTML = `<textarea id="ctq-textarea" placeholder="Exam Simulator: Type out your full, comprehensive answer paragraph using the key terminology..."></textarea>`;
+            } else {
+                let html = `<div class="cloze-text">` + qData.template.replace(/\[(.*?)\]/g, (match, p1) => {
+                    const width = p1.length * 11 + 25; 
+                    return `<input type="text" class="cloze-input" data-ans="${p1}" style="width: ${width}px;">`;
+                }) + `</div>`;
+                
+                if (currentDifficulty === 1) {
+                    let words = shuffleArray([...qData.keywords]);
+                    html += `<div class="word-bank">` + words.map(w => `<span class="wb-chip">${w}</span>`).join('') + `</div>`;
+                }
+                area.innerHTML = html;
+            }
+        }
+
+        function checkCTQ() {
+            const qData = ctqs[ctqIndex];
+            document.getElementById('ctq-feedback').style.display = 'block';
+            document.getElementById('ctq-actual').innerHTML = `<strong style="color:var(--accent);">High-Score Written Criteria Model Answer:</strong>\n${qData.ans}`;
+
+            const badgesDiv = document.getElementById('ctq-badges');
+            badgesDiv.innerHTML = '';
+
+            if (currentDifficulty === 3) {
+                document.getElementById('feedback-title').innerHTML = "Keyword Coverage Scan Matrix:";
+                const textInput = document.getElementById('ctq-textarea').value.toLowerCase();
+                
+                qData.keywords.forEach(kw => {
+                    // Upgraded string check to catch pluralizations/variations natively
+                    let baseForm = kw.toLowerCase().substring(0, kw.length - 2); 
+                    const isFound = textInput.includes(kw.toLowerCase()) || (baseForm.length > 3 && textInput.includes(baseForm));
+                    createDetailsElement(kw, isFound, badgesDiv, false);
+                });
+            } else {
+                document.getElementById('feedback-title').innerHTML = "Fill-in-the-Blank Accuracy Assessment:";
+                const inputs = document.querySelectorAll('.cloze-input');
+                
+                inputs.forEach(inp => {
+                    const target = inp.dataset.ans.toLowerCase().trim();
+                    const currentGuess = inp.value.toLowerCase().trim();
+                    const isMatch = (currentGuess === target);
+                    
+                    if (isMatch) {
+                        inp.className = 'cloze-input correct';
+                    } else {
+                        inp.className = 'cloze-input wrong';
+                        if (!inp.value.includes('(Target:')) {
+                            inp.value = `${inp.value} (Target: ${inp.dataset.ans})`;
+                        }
+                    }
+                });
+
+                qData.keywords.forEach(kw => {
+                    const relatedInput = document.querySelector(`.cloze-input[data-ans="${kw}"]`);
+                    let isFound = (relatedInput && relatedInput.classList.contains('correct'));
+                    createDetailsElement(kw, isFound, badgesDiv, false);
+                });
+            }
+        }
+
+        function createDetailsElement(keyword, isFound, container, isNeutral) {
+            const details = document.createElement('details');
+            details.className = 'keyword-details';
+            
+            const summary = document.createElement('summary');
+            if (isNeutral) {
+                summary.className = 'keyword-summary text-neutral';
+                summary.innerText = '📖 ' + keyword;
+            } else {
+                summary.className = 'keyword-summary ' + (isFound ? 'text-success' : 'text-error');
+                summary.innerText = (isFound ? '✅ ' : '❌ ') + keyword;
+            }
+            
+            const defDiv = document.createElement('div');
+            defDiv.className = 'keyword-def-text';
+            defDiv.innerText = glossary[keyword.toLowerCase()] || "Context terminology definition map not initialized.";
+            
+            details.appendChild(summary);
+            details.appendChild(defDiv);
+            container.appendChild(details);
+        }
+
+        // Boot
+        buildNavBar();
+        loadCTQ();
+    </script>
+</body>
+</html>
