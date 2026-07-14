@@ -11,10 +11,12 @@ const urlsToCache = [
   'Global/Css/animations.css',
   'Global/Scripts/background-animation.js',
   'Global/tool-manifest.json',
+  // Tools
+  'Tools/A&P1_2_0/Exam1CTQs_3_0/Exam1CTQs.html',
   'Tools/A&P1_2_0/OrganSystems_1_4/OrganSystems.html',
   'Tools/A&P1_2_0/AnatomicalPositions_1_2/AnatomicalPositions.html',
-  'Tools/A&P1_2_0/LectureCh1_2_0/LectureCh1Quiz.html',
-  'Tools/A&P1_2_0/AnatomicalPosition_1_3/AnatomicalPosition.html',
+  'Tools/A&P1_2_0/LectureCh1Quiz_2_0/LectureCh1Quiz.html',
+  'Tools/A&P1_2_0/AnatomicalDirection_1_3/AnatomicalDirection.html',
   // Core SVGs
   'Global/SVGs/logo.svg',
   'Global/SVGs/avatar.svg',
