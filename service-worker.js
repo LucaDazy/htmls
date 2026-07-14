@@ -1,6 +1,6 @@
 // service-worker.js with heavy logging
 
-const CACHE_NAME = 'study-hub-cache-v15'; // Incremented version to trigger update
+const CACHE_NAME = 'study-hub-cache-v16'; // Incremented version to trigger update
 const LOG_PREFIX = '[ServiceWorker]';
 console.log(`${LOG_PREFIX} Script loading. Cache name: ${CACHE_NAME}`);
 
