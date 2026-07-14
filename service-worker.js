@@ -1,6 +1,6 @@
 // service-worker.js with heavy logging
 
-const CACHE_NAME = 'study-hub-cache-v17'; // Force update to clear stale cache
+const CACHE_NAME = 'study-hub-cache-v18'; // Force browser to update SW and clear stale cache
 const LOG_PREFIX = '[ServiceWorker]';
 console.log(`${LOG_PREFIX} Script loading. Cache name: ${CACHE_NAME}`);
 
