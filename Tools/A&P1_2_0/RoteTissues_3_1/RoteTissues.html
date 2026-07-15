@@ -162,6 +162,7 @@
             <div class="progress-text" id="prog-text">Loading...</div>
             <div class="tool-btns">
                 <button class="tool-btn" onclick="openReference()">📋 Study Table</button>
+                <button class="tool-btn" id="hint-btn" onclick="useHint()">🤔 Get Hint</button>
                 <button class="tool-btn" id="chop-btn" onclick="useChop()">✂️ Chop (50/50)</button>
             </div>
         </div>
@@ -216,34 +217,34 @@
         // --- MASTER DATA DICTIONARY ---
         const masterData = [
             // EPITHELIAL
-            { name: "Simple Squamous", loc: "Blood & lymphatic vessels, air sacs of lungs, lining of ventral body cavity (serosa)", func: "Diffusion & filtration", type: "Epithelial" },
-            { name: "Simple Cuboidal", loc: "Kidney tubules, ducts & secretory portion of small glands, ovary surface", func: "Secretion & absorption", type: "Epithelial" },
-            { name: "Simple Columnar", loc: "Most of the digestive tract, small bronchi, uterine tubes", func: "Absorption, secretion of mucus/enzymes. (Ciliated type propels mucus)", type: "Epithelial" },
-            { name: "Pseudostratified Columnar", loc: "Trachea & upper respiratory system, male's sperm ducts", func: "Secretes substances, mucus and can propel it", type: "Epithelial" },
-            { name: "Stratified Squamous", loc: "Epidermis of the skin, mouth, esophagus, vagina", func: "Protection from severe abrasion", type: "Epithelial" },
-            { name: "Stratified Cuboidal", loc: "Large ducts of mammary glands, sweat and salivary glands", func: "Protection of large ducts", type: "Epithelial" },
-            { name: "Stratified Columnar", loc: "Male urethra (Rare)", func: "Protection and secretion in rare tracts", type: "Epithelial" },
-            { name: "Transitional", loc: "Ureters, urinary bladder, and part of urethra", func: "Stretches to accommodate fluctuating volumes of liquid", type: "Epithelial" },
+            { name: "Simple Squamous", loc: "Blood & lymphatic vessels, air sacs of lungs, lining of ventral body cavity (serosa)", func: "Diffusion & filtration", type: "Epithelial", hint: "Think of a single, flat layer, perfect for things to pass through quickly, like air or liquids." },
+            { name: "Simple Cuboidal", loc: "Kidney tubules, ducts & secretory portion of small glands, ovary surface", func: "Secretion & absorption", type: "Epithelial", hint: "Cube-shaped cells suggest building blocks for small tubes or glands that secrete things." },
+            { name: "Simple Columnar", loc: "Most of the digestive tract, small bronchi, uterine tubes", func: "Absorption, secretion of mucus/enzymes. (Ciliated type propels mucus)", type: "Epithelial", hint: "Tall, column-like cells are great for absorption and secretion, like lining your gut." },
+            { name: "Pseudostratified Columnar", loc: "Trachea & upper respiratory system, male's sperm ducts", func: "Secretes substances, mucus and can propel it", type: "Epithelial", hint: "Looks stratified but isn't. Its cilia are a dead giveaway for moving mucus in your airways." },
+            { name: "Stratified Squamous", loc: "Epidermis of the skin, mouth, esophagus, vagina", func: "Protection from severe abrasion", type: "Epithelial", hint: "Multiple flat layers are built for protection against abrasion, like your skin or mouth lining." },
+            { name: "Stratified Cuboidal", loc: "Large ducts of mammary glands, sweat and salivary glands", func: "Protection of large ducts", type: "Epithelial", hint: "Multiple layers of cube cells means a bigger, stronger duct for things like sweat or saliva." },
+            { name: "Stratified Columnar", loc: "Male urethra (Rare)", func: "Protection and secretion in rare tracts", type: "Epithelial", hint: "A rare, multi-layered column, offering robust protection in specific male tubes." },
+            { name: "Transitional", loc: "Ureters, urinary bladder, and part of urethra", func: "Stretches to accommodate fluctuating volumes of liquid", type: "Epithelial", hint: "This tissue's special power is stretching, so it must be in an organ that fills up, like the bladder." },
             
             // CONNECTIVE
-            { name: "Areolar (Loose CT)", loc: "Papillary layer of dermis; separates skin from deeper structures", func: "Wraps & cushions organs, binds tissue, allows diffusion", type: "Connective" },
-            { name: "Adipose", loc: "Under skin (hypodermis), around organs", func: "Energy storage, shock absorption, insulation", type: "Connective" },
-            { name: "Reticular", loc: "Lymph Nodes, Spleen, Bone marrow", func: "Structural support, forms framework (stroma) for functional immune cells", type: "Connective" },
-            { name: "Dense Regular CT", loc: "Tendons, ligaments, aponeuroses", func: "Strong attachment, aligned to resist pulling forces in one direction", type: "Connective" },
-            { name: "Dense Irregular CT", loc: "Reticular layer of dermis, fibrous capsules of organs", func: "Strength, provides support against stress from many directions", type: "Connective" },
-            { name: "Elastic CT", loc: "Walls of large arteries (Aorta), ligaments of vertebrae", func: "Allows tissue to stretch and recoil", type: "Connective" },
-            { name: "Hyaline Cartilage", loc: "Trachea, nose, articular joints, connections between ribs & sternum", func: "Tough but flexible support, reduces friction at joints", type: "Connective" },
-            { name: "Elastic Cartilage", loc: "External ear, epiglottis, larynx", func: "Resilient and very flexible support, maintains shape", type: "Connective" },
-            { name: "Fibrocartilage", loc: "Intervertebral discs, menisci, pelvis", func: "Extremely durable, shock absorption, resists massive compression", type: "Connective" },
-            { name: "Bone (Osseous)", loc: "Skeleton", func: "Strong rigid support, lever for muscles, mineral storage", type: "Connective" },
-            { name: "Blood", loc: "Blood vessels & heart", func: "Transport of gases/nutrients, immune defense, fluid matrix", type: "Connective" },
+            { name: "Areolar (Loose CT)", loc: "Papillary layer of dermis; separates skin from deeper structures", func: "Wraps & cushions organs, binds tissue, allows diffusion", type: "Connective", hint: "The body's 'packing material', found everywhere, holding things together but allowing movement." },
+            { name: "Adipose", loc: "Under skin (hypodermis), around organs", func: "Energy storage, shock absorption, insulation", type: "Connective", hint: "Commonly known as fat, its main jobs are energy storage, cushioning, and insulation." },
+            { name: "Reticular", loc: "Lymph Nodes, Spleen, Bone marrow", func: "Structural support, forms framework (stroma) for functional immune cells", type: "Connective", hint: "Forms a soft, internal web or 'stroma' for organs that filter things, like the spleen or lymph nodes." },
+            { name: "Dense Regular CT", loc: "Tendons, ligaments, aponeuroses", func: "Strong attachment, aligned to resist pulling forces in one direction", type: "Connective", hint: "Fibers run in one direction like a rope, making it incredibly strong for pulling (tendons/ligaments)." },
+            { name: "Dense Irregular CT", loc: "Reticular layer of dermis, fibrous capsules of organs", func: "Strength, provides support against stress from many directions", type: "Connective", hint: "Fibers run in all directions, making it strong against pulling from many angles, like the skin's dermis." },
+            { name: "Elastic CT", loc: "Walls of large arteries (Aorta), ligaments of vertebrae", func: "Allows tissue to stretch and recoil", type: "Connective", hint: "If it needs to stretch and snap back, like a major artery or certain ligaments, it needs this." },
+            { name: "Hyaline Cartilage", loc: "Trachea, nose, articular joints, connections between ribs & sternum", func: "Tough but flexible support, reduces friction at joints", type: "Connective", hint: "The most common 'gristle' cartilage, found at the ends of bones and in your windpipe for smooth support." },
+            { name: "Elastic Cartilage", loc: "External ear, epiglottis, larynx", func: "Resilient and very flexible support, maintains shape", type: "Connective", hint: "Think of your ear; it's cartilage that needs to be super flexible to maintain its shape." },
+            { name: "Fibrocartilage", loc: "Intervertebral discs, menisci, pelvis", func: "Extremely durable, shock absorption, resists massive compression", type: "Connective", hint: "The toughest cartilage of all, built as a shock absorber for heavy compression, like your knee or spine discs." },
+            { name: "Bone (Osseous)", loc: "Skeleton", func: "Strong rigid support, lever for muscles, mineral storage", type: "Connective", hint: "The hard framework of the body, providing rigid support and leverage for muscles." },
+            { name: "Blood", loc: "Blood vessels & heart", func: "Transport of gases/nutrients, immune defense, fluid matrix", type: "Connective", hint: "A fluid tissue whose main job is transporting gases and nutrients through vessels." },
 
             // MUSCLE & NEURAL
-            { name: "Skeletal Muscle", loc: "Attached to the skeleton", func: "Gross body movements and locomotion (Striated, Voluntary)", type: "Muscle/Neural" },
-            { name: "Cardiac Muscle", loc: "The Heart", func: "Contraction to propel blood (Striated, Involuntary, uses intercalated discs)", type: "Muscle/Neural" },
-            { name: "Smooth Muscle", loc: "Walls of vessels, around hollow organs (respiratory, digestive, reproductive tracts)", func: "Contraction to move substances through tubes (Nonstriated, Involuntary)", type: "Muscle/Neural" },
-            { name: "Neural Tissue (Neurons)", loc: "Brain, spinal cord, nerves", func: "Conduction of rapid electrical impulses from one body region to another", type: "Muscle/Neural" },
-            { name: "Neural Tissue (Glia)", loc: "Brain, spinal cord, nerves (surrounding neurons)", func: "Support, repair, and protect neurons", type: "Muscle/Neural" }
+            { name: "Skeletal Muscle", loc: "Attached to the skeleton", func: "Gross body movements and locomotion (Striated, Voluntary)", type: "Muscle/Neural", hint: "The muscles you consciously control to move your skeleton." },
+            { name: "Cardiac Muscle", loc: "The Heart", func: "Contraction to propel blood (Striated, Involuntary, uses intercalated discs)", type: "Muscle/Neural", hint: "This muscle is found only in the heart and its job is to pump blood involuntarily." },
+            { name: "Smooth Muscle", loc: "Walls of vessels, around hollow organs (respiratory, digestive, reproductive tracts)", func: "Contraction to move substances through tubes (Nonstriated, Involuntary)", type: "Muscle/Neural", hint: "The involuntary muscle that lines hollow organs and tubes, pushing contents along." },
+            { name: "Neural Tissue (Neurons)", loc: "Brain, spinal cord, nerves", func: "Conduction of rapid electrical impulses from one body region to another", type: "Muscle/Neural", hint: "These are the primary cells for sending fast electrical signals throughout the body." },
+            { name: "Neural Tissue (Glia)", loc: "Brain, spinal cord, nerves (surrounding neurons)", func: "Support, repair, and protect neurons", type: "Muscle/Neural", hint: "The 'glue' and support cells that protect and maintain the more famous neurons." }
         ];
 
         // --- ENGINE STATE ---
@@ -306,6 +307,7 @@
             document.getElementById('feedback').style.display = 'none';
             document.getElementById('next-btn').style.display = 'none';
             document.getElementById('chop-btn').disabled = false;
+            document.getElementById('hint-btn').disabled = false;
 
             // Generate contextual options (pulling strictly from the current deck's pool)
             let pool = currentCategory === 'All' ? masterData : masterData.filter(d => d.type === target.type);
@@ -353,6 +355,17 @@
             if (selectedLoc && selectedFunc) {
                 evaluateTriad();
             }
+        }
+
+        function useHint() {
+            if (lockBoard) return;
+            const target = mcqState.deck[mcqState.idx];
+            const fb = document.getElementById('feedback');
+            fb.innerHTML = `💡 HINT: ${target.hint}`;
+            fb.style.color = "var(--text-muted)";
+            fb.style.borderLeftColor = "var(--text-muted)";
+            fb.style.display = 'block';
+            document.getElementById('hint-btn').disabled = true;
         }
 
         function useChop() {
