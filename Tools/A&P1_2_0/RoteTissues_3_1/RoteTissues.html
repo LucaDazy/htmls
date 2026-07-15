@@ -252,16 +252,15 @@
         let lockBoard = false;
         let selectedLoc = null;
         let selectedFunc = null;
-        let toolsUsed = false;
 
-        function shuffle(arr) {
-            let a = [...arr];
+        const shuffle = (arr) => {
+            const a = [...arr];
             for (let i = a.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [a[i], a[j]] = [a[j], a[i]];
             }
             return a;
-        }
+        };
 
         // --- CORE ENGINE ---
         function switchDeck(category) {
@@ -273,7 +272,7 @@
         }
 
         function startDrill() {
-            let filtered = currentCategory === 'All' ? masterData : masterData.filter(d => d.type === currentCategory);
+            const filtered = currentCategory === 'All' ? masterData : masterData.filter(d => d.type === currentCategory);
             mcqState = { deck: shuffle([...filtered]), idx: 0, attempts: 0, correct: 0 };
             
             document.getElementById('end-screen').style.display = 'none';
@@ -283,11 +282,11 @@
             loadCard();
         }
 
-        function getDistractors(pool, targetItem, key) {
+        const getDistractors = (pool, targetItem, key) => {
             let distractors = pool.filter(item => item.name !== targetItem.name).map(item => item[key]);
-            distractors = shuffle([...new Set(distractors)]); // unique shuffle
-            return distractors.slice(0, 3); // grab 3
-        }
+            distractors = shuffle([...new Set(distractors)]);
+            return distractors.slice(0, 3);
+        };
 
         function loadCard() {
             if (mcqState.idx >= mcqState.deck.length) {
@@ -296,7 +295,6 @@
             }
 
             lockBoard = false;
-            toolsUsed = false;
             selectedLoc = null;
             selectedFunc = null;
             
@@ -359,7 +357,6 @@
 
         function useChop() {
             if (lockBoard) return;
-            toolsUsed = true;
             document.getElementById('chop-btn').disabled = true;
             
             const target = mcqState.deck[mcqState.idx];
@@ -438,8 +435,8 @@
 
         function updateStats() {
             document.getElementById('stat-cards').innerText = mcqState.attempts;
-            let acc = Math.round((mcqState.correct / mcqState.attempts) * 100) || 0;
-            document.getElementById('stat-accuracy').innerText = acc + "%";
+            const acc = Math.round((mcqState.correct / mcqState.attempts) * 100) || 0;
+            document.getElementById('stat-accuracy').innerText = `${acc}%`;
         }
 
         function nextCard() {
