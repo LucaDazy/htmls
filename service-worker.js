@@ -1,6 +1,6 @@
 // service-worker.js with heavy logging
 
-const CACHE_NAME = 'study-hub-cache-v18'; // Force browser to update SW and clear stale cache
+const CACHE_NAME = 'study-hub-cache-v19'; // Add RoteTissues tool
 const LOG_PREFIX = '[ServiceWorker]';
 console.log(`${LOG_PREFIX} Script loading. Cache name: ${CACHE_NAME}`);
 
@@ -12,6 +12,7 @@ const urlsToCache = [
   'Global/Scripts/background-animation.js',
   'Global/tool-manifest.json',
   // Tools
+  'Tools/A&P1_2_0/RoteTissues_3_1/RoteTissues.html',
   'Tools/A&P1_2_0/Exam1CTQs_3_0/Exam1CTQs.html',
   'Tools/A&P1_2_0/OrganSystems_1_4/OrganSystems.html',
   'Tools/A&P1_2_0/AnatomicalPositions_1_2/AnatomicalPositions.html',
