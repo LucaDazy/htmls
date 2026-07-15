@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BI231 - Dual-Axis Tissue Forge</title>
+    <style>
+        :root {
+            --bg-color: #323437;
+            --panel-bg: #2c2e31;
+            --hover-bg: #3a3d40;
+            --text-main: #d1d0c5;
+            --text-muted: #646669;
+            --accent: #e2b714;
+            --error: #ca4754;
+            --success: #8cc84b;
+            --hard: #e27d60; 
+            --loc-color: #7ba3d1;
+            --func-color: #a4d17b;
+        }
+
+        body {
+            background-color: var(--bg-color); color: var(--text-main);
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 2rem; margin: 0; min-height: 100vh;
+        }
+
+        h1 { color: var(--accent); margin-bottom: 0.5rem; text-align: center; }
+        .subtitle { color: var(--text-muted); margin-bottom: 2rem; text-align: center; font-size: 0.95rem; }
+
+        .container {
+            width: 100%; max-width: 1000px; display: flex; flex-direction: column; 
+            align-items: center; gap: 1.5rem; position: relative;
+        }
+
+        /* Deck Selector */
+        .deck-selector {
+            display: flex; gap: 0.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--text-muted); padding-bottom: 1.5rem; flex-wrap: wrap; justify-content: center; width: 100%;
+        }
+        .deck-btn {
+            background: var(--bg-color); border: 1px solid var(--text-muted); color: var(--text-muted);
+            font-family: inherit; font-size: 0.95rem; padding: 0.6rem 1.2rem; cursor: pointer; border-radius: 4px; transition: 0.2s; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .deck-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(226, 183, 20, 0.1); }
+        .deck-btn:hover:not(.active) { border-color: var(--text-main); color: var(--text-main); }
+
+        /* Tools Header */
+        .header-row {
+            display: flex; justify-content: space-between; align-items: center; width: 100%;
+            background: var(--panel-bg); padding: 1rem 1.5rem; border-radius: 8px;
+            border: 1px solid var(--text-muted); box-sizing: border-box; flex-wrap: wrap; gap: 1rem;
+        }
+        .progress-text { font-size: 0.95rem; color: var(--text-muted); font-weight: bold; }
+        
+        .tool-btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .tool-btn {
+            background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted);
+            padding: 0.4rem 0.8rem; font-family: inherit; font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s;
+        }
+        .tool-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: rgba(226, 183, 20, 0.1); }
+        .tool-btn:disabled { opacity: 0.3; cursor: default; }
+
+        /* Target Banner */
+        .target-banner {
+            background: #18191a; border: 2px solid var(--accent); border-radius: 8px;
+            padding: 2rem; box-shadow: inset 0 0 30px rgba(0,0,0,0.5), 0 4px 15px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; align-items: center; width: 100%; box-sizing: border-box;
+            position: relative;
+        }
+        .target-label { color: var(--accent); font-weight: bold; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+        .target-tissue { font-size: 1.8rem; color: var(--text-main); font-weight: bold; text-align: center; }
+
+        /* Dual-Axis Grid */
+        .dual-axis-container {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; width: 100%;
+        }
+        
+        .axis-panel {
+            background: var(--panel-bg); border: 1px solid var(--text-muted); border-radius: 8px;
+            padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;
+        }
+        .axis-header {
+            text-align: center; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;
+            font-size: 1rem; margin-bottom: 0.5rem; border-bottom: 1px dashed var(--text-muted); padding-bottom: 0.8rem;
+        }
+        .loc-header { color: var(--loc-color); }
+        .func-header { color: var(--func-color); }
+
+        .axis-grid { display: grid; grid-template-columns: 1fr; gap: 0.8rem; }
+        
+        .opt-btn {
+            background: var(--bg-color); border: 2px solid var(--text-muted); color: var(--text-main);
+            padding: 1rem; border-radius: 6px; font-family: inherit; font-size: 0.95rem; cursor: pointer;
+            transition: all 0.2s; line-height: 1.4; text-align: left;
+        }
+        .opt-btn:hover:not(:disabled):not(.dimmed) { transform: translateY(-2px); background: var(--hover-bg); }
+        
+        .loc-btn:hover:not(:disabled):not(.dimmed) { border-color: var(--loc-color); }
+        .func-btn:hover:not(:disabled):not(.dimmed) { border-color: var(--func-color); }
+        
+        .opt-btn.selected.loc-btn { border-color: var(--loc-color); background: rgba(123, 163, 209, 0.2); color: var(--loc-color); font-weight: bold; }
+        .opt-btn.selected.func-btn { border-color: var(--func-color); background: rgba(164, 209, 123, 0.2); color: var(--func-color); font-weight: bold; }
+
+        .opt-btn.correct { border-color: var(--success) !important; background: rgba(140, 200, 75, 0.2) !important; color: var(--success) !important; }
+        .opt-btn.wrong { border-color: var(--error) !important; background: rgba(202, 71, 84, 0.2) !important; color: var(--error) !important; animation: shake 0.3s; }
+        .opt-btn.dimmed { opacity: 0.2; pointer-events: none; border-color: #222; }
+        .opt-btn:disabled { cursor: default; transform: none; }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        /* Feedback Box */
+        .feedback-box {
+            padding: 1.5rem; border-radius: 4px; display: none; line-height: 1.6; font-size: 1.05rem;
+            background: rgba(0,0,0,0.2); width: 100%; box-sizing: border-box; text-align: center; font-weight: bold;
+        }
+
+        .action-btn {
+            background: var(--bg-color); border: 2px solid var(--accent); color: var(--accent); padding: 1rem;
+            font-family: inherit; font-size: 1.05rem; cursor: pointer; border-radius: 6px; transition: 0.2s; width: 100%;
+            margin-top: 0.5rem; font-weight: bold; display: none; text-align: center;
+        }
+        .action-btn:hover { background: var(--accent); color: var(--bg-color); }
+
+        /* Session Tracking Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem; text-align: center; width: 100%; margin-top: 1rem;}
+        .stat-card { background: var(--panel-bg); border: 1px solid var(--text-muted); padding: 1.5rem 1rem; border-radius: 6px; display: flex; flex-direction: column; gap: 0.5rem; }
+        .stat-val { color: var(--accent); font-size: 1.5rem; font-weight: bold; }
+        .stat-label { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Reference Modal */
+        .modal-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color);
+            border-radius: 8px; z-index: 1000; border: 2px solid var(--accent); display: none; flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem;
+            border-bottom: 1px dashed var(--text-muted); background: var(--panel-bg); border-radius: 8px 8px 0 0;
+        }
+        .modal-header h3 { margin: 0; color: var(--accent); font-size: 1.2rem; }
+        .modal-close { background: transparent; border: none; color: var(--error); font-weight: bold; font-size: 1.2rem; cursor: pointer; }
+        .modal-content { padding: 1.5rem; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 1rem; }
+        
+        .ref-card { background: rgba(0,0,0,0.2); border: 1px solid var(--text-muted); padding: 1rem; border-radius: 6px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;}
+        .ref-title { color: var(--accent); font-weight: bold; }
+        .ref-loc { color: var(--loc-color); font-size: 0.9rem; }
+        .ref-func { color: var(--func-color); font-size: 0.9rem; }
+
+        .end-screen { text-align: center; display: none; background: var(--panel-bg); padding: 3rem; border-radius: 8px; border: 2px solid var(--success); width: 100%; box-sizing: border-box;}
+        .end-screen h2 { color: var(--success); margin-bottom: 1rem; }
+
+        @media (max-width: 800px) {
+            .dual-axis-container { grid-template-columns: 1fr; }
+            .ref-card { grid-template-columns: 1fr; gap: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Dual-Axis Memory Forge</h1>
+    <div class="subtitle">Rote Memorization: Tissue Locations & Functions</div>
+
+    <div class="container">
+        
+        <div class="deck-selector">
+            <button class="deck-btn active" onclick="switchDeck('Epithelial')">Epithelial</button>
+            <button class="deck-btn" onclick="switchDeck('Connective')">Connective</button>
+            <button class="deck-btn" onclick="switchDeck('Muscle/Neural')">Muscle & Neural</button>
+            <button class="deck-btn" onclick="switchDeck('All')">Mixed Mastery</button>
+        </div>
+
+        <div class="header-row">
+            <div class="progress-text" id="prog-text">Loading...</div>
+            <div class="tool-btns">
+                <button class="tool-btn" onclick="openReference()">📋 Study Table</button>
+                <button class="tool-btn" id="chop-btn" onclick="useChop()">✂️ Chop (50/50)</button>
+            </div>
+        </div>
+
+        <div id="target-area" style="width:100%; display: flex; flex-direction: column; gap: 1.5rem;">
+            
+            <div class="target-banner">
+                <div class="target-label">Target Tissue</div>
+                <div class="target-tissue" id="q-tissue">Initializing...</div>
+            </div>
+
+            <div class="dual-axis-container">
+                <div class="axis-panel">
+                    <div class="axis-header loc-header">1. Select Location</div>
+                    <div class="axis-grid" id="loc-grid"></div>
+                </div>
+
+                <div class="axis-panel">
+                    <div class="axis-header func-header">2. Select Function</div>
+                    <div class="axis-grid" id="func-grid"></div>
+                </div>
+            </div>
+
+            <div id="feedback" class="feedback-box"></div>
+            <button id="next-btn" class="action-btn" onclick="nextCard()">Forge Next Tissue ➔</button>
+
+        </div>
+
+        <div class="stats-grid" id="stats-area">
+            <div class="stat-card"><div class="stat-val" id="stat-accuracy">0%</div><div class="stat-label">Triads Forged</div></div>
+            <div class="stat-card"><div class="stat-val" id="stat-cards">0</div><div class="stat-label">Total Attempts</div></div>
+        </div>
+
+        <div id="ref-modal" class="modal-overlay">
+            <div class="modal-header">
+                <h3>📋 Tissue Master Table</h3>
+                <button class="modal-close" onclick="closeReference()">✖</button>
+            </div>
+            <div id="ref-content" class="modal-content">
+                </div>
+        </div>
+
+        <div id="end-screen" class="end-screen">
+            <h2>Deck Conquered!</h2>
+            <p id="final-score" style="margin-bottom: 2rem; color: var(--text-main); font-size:1.1rem;"></p>
+            <button class="action-btn" style="display:block;" onclick="startDrill()">Restart Deck</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- MASTER DATA DICTIONARY ---
+        const masterData = [
+            // EPITHELIAL
+            { name: "Simple Squamous", loc: "Blood & lymphatic vessels, air sacs of lungs, lining of ventral body cavity (serosa)", func: "Diffusion & filtration", type: "Epithelial" },
+            { name: "Simple Cuboidal", loc: "Kidney tubules, ducts & secretory portion of small glands, ovary surface", func: "Secretion & absorption", type: "Epithelial" },
+            { name: "Simple Columnar", loc: "Most of the digestive tract, small bronchi, uterine tubes", func: "Absorption, secretion of mucus/enzymes. (Ciliated type propels mucus)", type: "Epithelial" },
+            { name: "Pseudostratified Columnar", loc: "Trachea & upper respiratory system, male's sperm ducts", func: "Secretes substances, mucus and can propel it", type: "Epithelial" },
+            { name: "Stratified Squamous", loc: "Epidermis of the skin, mouth, esophagus, vagina", func: "Protection from severe abrasion", type: "Epithelial" },
+            { name: "Stratified Cuboidal", loc: "Large ducts of mammary glands, sweat and salivary glands", func: "Protection of large ducts", type: "Epithelial" },
+            { name: "Stratified Columnar", loc: "Male urethra (Rare)", func: "Protection and secretion in rare tracts", type: "Epithelial" },
+            { name: "Transitional", loc: "Ureters, urinary bladder, and part of urethra", func: "Stretches to accommodate fluctuating volumes of liquid", type: "Epithelial" },
+            
+            // CONNECTIVE
+            { name: "Areolar (Loose CT)", loc: "Papillary layer of dermis; separates skin from deeper structures", func: "Wraps & cushions organs, binds tissue, allows diffusion", type: "Connective" },
+            { name: "Adipose", loc: "Under skin (hypodermis), around organs", func: "Energy storage, shock absorption, insulation", type: "Connective" },
+            { name: "Reticular", loc: "Lymph Nodes, Spleen, Bone marrow", func: "Structural support, forms framework (stroma) for functional immune cells", type: "Connective" },
+            { name: "Dense Regular CT", loc: "Tendons, ligaments, aponeuroses", func: "Strong attachment, aligned to resist pulling forces in one direction", type: "Connective" },
+            { name: "Dense Irregular CT", loc: "Reticular layer of dermis, fibrous capsules of organs", func: "Strength, provides support against stress from many directions", type: "Connective" },
+            { name: "Elastic CT", loc: "Walls of large arteries (Aorta), ligaments of vertebrae", func: "Allows tissue to stretch and recoil", type: "Connective" },
+            { name: "Hyaline Cartilage", loc: "Trachea, nose, articular joints, connections between ribs & sternum", func: "Tough but flexible support, reduces friction at joints", type: "Connective" },
+            { name: "Elastic Cartilage", loc: "External ear, epiglottis, larynx", func: "Resilient and very flexible support, maintains shape", type: "Connective" },
+            { name: "Fibrocartilage", loc: "Intervertebral discs, menisci, pelvis", func: "Extremely durable, shock absorption, resists massive compression", type: "Connective" },
+            { name: "Bone (Osseous)", loc: "Skeleton", func: "Strong rigid support, lever for muscles, mineral storage", type: "Connective" },
+            { name: "Blood", loc: "Blood vessels & heart", func: "Transport of gases/nutrients, immune defense, fluid matrix", type: "Connective" },
+
+            // MUSCLE & NEURAL
+            { name: "Skeletal Muscle", loc: "Attached to the skeleton", func: "Gross body movements and locomotion (Striated, Voluntary)", type: "Muscle/Neural" },
+            { name: "Cardiac Muscle", loc: "The Heart", func: "Contraction to propel blood (Striated, Involuntary, uses intercalated discs)", type: "Muscle/Neural" },
+            { name: "Smooth Muscle", loc: "Walls of vessels, around hollow organs (respiratory, digestive, reproductive tracts)", func: "Contraction to move substances through tubes (Nonstriated, Involuntary)", type: "Muscle/Neural" },
+            { name: "Neural Tissue (Neurons)", loc: "Brain, spinal cord, nerves", func: "Conduction of rapid electrical impulses from one body region to another", type: "Muscle/Neural" },
+            { name: "Neural Tissue (Glia)", loc: "Brain, spinal cord, nerves (surrounding neurons)", func: "Support, repair, and protect neurons", type: "Muscle/Neural" }
+        ];
+
+        // --- ENGINE STATE ---
+        let currentCategory = 'Epithelial';
+        let mcqState = { deck: [], idx: 0, attempts: 0, correct: 0 };
+        let lockBoard = false;
+        let selectedLoc = null;
+        let selectedFunc = null;
+        let toolsUsed = false;
+
+        function shuffle(arr) {
+            let a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        // --- CORE ENGINE ---
+        function switchDeck(category) {
+            currentCategory = category;
+            document.querySelectorAll('.deck-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.innerText.toLowerCase().includes(category.toLowerCase().split('/')[0]));
+            });
+            startDrill();
+        }
+
+        function startDrill() {
+            let filtered = currentCategory === 'All' ? masterData : masterData.filter(d => d.type === currentCategory);
+            mcqState = { deck: shuffle([...filtered]), idx: 0, attempts: 0, correct: 0 };
+            
+            document.getElementById('end-screen').style.display = 'none';
+            document.getElementById('target-area').style.display = 'flex';
+            
+            buildReferenceModal();
+            loadCard();
+        }
+
+        function getDistractors(pool, targetItem, key) {
+            let distractors = pool.filter(item => item.name !== targetItem.name).map(item => item[key]);
+            distractors = shuffle([...new Set(distractors)]); // unique shuffle
+            return distractors.slice(0, 3); // grab 3
+        }
+
+        function loadCard() {
+            if (mcqState.idx >= mcqState.deck.length) {
+                endDrill();
+                return;
+            }
+
+            lockBoard = false;
+            toolsUsed = false;
+            selectedLoc = null;
+            selectedFunc = null;
+            
+            const target = mcqState.deck[mcqState.idx];
+
+            document.getElementById('prog-text').innerText = `Tissue ${mcqState.idx + 1} of ${mcqState.deck.length}`;
+            document.getElementById('q-tissue').innerText = target.name;
+            
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('chop-btn').disabled = false;
+
+            // Generate contextual options (pulling strictly from the current deck's pool)
+            let pool = currentCategory === 'All' ? masterData : masterData.filter(d => d.type === target.type);
+            
+            let locOpts = shuffle([target.loc, ...getDistractors(pool, target, 'loc')]);
+            let funcOpts = shuffle([target.func, ...getDistractors(pool, target, 'func')]);
+
+            // Render Location Grid
+            const locGrid = document.getElementById('loc-grid');
+            locGrid.innerHTML = '';
+            locOpts.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'opt-btn loc-btn';
+                btn.innerText = opt;
+                btn.dataset.val = opt;
+                btn.onclick = () => selectOption('loc', btn, opt);
+                locGrid.appendChild(btn);
+            });
+
+            // Render Function Grid
+            const funcGrid = document.getElementById('func-grid');
+            funcGrid.innerHTML = '';
+            funcOpts.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'opt-btn func-btn';
+                btn.innerText = opt;
+                btn.dataset.val = opt;
+                btn.onclick = () => selectOption('func', btn, opt);
+                funcGrid.appendChild(btn);
+            });
+        }
+
+        function selectOption(axis, btn, val) {
+            if (lockBoard) return;
+
+            // Manage selection state and visuals
+            const grid = document.getElementById(`${axis}-grid`);
+            grid.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+
+            if (axis === 'loc') selectedLoc = val;
+            if (axis === 'func') selectedFunc = val;
+
+            // Auto-Evaluate if both are selected
+            if (selectedLoc && selectedFunc) {
+                evaluateTriad();
+            }
+        }
+
+        function useChop() {
+            if (lockBoard) return;
+            toolsUsed = true;
+            document.getElementById('chop-btn').disabled = true;
+            
+            const target = mcqState.deck[mcqState.idx];
+
+            // Remove 2 wrong locations
+            const locBtns = Array.from(document.querySelectorAll('.loc-btn')).filter(b => b.dataset.val !== target.loc);
+            shuffle(locBtns).slice(0, 2).forEach(b => { b.classList.add('dimmed'); b.disabled = true; });
+
+            // Remove 2 wrong functions
+            const funcBtns = Array.from(document.querySelectorAll('.func-btn')).filter(b => b.dataset.val !== target.func);
+            shuffle(funcBtns).slice(0, 2).forEach(b => { b.classList.add('dimmed'); b.disabled = true; });
+            
+            // If the user already selected one that just got chopped, clear their selection
+            if(selectedLoc && document.querySelector('.loc-btn.selected.dimmed')) { selectedLoc = null; document.querySelector('.loc-btn.selected').classList.remove('selected'); }
+            if(selectedFunc && document.querySelector('.func-btn.selected.dimmed')) { selectedFunc = null; document.querySelector('.func-btn.selected').classList.remove('selected'); }
+        }
+
+        function evaluateTriad() {
+            lockBoard = true;
+            document.getElementById('chop-btn').disabled = true;
+            mcqState.attempts++;
+
+            const target = mcqState.deck[mcqState.idx];
+            const isLocCorrect = (selectedLoc === target.loc);
+            const isFuncCorrect = (selectedFunc === target.func);
+            const isPerfect = isLocCorrect && isFuncCorrect;
+
+            const allBtns = document.querySelectorAll('.opt-btn');
+            
+            if (isPerfect) {
+                // WIN
+                mcqState.correct++;
+                allBtns.forEach(b => {
+                    if(b.classList.contains('selected')) {
+                        b.classList.add('correct');
+                        b.classList.remove('selected');
+                    } else {
+                        b.classList.add('dimmed');
+                    }
+                    b.disabled = true;
+                });
+
+                const fb = document.getElementById('feedback');
+                fb.innerHTML = `✅ Triad Forged Perfectly.`;
+                fb.style.color = "var(--success)";
+                fb.style.borderLeftColor = "var(--success)";
+                fb.style.display = 'block';
+
+            } else {
+                // FAIL
+                mcqState.deck.push(mcqState.deck[mcqState.idx]); // Recycle
+
+                allBtns.forEach(b => {
+                    b.disabled = true;
+                    b.classList.remove('selected');
+                    
+                    if (b.dataset.val === target.loc || b.dataset.val === target.func) {
+                        b.classList.add('correct'); // Highlight the correct ones they missed
+                    } else if (b.dataset.val === selectedLoc || b.dataset.val === selectedFunc) {
+                        b.classList.add('wrong'); // Highlight their wrong choices
+                    } else {
+                        b.classList.add('dimmed');
+                    }
+                });
+
+                const fb = document.getElementById('feedback');
+                fb.innerHTML = `❌ Triad Mismatch.<br><span style="color:var(--text-main); font-weight:normal; font-size:0.9rem; margin-top:0.5rem; display:block;">Analyze the correct green nodes above. Tissue recycled to the back of the deck.</span>`;
+                fb.style.color = "var(--error)";
+                fb.style.borderLeftColor = "var(--error)";
+                fb.style.display = 'block';
+            }
+
+            document.getElementById('next-btn').style.display = 'block';
+            updateStats();
+        }
+
+        function updateStats() {
+            document.getElementById('stat-cards').innerText = mcqState.attempts;
+            let acc = Math.round((mcqState.correct / mcqState.attempts) * 100) || 0;
+            document.getElementById('stat-accuracy').innerText = acc + "%";
+        }
+
+        function nextCard() {
+            mcqState.idx++;
+            loadCard();
+        }
+
+        function endDrill() {
+            document.getElementById('target-area').style.display = 'none';
+            document.getElementById('end-screen').style.display = 'block';
+            
+            const pct = Math.round((mcqState.correct / mcqState.attempts) * 100) || 0;
+            document.getElementById('final-score').innerHTML = `You perfectly forged <strong>${mcqState.correct}</strong> tissue triads out of <strong>${mcqState.attempts}</strong> total attempts (${pct}% accuracy).`;
+        }
+
+        // --- REFERENCE TABLE ---
+        function buildReferenceModal() {
+            const content = document.getElementById('ref-content');
+            content.innerHTML = `
+                <div class="ref-card" style="background:var(--panel-bg); border-color:var(--accent); position:sticky; top:-1.5rem; margin-top:-1.5rem; z-index:10; padding:0.5rem 1rem;">
+                    <div style="color:var(--text-muted); font-size:0.8rem; text-transform:uppercase; font-weight:bold;">Tissue Name</div>
+                    <div style="color:var(--text-muted); font-size:0.8rem; text-transform:uppercase; font-weight:bold;">Main Location</div>
+                    <div style="color:var(--text-muted); font-size:0.8rem; text-transform:uppercase; font-weight:bold;">Primary Function</div>
+                </div>
+            `;
+            
+            let filtered = currentCategory === 'All' ? masterData : masterData.filter(d => d.type === currentCategory);
+            
+            filtered.forEach(item => {
+                content.innerHTML += `
+                    <div class="ref-card">
+                        <div class="ref-title">${item.name}</div>
+                        <div class="ref-loc">${item.loc}</div>
+                        <div class="ref-func">${item.func}</div>
+                    </div>
+                `;
+            });
+        }
+
+        function openReference() { document.getElementById('ref-modal').style.display = 'flex'; }
+        function closeReference() { document.getElementById('ref-modal').style.display = 'none'; }
+
+        // Boot
+        window.onload = () => switchDeck('Epithelial');
+
+    </script>
+</body>
+</html>
