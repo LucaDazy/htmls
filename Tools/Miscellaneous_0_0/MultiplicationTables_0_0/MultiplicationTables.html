@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multiplication Trainer</title>
+    <title>Multiplication Tables</title>
     <link rel="stylesheet" href="../../../Global/Css/main.css">
     <style>
 
@@ -36,10 +36,13 @@
         .rules-blurb {
             font-size: 0.8rem;
             color: var(--text-muted);
-            margin-bottom: 2rem;
             text-align: center;
             line-height: 1.5;
-            max-width: 600px;
+            background: var(--hover-bg);
+            padding: 0.75rem;
+            border-radius: 4px;
+            margin-top: -1rem;
+            margin-bottom: 1.5rem;
         }
 
         .equation {
@@ -70,6 +73,16 @@
             width: 100%;
             outline: none;
             caret-color: var(--accent);
+        }
+
+        /* Hide arrows from number input */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
         }
 
         .feedback {
@@ -111,16 +124,16 @@
     <div class="content-wrapper">
         <h1>Multiplication Trainer</h1>
 
-        <div class="rules-blurb">
-            excluded: multipliers of 1, 2, 10 <br>
-            multipliers of 11 (except 11x11, 11x12, 12x11)<br>
-            specific exclusions: 5x3, 5x4, 5x5
-        </div>
-
         <div class="tool-container">
             <div class="target-box" id="gameUI">
                 <div class="header-row">
                     <div class="progress-text" id="progText">Remaining: 0</div>
+                </div>
+
+                <div class="rules-blurb">
+                    excluded: multipliers of 1, 2, 10 <br>
+                    multipliers of 11 (except 11x11, 11x12, 12x11)<br>
+                    specific exclusions: 5x3, 5x4, 5x5
                 </div>
 
                 <div class="equation" id="equationDisplay">Loading...</div>
