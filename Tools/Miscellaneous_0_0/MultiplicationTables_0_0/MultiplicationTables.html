@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplication Trainer</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
+
+        :root {
+            --bg-color: #323437;
+            --main-text: #d1d0c5;
+            --sub-text: #646669;
+            --caret-color: #e2b714;
+            --error-color: #ca4754;
+            --font-family: 'Roboto Mono', monospace;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--main-text);
+            font-family: var(--font-family);
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Layout Container */
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        /* Rules Blurb */
+        .rules-blurb {
+            font-size: 0.8rem;
+            color: var(--sub-text);
+            margin-bottom: 4rem;
+            text-align: center;
+            line-height: 1.5;
+            max-width: 600px;
+        }
+
+        /* Equation Display */
+        .equation {
+            font-size: 4rem;
+            color: var(--main-text);
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .equation span {
+            color: var(--sub-text); /* The 'x' symbol */
+        }
+
+        /* Input Area */
+        .input-wrapper {
+            position: relative;
+            width: 300px;
+            display: flex;
+            justify-content: center;
+        }
+
+        input {
+            background: transparent;
+            border: none;
+            color: var(--caret-color);
+            font-family: var(--font-family);
+            font-size: 3rem;
+            text-align: center;
+            width: 100%;
+            outline: none;
+            caret-color: var(--caret-color);
+        }
+
+        /* Feedback Text */
+        .feedback {
+            margin-top: 1rem;
+            height: 2rem; /* Reserve space */
+            font-size: 1.2rem;
+            color: var(--error-color);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .feedback.visible {
+            opacity: 1;
+        }
+
+        /* Bottom Left Counter */
+        .counter {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            font-size: 1.5rem;
+            color: var(--caret-color);
+        }
+        
+        .counter-label {
+            font-size: 0.8rem;
+            color: var(--sub-text);
+            display: block;
+        }
+
+        /* Win State */
+        .win-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .win-screen h1 {
+            color: var(--caret-color);
+        }
+        
+        .restart-btn {
+            margin-top: 20px;
+            background: transparent;
+            color: var(--sub-text);
+            border: 2px solid var(--sub-text);
+            padding: 10px 20px;
+            font-family: var(--font-family);
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.2s;
+        }
+        
+        .restart-btn:hover {
+            color: var(--main-text);
+            border-color: var(--main-text);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="rules-blurb">
+        excluded: multipliers of 1, 2, 10 <br>
+        multipliers of 11 (except 11x11, 11x12, 12x11)<br>
+        specific exclusions: 5x3, 5x4, 5x5
+    </div>
+
+    <div class="game-container" id="gameUI">
+        <div class="equation" id="equationDisplay">Loading...</div>
+        
+        <div class="input-wrapper">
+            <input type="number" id="answerInput" autocomplete="off" autofocus>
+        </div>
+
+        <div class="feedback" id="feedbackMsg">Wrong, the answer is 0</div>
+    </div>
+
+    <div class="win-screen" id="winScreen">
+        <h1>Stack Cleared</h1>
+        <button class="restart-btn" onclick="location.reload()">Restart</button>
+    </div>
+
+    <div class="counter">
+        <span class="counter-label">remaining</span>
+        <span id="countValue">0</span>
+    </div>
+
+    <script>
+        // --- Game State ---
+        let questionStack = [];
+        let currentQuestion = null;
+        let isErrorState = false; // Is the user currently looking at an error they need to correct?
+
+        const equationDisplay = document.getElementById('equationDisplay');
+        const answerInput = document.getElementById('answerInput');
+        const feedbackMsg = document.getElementById('feedbackMsg');
+        const countValue = document.getElementById('countValue');
+        const gameUI = document.getElementById('gameUI');
+        const winScreen = document.getElementById('winScreen');
+
+        // --- Initialization ---
+        function init() {
+            generateQuestions();
+            shuffleStack();
+            updateCounter();
+            nextQuestion();
+            
+            // Focus safeguard
+            document.addEventListener('click', () => answerInput.focus());
+        }
+
+        // --- Logic ---
+        function generateQuestions() {
+            // We want numbers up to 12
+            for (let i = 1; i <= 12; i++) {
+                for (let j = 1; j <= 12; j++) {
+                    
+                    // 1. Do not include anything multiplied with 2
+                    if (i === 2 || j === 2) continue;
+
+                    // 2. Do not include anything multiplied with 1
+                    if (i === 1 || j === 1) continue;
+
+                    // 3. Do not include anything multiplied with 10
+                    if (i === 10 || j === 10) continue;
+
+                    // 4. Do not include anything multiplied with 11
+                    // (except for 11*11 and 11*12 and 12*11)
+                    if (i === 11 || j === 11) {
+                        const isException = (i === 11 && j === 11) || 
+                                            (i === 11 && j === 12) || 
+                                            (i === 12 && j === 11);
+                        if (!isException) continue;
+                    }
+
+                    // 5. Specific exclusions: 5*3, 5*4, 5*5
+                    if (i === 5 && (j === 3 || j === 4 || j === 5)) continue;
+
+                    // Add to stack
+                    questionStack.push({
+                        a: i,
+                        b: j,
+                        ans: i * j
+                    });
+                }
+            }
+        }
+
+        function shuffleStack() {
+            for (let i = questionStack.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [questionStack[i], questionStack[j]] = [questionStack[j], questionStack[i]];
+            }
+        }
+
+        function updateCounter() {
+            // If we are in error state, the current question is technically 
+            // 'active' but also 're-queued' mentally. 
+            // We just show the length of the stack waiting.
+            countValue.innerText = questionStack.length + (currentQuestion ? 1 : 0);
+        }
+
+        function nextQuestion() {
+            if (questionStack.length === 0) {
+                gameCompleted();
+                return;
+            }
+
+            // Pop the next question
+            currentQuestion = questionStack.shift();
+            
+            // Render
+            equationDisplay.innerHTML = `${currentQuestion.a} <span>x</span> ${currentQuestion.b}`;
+            answerInput.value = '';
+            feedbackMsg.classList.remove('visible');
+            isErrorState = false;
+            updateCounter();
+        }
+
+        function gameCompleted() {
+            gameUI.style.display = 'none';
+            winScreen.style.display = 'flex';
+            countValue.innerText = "0";
+        }
+
+        function handleWrongAnswer() {
+            // Show feedback
+            feedbackMsg.innerText = `Wrong, the answer is ${currentQuestion.ans}`;
+            feedbackMsg.classList.add('visible');
+            
+            // Add back to stack (at a random position or end? "add itself back to the stack")
+            // To ensure it doesn't just immediately pop up again if the stack is small, 
+            // we insert it at a random position, but generally towards the back is better for memory.
+            // Let's just push to end for simplicity, or splice randomly.
+            // Random insertion prevents predictable loops.
+            const randomIndex = Math.floor(Math.random() * questionStack.length);
+            questionStack.splice(randomIndex, 0, currentQuestion);
+
+            isErrorState = true;
+            answerInput.value = ''; // clear input so they have to type the correct one
+            updateCounter();
+        }
+
+        // --- Event Listeners ---
+        answerInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const val = parseInt(answerInput.value);
+
+                if (isNaN(val)) return;
+
+                if (isErrorState) {
+                    // If we are in error state, user MUST type correct answer to proceed
+                    if (val === currentQuestion.ans) {
+                        // They typed the correction. Now we move on.
+                        // Note: The question was ALREADY added back to the stack in handleWrongAnswer.
+                        nextQuestion(); 
+                    } else {
+                        // They got it wrong AGAIN while trying to correct it.
+                        // Just keep the message there, maybe flash it.
+                        feedbackMsg.style.animation = "none";
+                        feedbackMsg.offsetHeight; /* trigger reflow */
+                        feedbackMsg.style.animation = "shake 0.5s"; 
+                        answerInput.value = '';
+                    }
+                } else {
+                    // Normal attempt
+                    if (val === currentQuestion.ans) {
+                        // Correct!
+                        nextQuestion();
+                    } else {
+                        // Wrong!
+                        handleWrongAnswer();
+                    }
+                }
+            }
+        });
+
+        // Start
+        init();
+
+    </script>
+</body>
+</html>

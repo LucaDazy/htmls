@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Alphabet Speed Trainer Pro</title>
+    <style>
+        :root {
+            --bg-color: #323437;
+            --main-color: #e2b714;
+            --sub-color: #646669;
+            --text-color: #d1d0c5;
+            --error-color: #ca4754;
+            --caret-color: #e2b714;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Roboto Mono', 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            user-select: none;
+        }
+ 
+        /* --- HEADER & MODES --- */
+        header {
+            display: flex;
+            gap: 20px;
+            margin-top: 50px;
+            margin-bottom: 50px;
+            font-size: 1rem;
+            color: var(--sub-color);
+        }
+        .mode-btn {
+            background: none;
+            border: none;
+            color: var(--sub-color);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+            padding: 5px 10px;
+            transition: color 0.2s;
+        }
+        .mode-btn:hover { color: var(--text-color); }
+        .mode-btn.active { color: var(--main-color); font-weight: bold; }
+ 
+        /* --- GAME CONTAINER --- */
+        #game-container {
+            position: relative;
+            width: 80%;
+            max-width: 900px;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+ 
+        /* Timer */
+        #timer-display {
+            font-size: 1.5rem;
+            color: var(--main-color);
+            margin-bottom: 20px;
+            opacity: 0; /* Hidden in infinite mode */
+            transition: opacity 0.3s;
+        }
+ 
+        /* Sentence Display */
+        #sentence-wrapper {
+            height: 150px; /* Fixed height to prevent jumping */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+        #sentence-display {
+            font-size: 2.2rem;
+            line-height: 1.5;
+            text-align: center;
+            word-wrap: break-word;
+            max-width: 100%;
+        }
+ 
+        .char {
+            padding: 0 1px;
+            border-bottom: 2px solid transparent; 
+            transition: color 0.1s;
+        }
+        .char.pending { color: var(--sub-color); opacity: 0.5; }
+        .char.done { color: var(--text-color); opacity: 1; }
+        .char.active { 
+            color: var(--main-color); 
+            border-bottom: 2px solid var(--main-color);
+            opacity: 1;
+            transform: scale(1.1);
+            display: inline-block;
+        }
+        .char.error { color: var(--error-color) !important; }
+ 
+        /* Input */
+        #input-area {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #input-field {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid var(--sub-color);
+            color: var(--text-color);
+            font-size: 3rem;
+            text-align: center;
+            width: 150px;
+            outline: none;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        #input-field:focus { border-bottom-color: var(--main-color); }
+ 
+        /* Stats Bar */
+        #live-stats {
+            display: flex;
+            gap: 40px;
+            color: var(--sub-color);
+            margin-top: 30px;
+            font-size: 1.2rem;
+        }
+        .stat-val { color: var(--main-color); font-weight: bold; }
+ 
+        #message {
+            height: 20px;
+            color: var(--error-color);
+            font-weight: bold;
+            margin-top: 10px;
+            font-size: 1rem;
+        }
+ 
+        /* --- RESULTS OVERLAY --- */
+        #results-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(50, 52, 55, 0.98);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            display: none; /* Hidden by default */
+        }
+        #results-overlay h1 { font-size: 4rem; margin: 0 0 20px 0; color: var(--main-color); }
+        .result-stat { font-size: 1.8rem; margin: 10px 0; color: var(--text-color); }
+        .restart-btn {
+            margin-top: 40px;
+            padding: 15px 40px;
+            background: var(--main-color);
+            border: none;
+            font-family: inherit;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--bg-color);
+            font-weight: bold;
+            border-radius: 5px;
+            transition: opacity 0.2s;
+        }
+        .restart-btn:hover { opacity: 0.9; }
+ 
+        /* Mobile specific adjustments */
+        @media (max-width: 600px) {
+            #sentence-display { font-size: 1.5rem; }
+            #input-field { font-size: 2rem; width: 100px; }
+        }
+ 
+    </style>
+</head>
+<body>
+ 
+    <header>
+        <button class="mode-btn active" onclick="setMode('infinite')">Infinite</button>
+        <button class="mode-btn" onclick="setMode(15)">15s</button>
+        <button class="mode-btn" onclick="setMode(30)">30s</button>
+        <button class="mode-btn" onclick="setMode(60)">60s</button>
+    </header>
+ 
+    <div id="game-container">
+        <div id="results-overlay">
+            <h1>Time's Up!</h1>
+            <div class="result-stat">LPM: <span id="final-lpm" style="color:var(--main-color)">0</span></div>
+            <div class="result-stat">Correct: <span id="final-score">0</span></div>
+            <div class="result-stat">Accuracy: <span id="final-acc">100%</span></div>
+            <button class="restart-btn" onclick="restartGame()">Try Again</button>
+        </div>
+ 
+        <div id="timer-display">0:00</div>
+ 
+        <div id="sentence-wrapper">
+            <div id="sentence-display"></div>
+        </div>
+ 
+        <div id="input-area">
+            <input type="number" id="input-field" autocomplete="off" autofocus placeholder="#">
+            <div id="message"></div>
+        </div>
+ 
+        <div id="live-stats">
+            <div>Score: <span id="score-val" class="stat-val">0</span></div>
+            <div>Mode: <span id="mode-val" class="stat-val">Infinite</span></div>
+        </div>
+ 
+        <div style="margin-top: 40px; color: #646669; font-size: 0.8rem;">
+            Type '0' to skip/reset current sentence (Infinite Mode only).
+        </div>
+    </div>
+ 
+    <script>
+        // --- DATA ---
+        const pangrams = [
+            "The quick brown fox jumps over the lazy dog",
+            "Sphinx of black quartz judge my vow",
+            "Pack my box with five dozen liquor jugs",
+            "The five boxing wizards jump quickly",
+            "How vexingly quick daft zebras jump",
+            "Bright vixens jump; dozy fowl quack",
+            "Quick zephyrs blow, vexing daft Jim",
+            "Two driven jocks help fax my big quiz",
+            "Waltz, bad nymph, for quick jigs vex",
+            "My girl wove six dozen plaid jackets before she quit",
+            "Sixty zippers were quickly picked from the woven jute bag",
+            "Jaded zombies acted quaintly but kept driving their oxen forward",
+            "A wizard’s job is to vex chumps quickly in fog",
+            "Brown jars prevented the mixture from freezing too quickly",
+            "Farmer Jack realized that big yellow quilts were expensive",
+            "Heavy boxes perform quick waltzes and jigs",
+            "Jackdaws love my big sphinx of quartz",
+            "Playing jazz vibe chords quickly excites my wife",
+            "Quartz glyph job vex'd cwm finks",
+            "Foxy parsons quiz and cajole the lovably dim wiki-girl",
+            "Watch Jeopardy!, Alex Trebek's fun TV quiz game",
+            "By Jove, my quick study of lexicography won a prize",
+            "Public junk dwarves hug my quartz fox",
+            "Cozy lummox gives smart squid who asks for job pen",
+            "Grumpy wizards make toxic brew for the evil queen and jack",
+            "The job of waxing linoleum frequently peeved chintzy kids"
+        ];
+ 
+        // --- STATE ---
+        let currentMode = 'infinite'; 
+        let timeLimit = 0;
+        let timerInterval = null;
+        let gameActive = false;
+ 
+        let sentencesQueue = [];
+        let charElements = [];
+        let activeCharIndex = 0;
+ 
+        let correctCount = 0;
+        let errorCount = 0;
+ 
+        // Elements
+        const sentenceDisplay = document.getElementById('sentence-display');
+        const inputField = document.getElementById('input-field');
+        const messageDisplay = document.getElementById('message');
+        const timerDisplay = document.getElementById('timer-display');
+        const scoreVal = document.getElementById('score-val');
+        const modeVal = document.getElementById('mode-val');
+        const resultsOverlay = document.getElementById('results-overlay');
+        const finalLpm = document.getElementById('final-lpm');
+        const finalScore = document.getElementById('final-score');
+        const finalAcc = document.getElementById('final-acc');
+ 
+        // --- INIT ---
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+ 
+        function setMode(mode) {
+            currentMode = mode;
+ 
+            // Update buttons visually
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (mode === 'infinite') {
+                    if(btn.innerText === 'Infinite') btn.classList.add('active');
+                } else {
+                    if(btn.innerText.includes(mode.toString())) btn.classList.add('active');
+                }
+            });
+ 
+            modeVal.innerText = mode === 'infinite' ? "Infinite" : "Time Attack";
+            timerDisplay.style.opacity = mode === 'infinite' ? 0 : 1;
+ 
+            restartGame();
+        }
+ 
+        function restartGame() {
+            // Reset State
+            gameActive = true;
+            correctCount = 0;
+            errorCount = 0;
+            sentencesQueue = shuffle([...pangrams]); // Reshuffle sentences
+ 
+            scoreVal.innerText = 0;
+            resultsOverlay.style.display = 'none';
+            messageDisplay.innerText = '';
+ 
+            inputField.value = '';
+            inputField.disabled = false;
+ 
+            // Clear any existing timer
+            if (timerInterval) clearInterval(timerInterval);
+ 
+            // Timer Setup for Game Modes
+            if (currentMode !== 'infinite') {
+                timeLimit = currentMode;
+                timerDisplay.innerText = formatTime(timeLimit);
+                startTimer();
+            }
+ 
+            // Force Focus
+            setTimeout(() => inputField.focus(), 100);
+ 
+            loadNextSentence();
+        }
+ 
+        function startTimer() {
+            let timeLeft = timeLimit;
+            timerDisplay.innerText = formatTime(timeLeft);
+ 
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.innerText = formatTime(timeLeft);
+ 
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+ 
+        function endGame() {
+            clearInterval(timerInterval);
+            gameActive = false;
+            inputField.disabled = true;
+ 
+            // Calculate Stats
+            // LPM: (Correct / Seconds) * 60
+            const lpm = Math.round((correctCount / currentMode) * 60);
+ 
+            const totalAttempts = correctCount + errorCount;
+            const accuracy = totalAttempts === 0 ? 0 : Math.round((correctCount / totalAttempts) * 100);
+ 
+            finalLpm.innerText = lpm;
+            finalScore.innerText = correctCount;
+            finalAcc.innerText = accuracy + "%";
+ 
+            resultsOverlay.style.display = 'flex';
+        }
+ 
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+ 
+        function loadNextSentence() {
+            // If queue is empty, refill it
+            if (sentencesQueue.length === 0) {
+                sentencesQueue = shuffle([...pangrams]);
+            }
+ 
+            const text = sentencesQueue.pop();
+ 
+            // Clear display
+            sentenceDisplay.innerHTML = '';
+            charElements = [];
+            activeCharIndex = 0;
+ 
+            // Build HTML spans
+            for (let char of text) {
+                const span = document.createElement('span');
+                span.innerText = char;
+                span.className = 'char pending';
+                sentenceDisplay.appendChild(span);
+                charElements.push({ span, char });
+            }
+ 
+            findNextLetter();
+        }
+ 
+        function findNextLetter() {
+            // Advance through non-letters automatically
+            while (activeCharIndex < charElements.length) {
+                const char = charElements[activeCharIndex].char;
+ 
+                if (/[a-zA-Z]/.test(char)) {
+                    // It's a letter -> Highlight and wait for input
+                    charElements[activeCharIndex].span.className = 'char active';
+                    inputField.value = '';
+                    return; 
+                } else {
+                    // It's a symbol/space -> Mark done and continue
+                    charElements[activeCharIndex].span.className = 'char done';
+                    activeCharIndex++;
+                }
+            }
+ 
+            // If we fall off the end, the sentence is done
+            loadNextSentence();
+        }
+ 
+        // --- INPUT HANDLING ---
+        inputField.addEventListener('keydown', (e) => {
+            // Prevent input if game ended
+            if (!gameActive && currentMode !== 'infinite') return;
+ 
+            if (e.key === 'Enter') {
+                const val = parseInt(inputField.value);
+ 
+                // Infinite Mode Reset/Skip Command
+                if (val === 0 && currentMode === 'infinite') {
+                    loadNextSentence();
+                    return;
+                }
+ 
+                // Ignore empty or invalid inputs
+                if (!val && val !== 0) return; 
+ 
+                // Get current target
+                const targetChar = charElements[activeCharIndex].char.toUpperCase();
+                const targetNum = targetChar.charCodeAt(0) - 64; // A=1...
+ 
+                if (val === targetNum) {
+                    // CORRECT
+                    correctCount++;
+                    scoreVal.innerText = correctCount;
+ 
+                    // Update UI
+                    charElements[activeCharIndex].span.className = 'char done';
+                    messageDisplay.innerText = "";
+ 
+                    // Move to next
+                    activeCharIndex++;
+                    findNextLetter();
+                } else {
+                    // WRONG
+                    errorCount++;
+                    const span = charElements[activeCharIndex].span;
+                    span.classList.add('error');
+                    messageDisplay.innerText = `Wrong! ${targetChar} is ${targetNum}`;
+                    inputField.value = '';
+ 
+                    // Remove error flash after 300ms
+                    setTimeout(() => span.classList.remove('error'), 300);
+                }
+            }
+        });
+ 
+        // Ensure input keeps focus
+        document.addEventListener('click', (e) => {
+            // Don't focus if clicking buttons
+            if (e.target.tagName !== 'BUTTON' && (gameActive || currentMode === 'infinite')) {
+                inputField.focus();
+            }
+        });
+ 
+        // Start game on load
+        setMode('infinite');
+ 
+    </script>
+</body>
+</html>
