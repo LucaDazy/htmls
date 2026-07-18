@@ -1,6 +1,6 @@
 // service-worker.js with heavy logging
 
-const CACHE_NAME = 'study-hub-cache-v19'; // Add RoteTissues tool
+const CACHE_NAME = 'study-hub-cache-v20'; // Add MultiplicationTables tool
 const LOG_PREFIX = '[ServiceWorker]';
 console.log(`${LOG_PREFIX} Script loading. Cache name: ${CACHE_NAME}`);
 
@@ -18,6 +18,7 @@ const urlsToCache = [
   'Tools/A&P1_2_0/AnatomicalPositions_1_2/AnatomicalPositions.html',
   'Tools/A&P1_2_0/LectureCh1Quiz_2_0/LectureCh1Quiz.html',
   'Tools/A&P1_2_0/AnatomicalDirection_1_3/AnatomicalDirection.html',
+  'Tools/Miscellaneous_0_0/MultiplicationTables_0_0/MultiplicationTables.html',
   // Core SVGs
   'Global/SVGs/logo.svg',
   'Global/SVGs/avatar.svg',

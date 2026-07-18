@@ -4,22 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multiplication Trainer</title>
+    <link rel="stylesheet" href="../../../Global/Css/main.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
 
-        :root {
-            --bg-color: #323437;
-            --main-text: #d1d0c5;
-            --sub-text: #646669;
-            --caret-color: #e2b714;
-            --error-color: #ca4754;
-            --font-family: 'Roboto Mono', monospace;
-        }
+        /* :root variables are now inherited from main.css */
 
         body {
             background-color: var(--bg-color);
             color: var(--main-text);
-            font-family: var(--font-family);
+            font-family: var(--font-family-mono);
             height: 100vh;
             margin: 0;
             display: flex;
@@ -72,7 +65,7 @@
             background: transparent;
             border: none;
             color: var(--caret-color);
-            font-family: var(--font-family);
+            font-family: var(--font-family-mono);
             font-size: 3rem;
             text-align: center;
             width: 100%;
@@ -126,17 +119,23 @@
             color: var(--sub-text);
             border: 2px solid var(--sub-text);
             padding: 10px 20px;
-            font-family: var(--font-family);
+            font-family: var(--font-family-mono);
             cursor: pointer;
             border-radius: 5px;
             transition: all 0.2s;
         }
         
         .restart-btn:hover {
-            color: var(--main-text);
-            border-color: var(--main-text);
+            color: var(--accent);
+            border-color: var(--accent);
         }
 
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
     </style>
 </head>
 <body>
