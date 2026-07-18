@@ -7,53 +7,52 @@
     <link rel="stylesheet" href="../../../Global/Css/main.css">
     <style>
 
-        /* :root variables are now inherited from main.css */
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--main-text);
-            font-family: var(--font-family-mono);
-            height: 100vh;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
+        h1 {
+            color: var(--minimal-white);
+            font-family: var(--font-family-display);
+            font-size: 3rem;
+            margin-bottom: 1rem; /* Tighter spacing */
+            text-align: center;
         }
 
-        /* Layout Container */
-        .game-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            max-width: 800px;
+        .tool-container {
+            width: 100%; max-width: 600px; display: flex; flex-direction: column; 
+            align-items: center; gap: 1.5rem; position: relative;
         }
 
-        /* Rules Blurb */
+        .target-box {
+            background: var(--panel-bg); border-radius: 8px;
+            padding: 1.5rem 2rem;
+            display: flex; flex-direction: column; width: 100%; box-sizing: border-box; align-items: center;
+        }
+        
+        .header-row {
+            display: flex; justify-content: flex-end; align-items: center; width: 100%;
+            border-bottom: 1px dashed var(--hover-bg); padding-bottom: 1rem; margin-bottom: 2rem;
+        }
+
+        .progress-text { font-family: var(--font-family-mono); font-size: 0.95rem; color: var(--text-muted); font-weight: bold; }
+
         .rules-blurb {
             font-size: 0.8rem;
-            color: var(--sub-text);
-            margin-bottom: 4rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
             text-align: center;
             line-height: 1.5;
             max-width: 600px;
         }
 
-        /* Equation Display */
         .equation {
             font-size: 4rem;
-            color: var(--main-text);
+            color: var(--text-main);
             margin-bottom: 1rem;
             font-weight: 700;
         }
 
         .equation span {
-            color: var(--sub-text); /* The 'x' symbol */
+            color: var(--text-muted);
         }
 
-        /* Input Area */
         .input-wrapper {
             position: relative;
             width: 300px;
@@ -64,21 +63,20 @@
         input {
             background: transparent;
             border: none;
-            color: var(--caret-color);
+            color: var(--accent);
             font-family: var(--font-family-mono);
             font-size: 3rem;
             text-align: center;
             width: 100%;
             outline: none;
-            caret-color: var(--caret-color);
+            caret-color: var(--accent);
         }
 
-        /* Feedback Text */
         .feedback {
             margin-top: 1rem;
-            height: 2rem; /* Reserve space */
+            height: 2rem;
             font-size: 1.2rem;
-            color: var(--error-color);
+            color: var(--error);
             opacity: 0;
             transition: opacity 0.2s ease;
         }
@@ -86,49 +84,16 @@
         .feedback.visible {
             opacity: 1;
         }
+        
+        .end-screen { text-align: center; display: none; background: var(--panel-bg); padding: 3rem; border-radius: 8px; border: 2px solid var(--success); width: 100%; box-sizing: border-box;}
+        .end-screen h2 { color: var(--success); margin-bottom: 1rem; }
 
-        /* Bottom Left Counter */
-        .counter {
-            position: fixed;
-            bottom: 2rem;
-            left: 2rem;
-            font-size: 1.5rem;
-            color: var(--caret-color);
+        .action-btn {
+            background: transparent; border: 2px solid var(--accent); color: var(--accent);
+            font-family: var(--font-family-mono); font-size: 1rem; cursor: pointer; border-radius: 4px; width: 100%;
+            font-weight: bold; text-align: center; padding: 1rem 1.5rem;
         }
-        
-        .counter-label {
-            font-size: 0.8rem;
-            color: var(--sub-text);
-            display: block;
-        }
-
-        /* Win State */
-        .win-screen {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .win-screen h1 {
-            color: var(--caret-color);
-        }
-        
-        .restart-btn {
-            margin-top: 20px;
-            background: transparent;
-            color: var(--sub-text);
-            border: 2px solid var(--sub-text);
-            padding: 10px 20px;
-            font-family: var(--font-family-mono);
-            cursor: pointer;
-            border-radius: 5px;
-            transition: all 0.2s;
-        }
-        
-        .restart-btn:hover {
-            color: var(--accent);
-            border-color: var(--accent);
-        }
+        .action-btn:hover { background: var(--accent); color: var(--bg-color); }
 
         @keyframes shake {
             10%, 90% { transform: translate3d(-1px, 0, 0); }
@@ -139,33 +104,39 @@
     </style>
 </head>
 <body>
-        <img src="../../../Global/SVGs/logo.svg" alt="Study Hub Logo" class="corner-logo">
-        <img src="../../../Global/SVGs/avatar.svg" alt="Avatar" class="corner-avatar">
+    <canvas id="background-canvas"></canvas>
+    <img src="../../../Global/SVGs/logo.svg" alt="Study Hub Logo" class="corner-logo">
+    <img src="../../../Global/SVGs/avatar.svg" alt="Avatar" class="corner-avatar">
     
-    <div class="rules-blurb">
-        excluded: multipliers of 1, 2, 10 <br>
-        multipliers of 11 (except 11x11, 11x12, 12x11)<br>
-        specific exclusions: 5x3, 5x4, 5x5
-    </div>
+    <div class="content-wrapper">
+        <h1>Multiplication Trainer</h1>
 
-    <div class="game-container" id="gameUI">
-        <div class="equation" id="equationDisplay">Loading...</div>
-        
-        <div class="input-wrapper">
-            <input type="number" id="answerInput" autocomplete="off" autofocus>
+        <div class="rules-blurb">
+            excluded: multipliers of 1, 2, 10 <br>
+            multipliers of 11 (except 11x11, 11x12, 12x11)<br>
+            specific exclusions: 5x3, 5x4, 5x5
         </div>
 
-        <div class="feedback" id="feedbackMsg">Wrong, the answer is 0</div>
-    </div>
+        <div class="tool-container">
+            <div class="target-box" id="gameUI">
+                <div class="header-row">
+                    <div class="progress-text" id="progText">Remaining: 0</div>
+                </div>
 
-    <div class="win-screen" id="winScreen">
-        <h1>Stack Cleared</h1>
-        <button class="restart-btn" onclick="location.reload()">Restart</button>
-    </div>
+                <div class="equation" id="equationDisplay">Loading...</div>
+                
+                <div class="input-wrapper">
+                    <input type="number" id="answerInput" autocomplete="off" autofocus>
+                </div>
+        
+                <div class="feedback" id="feedbackMsg">Wrong, the answer is 0</div>
+            </div>
 
-    <div class="counter">
-        <span class="counter-label">remaining</span>
-        <span id="countValue">0</span>
+            <div class="end-screen" id="winScreen">
+                <h2>Stack Cleared</h2>
+                <button class="action-btn" onclick="location.reload()">Restart</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -177,7 +148,7 @@
         const equationDisplay = document.getElementById('equationDisplay');
         const answerInput = document.getElementById('answerInput');
         const feedbackMsg = document.getElementById('feedbackMsg');
-        const countValue = document.getElementById('countValue');
+        const progText = document.getElementById('progText');
         const gameUI = document.getElementById('gameUI');
         const winScreen = document.getElementById('winScreen');
 
@@ -240,7 +211,7 @@
             // If we are in error state, the current question is technically 
             // 'active' but also 're-queued' mentally. 
             // We just show the length of the stack waiting.
-            countValue.innerText = questionStack.length + (currentQuestion ? 1 : 0);
+            progText.innerText = 'Remaining: ' + (questionStack.length + (currentQuestion ? 1 : 0));
         }
 
         function nextQuestion() {
@@ -263,7 +234,7 @@
         function gameCompleted() {
             gameUI.style.display = 'none';
             winScreen.style.display = 'flex';
-            countValue.innerText = "0";
+            progText.innerText = 'Remaining: 0';
         }
 
         function handleWrongAnswer() {
@@ -322,5 +293,6 @@
         init();
 
     </script>
+    <script src="../../../Global/Scripts/background-animation.js" data-base-path="../../../"></script>
 </body>
 </html>
