@@ -1,6 +1,6 @@
 // service-worker.js with heavy logging
 
-const CACHE_NAME = 'study-hub-cache-v20'; // Add MultiplicationTables tool
+const CACHE_NAME = 'study-hub-cache-v21'; // Cache only essential app shell
 const LOG_PREFIX = '[ServiceWorker]';
 console.log(`${LOG_PREFIX} Script loading. Cache name: ${CACHE_NAME}`);
 
@@ -11,19 +11,9 @@ const urlsToCache = [
   'Global/Css/animations.css',
   'Global/Scripts/background-animation.js',
   'Global/tool-manifest.json',
-  // Tools
-  'Tools/A&P1_2_0/RoteTissues_3_1/RoteTissues.html',
-  'Tools/A&P1_2_0/Exam1CTQs_3_0/Exam1CTQs.html',
-  'Tools/A&P1_2_0/OrganSystems_1_4/OrganSystems.html',
-  'Tools/A&P1_2_0/AnatomicalPositions_1_2/AnatomicalPositions.html',
-  'Tools/A&P1_2_0/LectureCh1Quiz_2_0/LectureCh1Quiz.html',
-  'Tools/A&P1_2_0/AnatomicalDirection_1_3/AnatomicalDirection.html',
-  'Tools/Miscellaneous_0_0/MultiplicationTables_0_0/MultiplicationTables.html',
   // Core SVGs
   'Global/SVGs/logo.svg',
   'Global/SVGs/avatar.svg',
-  'Global/SVGs/wip.svg',
-  'Global/Clicker/SVGs/flashcard.svg',
   // Background Animation Doodles
   'Global/SVGs/doodles/apple.svg',
   'Global/SVGs/doodles/books.svg',
