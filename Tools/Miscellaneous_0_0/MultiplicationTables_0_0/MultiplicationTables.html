@@ -61,6 +61,14 @@
             width: 300px;
             display: flex;
             justify-content: center;
+            background: var(--bg-color);
+            border-radius: 6px;
+            border: 2px solid transparent;
+            transition: border-color var(--anim-duration-fast) ease;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--accent);
         }
 
         input {
@@ -73,6 +81,7 @@
             width: 100%;
             outline: none;
             caret-color: var(--accent);
+            padding: 0.25rem 0;
         }
 
         /* Hide arrows from number input */
