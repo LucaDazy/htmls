@@ -7,6 +7,26 @@
     <link rel="stylesheet" href="../../../Global/Css/main.css">
     <link rel="stylesheet" href="../../../Global/Css/animations.css">
     <style>
+        h1 {
+            color: var(--minimal-white);
+            font-family: var(--font-family-display);
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .tool-container {
+            width: 100%; max-width: 900px; display: flex; flex-direction: column; 
+            align-items: center; gap: 1.5rem; position: relative;
+        }
+
+        .target-box {
+            background: var(--panel-bg); border-radius: 8px;
+            padding: 1.5rem 2rem;
+            display: flex; flex-direction: column; align-items: center;
+            width: 100%; box-sizing: border-box;
+        }
+
         :root {
             /* Map local variables to global theme from main.css */
             --main-color: var(--accent);
@@ -26,8 +46,7 @@
         header {
             display: flex;
             gap: 20px;
-            margin-top: 50px;
-            margin-bottom: 50px;
+            margin-bottom: 2rem;
             font-size: 1rem;
             color: var(--sub-color);
         }
@@ -47,10 +66,7 @@
         /* --- GAME CONTAINER --- */
         #game-container {
             position: relative;
-            width: 80%;
-            max-width: 900px;
-            text-align: center;
-            flex-grow: 1;
+            width: 100%; /* Fill the new target-box */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -179,42 +195,48 @@
     <img src="../../../Global/SVGs/avatar.svg" alt="Avatar" class="corner-avatar">
  
     <div class="content-wrapper">
-    <header>
-        <button class="mode-btn active" onclick="setMode('infinite')">Infinite</button>
-        <button class="mode-btn" onclick="setMode(15)">15s</button>
-        <button class="mode-btn" onclick="setMode(30)">30s</button>
-        <button class="mode-btn" onclick="setMode(60)">60s</button>
-    </header>
- 
-    <div id="game-container">
-        <div id="results-overlay">
-            <h1>Time's Up!</h1>
-            <div class="result-stat">LPM: <span id="final-lpm" class="stat-val">0</span></div>
-            <div class="result-stat">Correct: <span id="final-score" class="stat-val">0</span></div>
-            <div class="result-stat">Accuracy: <span id="final-acc" class="stat-val">100%</span></div>
-            <button class="restart-btn" onclick="restartGame()">Try Again</button>
+        <h1 id="page-title">Alphabetize</h1>
+
+        <div class="tool-container">
+            <div class="target-box">
+                <header>
+                    <button class="mode-btn active" onclick="setMode('infinite')">Infinite</button>
+                    <button class="mode-btn" onclick="setMode(15)">15s</button>
+                    <button class="mode-btn" onclick="setMode(30)">30s</button>
+                    <button class="mode-btn" onclick="setMode(60)">60s</button>
+                </header>
+            
+                <div id="game-container">
+                    <div id="results-overlay">
+                        <h1>Time's Up!</h1>
+                        <div class="result-stat">LPM: <span id="final-lpm" class="stat-val">0</span></div>
+                        <div class="result-stat">Correct: <span id="final-score" class="stat-val">0</span></div>
+                        <div class="result-stat">Accuracy: <span id="final-acc" class="stat-val">100%</span></div>
+                        <button class="restart-btn" onclick="restartGame()">Try Again</button>
+                    </div>
+            
+                    <div id="timer-display">0:00</div>
+            
+                    <div id="sentence-wrapper">
+                        <div id="sentence-display"></div>
+                    </div>
+            
+                    <div id="input-area">
+                        <input type="number" id="input-field" autocomplete="off" autofocus placeholder="#">
+                        <div id="message"></div>
+                    </div>
+            
+                    <div id="live-stats">
+                        <div>Score: <span id="score-val" class="stat-val">0</span></div>
+                        <div>Mode: <span id="mode-val" class="stat-val">Infinite</span></div>
+                    </div>
+            
+                    <div style="margin-top: 40px; color: #646669; font-size: 0.8rem;">
+                        Type '0' to skip/reset current sentence (Infinite Mode only).
+                    </div>
+                </div>
+            </div>
         </div>
- 
-        <div id="timer-display">0:00</div>
- 
-        <div id="sentence-wrapper">
-            <div id="sentence-display"></div>
-        </div>
- 
-        <div id="input-area">
-            <input type="number" id="input-field" autocomplete="off" autofocus placeholder="#">
-            <div id="message"></div>
-        </div>
- 
-        <div id="live-stats">
-            <div>Score: <span id="score-val" class="stat-val">0</span></div>
-            <div>Mode: <span id="mode-val" class="stat-val">Infinite</span></div>
-        </div>
- 
-        <div style="margin-top: 40px; color: #646669; font-size: 0.8rem;">
-            Type '0' to skip/reset current sentence (Infinite Mode only).
-        </div>
-    </div>
     </div> <!-- .content-wrapper -->
  
     <script>
