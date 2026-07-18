@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Alphabetize</title>
-    <link rel="stylesheet" href="../../../../Global/Css/main.css">
-    <link rel="stylesheet" href="../../../../Global/Css/animations.css">
+    <link rel="stylesheet" href="../../../Global/Css/main.css">
+    <link rel="stylesheet" href="../../../Global/Css/animations.css">
     <style>
         :root {
             /* Map local variables to global theme from main.css */
@@ -15,13 +15,9 @@
             --error-color: var(--error);
         }
         body {
-            /* background-color and color are handled by main.css and background-canvas */
+            /* This tool uses the mono font throughout */
             font-family: var(--font-family-mono);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
+            /* Prevent scrolling for this game-like view */
             overflow: hidden;
             user-select: none;
         }
@@ -179,9 +175,10 @@
 </head>
 <body>
     <canvas id="background-canvas"></canvas>
-    <img src="../../../../Global/SVGs/logo.svg" alt="Logo" class="corner-logo">
-    <img src="../../../../Global/SVGs/avatar.svg" alt="Avatar" class="corner-avatar">
+    <img src="../../../Global/SVGs/logo.svg" alt="Logo" class="corner-logo">
+    <img src="../../../Global/SVGs/avatar.svg" alt="Avatar" class="corner-avatar">
  
+    <div class="content-wrapper">
     <header>
         <button class="mode-btn active" onclick="setMode('infinite')">Infinite</button>
         <button class="mode-btn" onclick="setMode(15)">15s</button>
@@ -218,6 +215,7 @@
             Type '0' to skip/reset current sentence (Infinite Mode only).
         </div>
     </div>
+    </div> <!-- .content-wrapper -->
  
     <script>
         // --- DATA ---
@@ -473,6 +471,6 @@
         setMode('infinite');
  
     </script>
-    <script src="../../../../Global/Scripts/background-animation.js" data-base-path="../../../../"></script>
+    <script src="../../../Global/Scripts/background-animation.js" data-base-path="../../../"></script>
 </body>
 </html>
