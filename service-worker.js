@@ -1,6 +1,6 @@
 // service-worker.js with heavy logging
 
-const CACHE_NAME = 'study-hub-cache-v22'; // Style MultiplicationTables input
+const CACHE_NAME = 'study-hub-cache-v23'; // Add MuscleList tool
 const LOG_PREFIX = '[ServiceWorker]';
 console.log(`${LOG_PREFIX} Script loading. Cache name: ${CACHE_NAME}`);
 
@@ -26,7 +26,9 @@ const urlsToCache = [
   'Global/SVGs/doodles/sparkle.svg',
   'Global/SVGs/doodles/square.svg',
   'Global/SVGs/doodles/star.svg',
-  'Global/SVGs/doodles/worm.svg'
+  'Global/SVGs/doodles/worm.svg',
+  // Tools
+  'Tools/A&P1_2_1/MuscleList_4_0/MuscleList.html'
 ];
 
 self.addEventListener('install', event => {

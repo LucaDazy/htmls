@@ -4,73 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Muscle List</title>
+    <link rel="stylesheet" href="../../../Global/Css/main.css">
+    <link rel="stylesheet" href="../../../Global/Css/animations.css">
     <style>
         :root {
-            --bg-color: #323437;
-            --panel-bg: #2c2e31;
-            --hover-bg: #3a3d40;
-            --text-main: #d1d0c5;
-            --text-muted: #646669;
-            --accent: #e2b714;
-            --error: #ca4754;
-            --success: #8cc84b;
-            --origin-color: #e27d60;   /* Coral / Red */
-            --insert-color: #85b0d6;   /* Soft Blue */
-            --action-color: #8cc84b;   /* Soft Green */
+            --origin-color: var(--error);
+            --insert-color: var(--accent);
+            --action-color: var(--success);
         }
 
-        body {
-            background-color: var(--bg-color); color: var(--text-main);
-            font-family: 'Fira Code', 'Courier New', Courier, monospace;
-            display: flex; flex-direction: column; align-items: center;
-            padding: 2rem; margin: 0; min-height: 100vh;
-        }
-
-        h1 { color: var(--accent); margin-bottom: 2rem; text-align: center; letter-spacing: 1px; }
-
-        .container {
-            width: 100%; max-width: 900px; display: flex; flex-direction: column; 
-            align-items: center; gap: 1.5rem; position: relative;
-        }
+        /* Override for this tool's wider layout */
+        .container { max-width: 900px; }
 
         /* Section Navigation */
         .nav-bar {
-            display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; 
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem;
             margin-bottom: 0.5rem; width: 100%;
         }
-        .nav-btn {
-            background: var(--bg-color); border: 1px solid var(--text-muted); color: var(--text-muted);
-            padding: 0.5rem 1rem; font-family: inherit; font-size: 0.85rem; cursor: pointer; 
-            border-radius: 4px; transition: 0.2s; font-weight: bold; text-transform: uppercase;
+        .back-btn.active {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(165, 104, 157, 0.1); /* accent with opacity */
         }
-        .nav-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(226, 183, 20, 0.1); }
-        .nav-btn:hover:not(.active) { border-color: var(--text-main); color: var(--text-main); }
-
+        
         /* Tool Bar */
         .header-row {
             display: flex; justify-content: space-between; align-items: center; width: 100%;
             background: var(--panel-bg); padding: 1rem 1.5rem; border-radius: 8px;
-            border: 1px solid var(--text-muted); box-sizing: border-box; flex-wrap: wrap; gap: 1rem;
+            box-sizing: border-box; flex-wrap: wrap; gap: 1rem;
         }
         
-        /* Prominent Progress Indicator */
-        .progress-text { 
-            font-size: 0.95rem; color: var(--bg-color); background: var(--accent); 
+        .progress-text {
+            font-size: 0.95rem; color: var(--panel-bg); background: var(--accent);
             padding: 0.4rem 1rem; border-radius: 20px; font-weight: bold; letter-spacing: 0.5px;
         }
-        
-        .tool-btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-        .tool-btn {
-            background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted);
-            padding: 0.4rem 0.8rem; font-family: inherit; font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s;
-        }
-        .tool-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: rgba(226, 183, 20, 0.1); }
-        .tool-btn:disabled { opacity: 0.3; cursor: default; }
 
         /* Card Area */
         .card-box {
-            background: #18191a; border: 2px solid var(--accent); border-radius: 8px;
-            padding: 2rem; box-shadow: inset 0 0 30px rgba(0,0,0,0.5), 0 4px 15px rgba(0,0,0,0.3);
+            background: transparent;
+            border: 2px solid transparent; /* Fallback, overridden by stage */
+            border-radius: 8px; padding: 2rem;
             display: flex; flex-direction: column; align-items: center; width: 100%; box-sizing: border-box;
             position: relative; transition: border-color 0.3s;
         }
@@ -79,77 +52,71 @@
             font-weight: bold; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;
             transition: all 0.3s;
         }
-        
+
         /* Dynamic Stage Colors */
         .stage-0 { border-color: var(--origin-color) !important; }
-        .stage-0 .stage-badge { background: rgba(226, 125, 96, 0.2); color: var(--origin-color); border: 1px solid var(--origin-color); }
+        .stage-0 .stage-badge { background: rgba(224, 94, 117, 0.2); color: var(--origin-color); border: 1px solid var(--origin-color); }
         .stage-1 { border-color: var(--insert-color) !important; }
-        .stage-1 .stage-badge { background: rgba(133, 176, 214, 0.2); color: var(--insert-color); border: 1px solid var(--insert-color); }
+        .stage-1 .stage-badge { background: rgba(165, 104, 157, 0.2); color: var(--insert-color); border: 1px solid var(--insert-color); }
         .stage-2 { border-color: var(--action-color) !important; }
-        .stage-2 .stage-badge { background: rgba(140, 200, 75, 0.2); color: var(--action-color); border: 1px solid var(--action-color); }
+        .stage-2 .stage-badge { background: rgba(77, 182, 172, 0.2); color: var(--action-color); border: 1px solid var(--action-color); }
 
         .muscle-title {
-            font-size: 2rem; color: var(--text-main); font-weight: bold; text-align: center; 
+            font-size: 2rem; color: var(--minimal-white); font-weight: bold; text-align: center;
             margin-top: 1.5rem; margin-bottom: 2rem; letter-spacing: 1px;
         }
 
         /* Options Grid */
-        .options-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; width: 100%;
-        }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; width: 100%; }
         @media (max-width: 700px) { .options-grid { grid-template-columns: 1fr; } }
 
         .opt-btn {
-            background: var(--panel-bg); border: 2px solid var(--text-muted); color: var(--text-main);
-            padding: 1.2rem 1rem; border-radius: 6px; font-family: inherit; font-size: 0.95rem; cursor: pointer;
-            transition: all 0.2s; line-height: 1.4; text-align: left; font-weight: bold;
+            background: transparent; border: 2px solid var(--text-muted); color: var(--text-main);
+            padding: 1.2rem 1rem; border-radius: 6px; font-family: var(--font-family-mono); font-size: 0.95rem;
+            cursor: pointer; transition: all 0.2s; line-height: 1.4; text-align: left; font-weight: bold;
         }
-        .opt-btn:hover:not(:disabled):not(.dimmed) { background: var(--hover-bg); transform: translateY(-2px); }
+        .opt-btn:hover:not(:disabled):not(.dimmed) { background: var(--hover-bg); }
 
         /* Dynamic Option Hover Colors */
         .stage-0 .opt-btn:hover:not(:disabled):not(.dimmed) { border-color: var(--origin-color); }
         .stage-1 .opt-btn:hover:not(:disabled):not(.dimmed) { border-color: var(--insert-color); }
         .stage-2 .opt-btn:hover:not(:disabled):not(.dimmed) { border-color: var(--action-color); }
 
-        .opt-btn.correct { border-color: var(--success) !important; background: rgba(140, 200, 75, 0.2) !important; color: var(--success) !important; }
-        .opt-btn.wrong { border-color: var(--error) !important; background: rgba(202, 71, 84, 0.2) !important; color: var(--error) !important; animation: shake 0.3s; }
-        .opt-btn.dimmed { opacity: 0.2; pointer-events: none; border-color: #222; }
-        .opt-btn:disabled { cursor: default; transform: none; }
+        .opt-btn.correct { border-color: var(--success) !important; background: rgba(77, 182, 172, 0.2) !important; color: var(--success) !important; }
+        .opt-btn.wrong { border-color: var(--error) !important; background: rgba(224, 94, 117, 0.2) !important; color: var(--error) !important; animation: shake 0.3s; }
+        .opt-btn.dimmed { opacity: 0.2; pointer-events: none; }
+        .opt-btn:disabled { cursor: default; }
 
-        @keyframes shake {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
-            75% { transform: translateX(-5px); }
-            100% { transform: translateX(0); }
-        }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } }
 
         /* Hint & Feedback */
         .hint-box {
-            background: rgba(226, 183, 20, 0.1); border: 1px solid var(--accent); color: var(--accent);
-            padding: 1rem; border-radius: 6px; font-size: 0.95rem; margin-bottom: 1.5rem; display: none; line-height: 1.5; width: 100%; box-sizing: border-box; text-align: center;
+            background: rgba(165, 104, 157, 0.1); border: 1px solid var(--accent); color: var(--accent);
+            padding: 1rem; border-radius: 6px; font-size: 0.95rem; margin-bottom: 1.5rem;
+            display: none; line-height: 1.5; width: 100%; box-sizing: border-box; text-align: center;
         }
-
-        .completion-msg {
-            display: none; width: 100%; text-align: center; font-size: 1.1rem; font-weight: bold; margin-top: 1.5rem; padding: 1.2rem; border-radius: 6px; 
-        }
-
+        .completion-msg { display: none; width: 100%; text-align: center; font-size: 1.1rem; font-weight: bold; margin-top: 1.5rem; padding: 1.2rem; border-radius: 6px; }
         .end-screen { text-align: center; display: none; background: var(--panel-bg); padding: 3rem; border-radius: 8px; border: 2px solid var(--success); width: 100%; box-sizing: border-box;}
         .end-screen h2 { color: var(--success); margin-bottom: 1rem; }
-        
+
         .action-btn {
-            background: var(--bg-color); border: 2px solid var(--accent); color: var(--accent); padding: 1rem;
-            font-family: inherit; font-size: 1.05rem; cursor: pointer; border-radius: 6px; transition: 0.2s;
-            margin-top: 1rem; font-weight: bold; display: inline-block; width: 100%; box-sizing: border-box;
+            background: transparent; border: 2px solid var(--accent); color: var(--accent); padding: 1rem;
+            font-family: var(--font-family-mono); font-size: 1.05rem; cursor: pointer; border-radius: 6px; transition: 0.2s;
+            margin-top: 1rem; font-weight: bold; width: 100%; box-sizing: border-box;
         }
-        .action-btn:hover { background: var(--accent); color: var(--bg-color); }
+        .action-btn:hover { background: var(--accent); color: var(--panel-bg); }
     </style>
 </head>
 <body>
+    <img src="../../../Global/SVGs/logo.svg" alt="Study Hub Logo" class="corner-logo">
+    <img src="../../../Global/SVGs/avatar.svg" alt="Avatar" class="corner-avatar">
 
-    <h1>Muscle List</h1>
+    <div class="content-wrapper">
+        <div class="view-header centered-header">
+            <h1 class="view-title">Muscle List</h1>
+        </div>
 
-    <div class="container">
+        <div class="container">
         
         <div class="nav-bar" id="nav-bar">
             <!-- Injected via JS -->
@@ -158,10 +125,10 @@
         <div class="header-row" id="header-tools">
             <div class="progress-text" id="prog-text">Loading...</div>
             <div class="tool-btns">
-                <button class="tool-btn" id="hint-btn" onclick="useHint()">💡 Hint</button>
-                <button class="tool-btn" id="chop-btn" onclick="useChop()">✂️ Chop</button>
-                <button class="tool-btn" id="skip-stage-btn" onclick="skipStage()">⏭️ Skip Stage</button>
-                <button class="tool-btn" id="skip-muscle-btn" onclick="skipMuscle()">⏭️ Skip Muscle</button>
+                <button class="back-btn" id="hint-btn" onclick="useHint()">💡 Hint</button>
+                <button class="back-btn" id="chop-btn" onclick="useChop()">✂️ Chop</button>
+                <button class="back-btn" id="skip-stage-btn" onclick="skipStage()">⏭️ Skip Stage</button>
+                <button class="back-btn" id="skip-muscle-btn" onclick="skipMuscle()">⏭️ Skip Muscle</button>
             </div>
         </div>
 
@@ -188,6 +155,8 @@
             <p id="final-score" style="margin-bottom: 2rem; color: var(--text-main); font-size:1.1rem;"></p>
             <button class="action-btn" style="width:auto;" onclick="startSection(currentSection)">Restart Section</button>
         </div>
+
+    </div>
 
     </div>
 
@@ -330,14 +299,14 @@
             
             // Inject "ALL" master section
             const btnAll = document.createElement('button');
-            btnAll.className = 'nav-btn';
+            btnAll.className = 'back-btn';
             btnAll.innerText = 'ALL MUSCLES';
             btnAll.onclick = () => startSection('All');
             bar.appendChild(btnAll);
 
             sections.forEach(sec => {
                 const btn = document.createElement('button');
-                btn.className = 'nav-btn';
+                btn.className = 'back-btn';
                 btn.innerText = sec.replace('Muscles of the ', '');
                 btn.onclick = () => startSection(sec);
                 bar.appendChild(btn);
@@ -346,7 +315,7 @@
 
         function startSection(sectionName) {
             currentSection = sectionName;
-            document.querySelectorAll('.nav-btn').forEach(btn => {
+            document.querySelectorAll('.nav-bar .back-btn').forEach(btn => {
                 let matchStr = sectionName === 'All' ? 'ALL MUSCLES' : sectionName.replace('Muscles of the ', '');
                 btn.classList.toggle('active', btn.innerText === matchStr);
             });
@@ -549,9 +518,9 @@
             if (cardFailed) {
                 mcqState.deck.push(mcqState.deck[mcqState.idx]);
                 msg.innerHTML = `⚠️ Muscle Completed (with errors/tools/skips).<br><span style="font-size:0.9rem; font-weight:normal; color: var(--text-main);">Card recycled to the back of the deck for review.</span>`;
-                msg.style.color = "var(--hard)";
-                msg.style.borderColor = "var(--hard)";
-                msg.style.backgroundColor = "rgba(226, 125, 96, 0.1)";
+                msg.style.color = "var(--error)";
+                msg.style.borderColor = "var(--error)";
+                msg.style.backgroundColor = "rgba(224, 94, 117, 0.1)";
             } else {
                 mcqState.correct++;
                 msg.innerHTML = `✅ Muscle Mastered Flawlessly!`;
