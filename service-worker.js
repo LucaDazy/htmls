@@ -1,6 +1,6 @@
 // service-worker.js with heavy logging
 
-const CACHE_NAME = 'study-hub-cache-v23'; // Add MuscleList tool
+const CACHE_NAME = 'study-hub-cache-v24'; // Improve caching strategy
 const LOG_PREFIX = '[ServiceWorker]';
 console.log(`${LOG_PREFIX} Script loading. Cache name: ${CACHE_NAME}`);
 
@@ -71,37 +71,46 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // We only cache GET requests.
+  // We only handle GET requests.
   if (event.request.method !== 'GET') {
     return;
   }
 
   const url = new URL(event.request.url);
-  const isLocal = url.origin === self.location.origin;
-  if (isLocal) {
-    console.log(LOG_PREFIX, 'FETCH event for:', event.request.url);
+
+  // Ignore non-local assets (e.g., Google Fonts).
+  if (url.origin !== self.location.origin) {
+    return;
   }
 
+  console.log(LOG_PREFIX, 'FETCH event for local asset:', event.request.url);
+
   // Define assets that are part of the "app shell" and need to be fresh.
-  // This includes the main page, core styles, scripts, and the data manifest.
   const isAppShell = event.request.destination === 'document' ||
                      event.request.destination === 'style' ||
                      event.request.destination === 'script' ||
                      url.pathname.endsWith('tool-manifest.json');
+  
+  // Define static assets that can be served from the cache first.
+  const isStaticAsset = url.pathname.endsWith('.svg');
 
   // Strategy 1: Network First for App Shell.
   // This ensures the user always gets the latest version of the core app files.
   // If the network fails, it falls back to the cached version.
-  if (isAppShell && isLocal) {
+  if (isAppShell) {
     event.respondWith(
       fetch(event.request)
         .then(networkResponse => {
-          // If fetch is successful, update the cache with the new version.
-          return caches.open(CACHE_NAME).then(cache => {
-            console.log(LOG_PREFIX, `NETWORK-FIRST: Caching fresh asset: ${event.request.url}`);
-            cache.put(event.request, networkResponse.clone());
-            return networkResponse;
-          });
+          // If we get a valid response, cache it before returning.
+          if (networkResponse && networkResponse.ok) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then(cache => {
+              console.log(LOG_PREFIX, `NETWORK-FIRST: Caching fresh asset: ${event.request.url}`);
+              cache.put(event.request, responseToCache);
+            });
+          }
+          // Return the original network response to the browser to handle.
+          return networkResponse;
         })
         .catch(() => {
           // If network fails (offline), serve the asset from the cache.
@@ -109,9 +118,10 @@ self.addEventListener('fetch', event => {
           return caches.match(event.request);
         })
     );
-  } else if (isLocal) {
-    // Strategy 2: Cache First for static assets (SVGs, etc.).
-    // These assets change infrequently, so serving them from the cache is fast and efficient.
+  } 
+  // Strategy 2: Cache First for static assets (SVGs).
+  // These assets change infrequently, so serving them from cache is fast and efficient.
+  else if (isStaticAsset) {
     event.respondWith(
       caches.match(event.request).then(cachedResponse => {
         // If the asset is in the cache, return it.
@@ -120,16 +130,19 @@ self.addEventListener('fetch', event => {
           return cachedResponse;
         }
 
-        // If not in cache, fetch from network, cache it, and then return it.
+        // If not in cache, fetch from network, cache it if valid, and then return it.
         return fetch(event.request).then(networkResponse => {
-          return caches.open(CACHE_NAME).then(cache => {
-            console.log(LOG_PREFIX, `CACHE-FIRST: Caching new asset: ${event.request.url}`);
-            cache.put(event.request, networkResponse.clone());
-            return networkResponse;
-          });
+          if (networkResponse && networkResponse.ok) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then(cache => {
+              console.log(LOG_PREFIX, `CACHE-FIRST: Caching new asset: ${event.request.url}`);
+              cache.put(event.request, responseToCache);
+            });
+          }
+          return networkResponse;
         });
       })
     );
   }
-  // For cross-origin requests (like Google Fonts), we don't intervene.
+  // Any other local requests will pass through to the network without being cached.
 });
