@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muscle List</title>
+    <style>
+        :root {
+            --bg-color: #323437;
+            --panel-bg: #2c2e31;
+            --hover-bg: #3a3d40;
+            --text-main: #d1d0c5;
+            --text-muted: #646669;
+            --accent: #e2b714;
+            --error: #ca4754;
+            --success: #8cc84b;
+            --origin-color: #e27d60;   /* Coral / Red */
+            --insert-color: #85b0d6;   /* Soft Blue */
+            --action-color: #8cc84b;   /* Soft Green */
+        }
+
+        body {
+            background-color: var(--bg-color); color: var(--text-main);
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 2rem; margin: 0; min-height: 100vh;
+        }
+
+        h1 { color: var(--accent); margin-bottom: 2rem; text-align: center; letter-spacing: 1px; }
+
+        .container {
+            width: 100%; max-width: 900px; display: flex; flex-direction: column; 
+            align-items: center; gap: 1.5rem; position: relative;
+        }
+
+        /* Section Navigation */
+        .nav-bar {
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; 
+            margin-bottom: 0.5rem; width: 100%;
+        }
+        .nav-btn {
+            background: var(--bg-color); border: 1px solid var(--text-muted); color: var(--text-muted);
+            padding: 0.5rem 1rem; font-family: inherit; font-size: 0.85rem; cursor: pointer; 
+            border-radius: 4px; transition: 0.2s; font-weight: bold; text-transform: uppercase;
+        }
+        .nav-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(226, 183, 20, 0.1); }
+        .nav-btn:hover:not(.active) { border-color: var(--text-main); color: var(--text-main); }
+
+        /* Tool Bar */
+        .header-row {
+            display: flex; justify-content: space-between; align-items: center; width: 100%;
+            background: var(--panel-bg); padding: 1rem 1.5rem; border-radius: 8px;
+            border: 1px solid var(--text-muted); box-sizing: border-box; flex-wrap: wrap; gap: 1rem;
+        }
+        
+        /* Prominent Progress Indicator */
+        .progress-text { 
+            font-size: 0.95rem; color: var(--bg-color); background: var(--accent); 
+            padding: 0.4rem 1rem; border-radius: 20px; font-weight: bold; letter-spacing: 0.5px;
+        }
+        
+        .tool-btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .tool-btn {
+            background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted);
+            padding: 0.4rem 0.8rem; font-family: inherit; font-size: 0.9rem; cursor: pointer; border-radius: 4px; transition: 0.2s;
+        }
+        .tool-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: rgba(226, 183, 20, 0.1); }
+        .tool-btn:disabled { opacity: 0.3; cursor: default; }
+
+        /* Card Area */
+        .card-box {
+            background: #18191a; border: 2px solid var(--accent); border-radius: 8px;
+            padding: 2rem; box-shadow: inset 0 0 30px rgba(0,0,0,0.5), 0 4px 15px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; align-items: center; width: 100%; box-sizing: border-box;
+            position: relative; transition: border-color 0.3s;
+        }
+        .stage-badge {
+            position: absolute; top: 1rem; left: 1rem; padding: 0.3rem 0.8rem; border-radius: 4px;
+            font-weight: bold; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+        
+        /* Dynamic Stage Colors */
+        .stage-0 { border-color: var(--origin-color) !important; }
+        .stage-0 .stage-badge { background: rgba(226, 125, 96, 0.2); color: var(--origin-color); border: 1px solid var(--origin-color); }
+        .stage-1 { border-color: var(--insert-color) !important; }
+        .stage-1 .stage-badge { background: rgba(133, 176, 214, 0.2); color: var(--insert-color); border: 1px solid var(--insert-color); }
+        .stage-2 { border-color: var(--action-color) !important; }
+        .stage-2 .stage-badge { background: rgba(140, 200, 75, 0.2); color: var(--action-color); border: 1px solid var(--action-color); }
+
+        .muscle-title {
+            font-size: 2rem; color: var(--text-main); font-weight: bold; text-align: center; 
+            margin-top: 1.5rem; margin-bottom: 2rem; letter-spacing: 1px;
+        }
+
+        /* Options Grid */
+        .options-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; width: 100%;
+        }
+        @media (max-width: 700px) { .options-grid { grid-template-columns: 1fr; } }
+
+        .opt-btn {
+            background: var(--panel-bg); border: 2px solid var(--text-muted); color: var(--text-main);
+            padding: 1.2rem 1rem; border-radius: 6px; font-family: inherit; font-size: 0.95rem; cursor: pointer;
+            transition: all 0.2s; line-height: 1.4; text-align: left; font-weight: bold;
+        }
+        .opt-btn:hover:not(:disabled):not(.dimmed) { background: var(--hover-bg); transform: translateY(-2px); }
+
+        /* Dynamic Option Hover Colors */
+        .stage-0 .opt-btn:hover:not(:disabled):not(.dimmed) { border-color: var(--origin-color); }
+        .stage-1 .opt-btn:hover:not(:disabled):not(.dimmed) { border-color: var(--insert-color); }
+        .stage-2 .opt-btn:hover:not(:disabled):not(.dimmed) { border-color: var(--action-color); }
+
+        .opt-btn.correct { border-color: var(--success) !important; background: rgba(140, 200, 75, 0.2) !important; color: var(--success) !important; }
+        .opt-btn.wrong { border-color: var(--error) !important; background: rgba(202, 71, 84, 0.2) !important; color: var(--error) !important; animation: shake 0.3s; }
+        .opt-btn.dimmed { opacity: 0.2; pointer-events: none; border-color: #222; }
+        .opt-btn:disabled { cursor: default; transform: none; }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        /* Hint & Feedback */
+        .hint-box {
+            background: rgba(226, 183, 20, 0.1); border: 1px solid var(--accent); color: var(--accent);
+            padding: 1rem; border-radius: 6px; font-size: 0.95rem; margin-bottom: 1.5rem; display: none; line-height: 1.5; width: 100%; box-sizing: border-box; text-align: center;
+        }
+
+        .completion-msg {
+            display: none; width: 100%; text-align: center; font-size: 1.1rem; font-weight: bold; margin-top: 1.5rem; padding: 1.2rem; border-radius: 6px; 
+        }
+
+        .end-screen { text-align: center; display: none; background: var(--panel-bg); padding: 3rem; border-radius: 8px; border: 2px solid var(--success); width: 100%; box-sizing: border-box;}
+        .end-screen h2 { color: var(--success); margin-bottom: 1rem; }
+        
+        .action-btn {
+            background: var(--bg-color); border: 2px solid var(--accent); color: var(--accent); padding: 1rem;
+            font-family: inherit; font-size: 1.05rem; cursor: pointer; border-radius: 6px; transition: 0.2s;
+            margin-top: 1rem; font-weight: bold; display: inline-block; width: 100%; box-sizing: border-box;
+        }
+        .action-btn:hover { background: var(--accent); color: var(--bg-color); }
+    </style>
+</head>
+<body>
+
+    <h1>Muscle List</h1>
+
+    <div class="container">
+        
+        <div class="nav-bar" id="nav-bar">
+            <!-- Injected via JS -->
+        </div>
+
+        <div class="header-row" id="header-tools">
+            <div class="progress-text" id="prog-text">Loading...</div>
+            <div class="tool-btns">
+                <button class="tool-btn" id="hint-btn" onclick="useHint()">💡 Hint</button>
+                <button class="tool-btn" id="chop-btn" onclick="useChop()">✂️ Chop</button>
+                <button class="tool-btn" id="skip-stage-btn" onclick="skipStage()">⏭️ Skip Stage</button>
+                <button class="tool-btn" id="skip-muscle-btn" onclick="skipMuscle()">⏭️ Skip Muscle</button>
+            </div>
+        </div>
+
+        <div id="target-area" style="width:100%; display: flex; flex-direction: column; gap: 1.5rem;">
+            
+            <div class="card-box stage-0" id="card-box">
+                <div class="stage-badge" id="stage-badge">Stage 1/3: Origin</div>
+                <div class="muscle-title" id="muscle-title">Initializing...</div>
+                
+                <div id="hint-display" class="hint-box"></div>
+                
+                <div class="options-grid" id="options-grid">
+                    <!-- Options injected here -->
+                </div>
+
+                <div class="completion-msg" id="completion-msg"></div>
+                <button id="next-card-btn" class="action-btn" style="display:none;" onclick="advanceToNext()">Next Muscle ➔</button>
+            </div>
+
+        </div>
+
+        <div id="end-screen" class="end-screen">
+            <h2>Section Mastered!</h2>
+            <p id="final-score" style="margin-bottom: 2rem; color: var(--text-main); font-size:1.1rem;"></p>
+            <button class="action-btn" style="width:auto;" onclick="startSection(currentSection)">Restart Section</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- DATA EXTRACTED VERBATIM FROM "Bi231 Muscle Heirarchy List.txt" ---
+        const rawData = [
+            // Head and Neck
+            { s: "Muscles of the Head and Neck", m: "Frontalis", o: "Epicranial Aponeurosis", i: "Skin of Eyebrow", a: "Raises eyebrows" },
+            { s: "Muscles of the Head and Neck", m: "Orbicularis Oculi", o: "Medial Margin of Orbit", i: "Skin around Eyelid", a: "Closes Eye" },
+            { s: "Muscles of the Head and Neck", m: "Zygomaticus", o: "Zygomatic Bone", i: "Corner of Mouth", a: "Retracts and elevates corner of mouth" },
+            { s: "Muscles of the Head and Neck", m: "Orbicularis Oris", o: "Maxillary Bone & Mandible", i: "Lips", a: "Purses Lips" },
+            { s: "Muscles of the Head and Neck", m: "Buccinator", o: "Molar regions of Maxilla & Mandible", i: "Orbicularis Oris", a: "Compresses Cheeks" },
+            { s: "Muscles of the Head and Neck", m: "Masseter", o: "Zygomatic Arch", i: "Lateral Surface of Mandibular Ramus and Angle", a: "Elevates mandible & Closes Jaw" },
+            { s: "Muscles of the Head and Neck", m: "Temporalis", o: "Temporal Bone", i: "Coronoid Process of Mandible", a: "Elevates Mandible" },
+            { s: "Muscles of the Head and Neck", m: "Platysma", o: "Temporal Bone", i: "Coronoid Process of Mandible", a: "Tenses skin of Neck & Depresses Lower Lip" },
+            { s: "Muscles of the Head and Neck", m: "Sternocleidomastoid", o: "Manubrium of Sternum & Clavicle", i: "Mastoid Process of Temporal Bone", a: "Flexes Neck & Rotates Head" },
+            { s: "Muscles of the Head and Neck", m: "Digastric", o: "Mandible & Mastoid process of Temporal Bone", i: "Hyoid", a: "Depresses Mandible & Elevates Larynx" },
+            { s: "Muscles of the Head and Neck", m: "Stylohyoid", o: "Styloid Process of Temporal Bone", i: "Hyoid", a: "Depresses Mandible & Elevates Larynx" },
+            { s: "Muscles of the Head and Neck", m: "Mylohyoid", o: "Medial Surface of Mandible", i: "Hyoid", a: "Elevates floor of mouth" },
+            { s: "Muscles of the Head and Neck", m: "Sternohyoid", o: "Manubrium of Sternum & Clavicle", i: "Hyoid", a: "Depresses Hyoid & Larynx" },
+            { s: "Muscles of the Head and Neck", m: "Sternothyroid", o: "Manubrium of Sternum & 1st Costal Cartilage", i: "Thyroid Cartilage of Larynx", a: "Depresses Hyoid & Larynx" },
+            { s: "Muscles of the Head and Neck", m: "Scalenes", o: "Transverse Processes of Cervical Vertebrae", i: "Superior Surfaces of RIbs 1 and 2", a: "Elevate Ribs or Flex Neck" },
+
+            // Shoulder and Anterior Thorax
+            { s: "Muscles of the Shoulder and Anterior Thorax", m: "Serratus Anterior", o: "Upper RIbs (1-9)", i: "Scapula", a: "Protracts shoulder" },
+            { s: "Muscles of the Shoulder and Anterior Thorax", m: "Pectoralis Major", o: "Clavicle, Sternum & Ribs (2-6)", i: "Greater Tubercle & Intertubercular Groove of the Humerus", a: "Flexes, Adducts, & Medially Rotates Humerus" },
+            { s: "Muscles of the Shoulder and Anterior Thorax", m: "Pecotralis Minor", o: "Upper Ribs (3-5)", i: "Coracoid Process of Scapula", a: "Depresses and protracts shoulder" },
+            { s: "Muscles of the Shoulder and Anterior Thorax", m: "Deltoid", o: "Clavicle & Scapula", i: "Deltoid Tuberosity of Hermus", a: "Humerus Abduction" },
+            { s: "Muscles of the Shoulder and Anterior Thorax", m: "Latissimus Dorsi", o: "Spinous processes of all Inferior Thoracic and Lumbar Vertebrae. Ribs (8-12), and Iliac Crest.", i: "Intertubercular Groove of Humerus", a: "Extends, Adducts, & Medially Rotates Humerus" },
+            { s: "Muscles of the Shoulder and Anterior Thorax", m: "Teres Major", o: "Inferior Angle of Scapula", i: "Intertubercular Groove of Humerus", a: "Extends, Adducts, & Medially Rotates Humerus" },
+            { s: "Muscles of the Shoulder and Anterior Thorax", m: "Teres Minor", o: "Lateral BOrder of Scapula", i: "Greater Tubercle of Humerus", a: "Laterally Rotates Humerus" },
+            { s: "Muscles of the Shoulder and Anterior Thorax", m: "Subscapularis", o: "Subscapular Fossa of Scapula", i: "Lesser Tubercle of Humerus", a: "Medial Rotation of Humerus" },
+
+            // Posterior Thorax
+            { s: "Muscles of the Posterior Thorax", m: "Levator Scapulae", o: "Transverse Processes of Cervical Vertebrae (1-4)", i: "Scapula", a: "Elevates Scapula" },
+            { s: "Muscles of the Posterior Thorax", m: "Infraspinatus", o: "Infraspinous Fossa of Scapula", i: "Greater Tubercle of Humerus", a: "Lateral Rotation of Humerus" },
+            { s: "Muscles of the Posterior Thorax", m: "Supraspinatus", o: "Supraspinous Fossa of Scapula", i: "Greater Tubercle of Humerus", a: "Abduction of the Humerus" },
+            { s: "Muscles of the Posterior Thorax", m: "Rhomboid Major", o: "Spinous Processes of Upper Thoracic Vertebrae", i: "Medial Border of Scapula", a: "Adducts Scapula & Downward Rotation" },
+            { s: "Muscles of the Posterior Thorax", m: "Rhomboid Minor", o: "Spinous Processes of vertebrae C7 to T1", i: "Medial Border of Scapula", a: "Adducts Scapula & Downwards Rotation" },
+            { s: "Muscles of the Posterior Thorax", m: "Trapezius", o: "Occipital Bone, Ligamentum Nuchae, and all Spinous Processes of the Thoracic Vertebrae.", i: "Clavicle & Acromion, and Spine of Scapula.", a: "Elevates, Retracts, Depresses, or Rotates Scapula." },
+            { s: "Muscles of the Posterior Thorax", m: "Erector Spinae", o: "Iliac Crest, Vertebrae, and Ribs 3-6.", i: "Ribs and Vertebrae Above the Origin.", a: "Extends Vertebral Column, and/or neck. Lateral Flexion of Vertebral Column." },
+
+            // Body Wall
+            { s: "Muscles of the Body Wall", m: "Rectus Abdominis", o: "Pubis", i: "Costal Cartilage of RIbs 5-7 & Xiphoid Process of Sternum", a: "Depresses Ribs, Flexes Vertebral Column" },
+            { s: "Muscles of the Body Wall", m: "External Oblique", o: "Ribs 5-12", i: "Iliax Crest & Linea Alba", a: "Compresses Abdomen, Depresses Ribs & Flexes Spine." },
+            { s: "Muscles of the Body Wall", m: "Internal Oblique", o: "Iliac Crest and Lumbodorsal Fascia", i: "Inferior ribs, Xiphoid Process & Linea Alba", a: "Compresses Abdomen, Depresses Ribs & Flexes Spine." },
+            { s: "Muscles of the Body Wall", m: "Transversus Abdominis", o: "Iliac Crest, Lower Ribs (6-12), and Lumbodorsal Fascia.", i: "Linea Alba & Pubis", a: "Compresses Abdomen" },
+            { s: "Muscles of the Body Wall", m: "External Intercostals", o: "Inferior Border of Each Rib", i: "Superior Border of Rib Below", a: "Elevates Ribs During inspiration" },
+            { s: "Muscles of the Body Wall", m: "Internal Intercostals", o: "Superior Border of Each Rib", i: "Inferior Border of Rib Above", a: "Depresses Ribs During Expiration" },
+            { s: "Muscles of the Body Wall", m: "Quadratus Lumborum", o: "Iliac Crest and Iliolumbar Ligament.", i: "Last Rib and Transverse Processes of Lumbar Vertebrae", a: "Together they Depress Ribs. Alone they Flex Vertebral Column Laterally." },
+            { s: "Muscles of the Body Wall", m: "Diaphragm", o: "Xiphoid Process, Cartilages of RIbs 4-10, Anterior Surfaces of Lumbar Vertebrae.", i: "Central Tendonous Sheet", a: "Contraction Expands Thoracic Cavity. Compresses abdominopelvic cavity." },
+
+            // Arm
+            { s: "Muscles of the Arm", m: "Biceps Brachii", o: "Coracoid Process of Scapula.", i: "Radial Tuberosity.", a: "Flexes Forearm at Elbow & Supinates Forearm." },
+            { s: "Muscles of the Arm", m: "Brachialis", o: "Anterior Distal Surface of Humerus", i: "Coronoid Process of Ulna", a: "Flexes Forearm at Elbow & Supinates Forearm." },
+            { s: "Muscles of the Arm", m: "Brachioradialis", o: "Humerus (Ridge Superior to Lateral Epicondyle)", i: "Styloid Process of Radius", a: "Flexes Forearm at Elbow" },
+            { s: "Muscles of the Arm", m: "Triceps Brachii", o: "Scapula & Humerus", i: "Olecranon Process of Ulna", a: "Extends Forearm at Elbow" },
+
+            // Forearm
+            { s: "Muscles of the Forearm", m: "Supinator", o: "Lateral Epicondyle of Humerus and Ulna", i: "Radius", a: "Supinates Forearm" },
+            { s: "Muscles of the Forearm", m: "Pronator Teres", o: "Medial Epicondyle of Humerus & Coronoid Process of Ulna", i: "Radius", a: "Pronates Forearm" },
+            { s: "Muscles of the Forearm", m: "Flexor Carpi Radialis", o: "Medial Epicondyle of Humerus", i: "Base of 2nd & 3rd Metacarpals", a: "Flexes & Abducts Wrist" },
+            { s: "Muscles of the Forearm", m: "Flexor Carpi Ulnaris", o: "Medial Epicondyle of Humerus & Ulna", i: "Pisiform, Hamate, & Base of 5th Metacarpal.", a: "Flexes & Adducts wrist." },
+            { s: "Muscles of the Forearm", m: "Extensor Carpi Radialis Longus", o: "Humerus", i: "Base of 2nd Metacarpal", a: "Extends & Abducts Wrist" },
+            { s: "Muscles of the Forearm", m: "Extensor Carpi Ulnaris", o: "Lateral Epicondyle of Humerus & Ulna", i: "Base of 5th Metacarpal", a: "Extends & Adducts Wrist." },
+            { s: "Muscles of the Forearm", m: "Flexor Digitorum Superficialis", o: "Medial Epicondyle of Humerus & Anterior of Ulna and Radius.", i: "Midlateral Surface of Phalanges 2-5.", a: "Flexes Digits 2-5 and Wrist." },
+            { s: "Muscles of the Forearm", m: "Extensor Digitorum", o: "Lateral Epicondyle of Humerus", i: "Posterior Surface of Phalanges 2-5.", a: "Extends Digits 2-5 and Wrist." },
+
+            // Hip
+            { s: "Muscles of the Hip", m: "Iliopsoas", o: "Vertebrae (T12-L5) & Iliac Fossa", i: "Lesser Trochanter of Femur", a: "Flexes Thigh at Hip" },
+            { s: "Muscles of the Hip", m: "Gluteus Maximus", o: "Iliac Crest, Sacrum, & Coccyx", i: "Femur & Iliotibial Tract", a: "Extends & Laterally Rotates Thigh" },
+            { s: "Muscles of the Hip", m: "Gluteus Medius", o: "Iliac Crest", i: "Greater Trochanter of Femur", a: "Abducts & Medially Rotates Thigh" },
+            { s: "Muscles of the Hip", m: "Gluteus Minimus", o: "Ilium", i: "Greater Trochanter of Femur", a: "Abducts & Medially Rotates Thigh" },
+            { s: "Muscles of the Hip", m: "Tensor Fasciae Latae", o: "Iliac Crest & Anterior Superior Iliac Spine", i: "Iliotibial Tract", a: "Flexes and Medially Rotates Thigh." },
+            { s: "Muscles of the Hip", m: "Adductor Longus", o: "Inferior Ramus of Pubis", i: "Linea Aspera of Femur", a: "Adducts, Flexes, & Medially Rotates Thigh." },
+            { s: "Muscles of the Hip", m: "Adductor Brevis", o: "Inferior Ramus of Pubis", i: "Linea Aspera of Femur", a: "Adducts, Flexes, & Medially Rotates Thigh." },
+            { s: "Muscles of the Hip", m: "Adductor Magnus", o: "Inferior Ramus of Pubis & Ischial Tuberosity", i: "Linea Aspera of Femur", a: "Adducts, Flexes & Medially Rotates Thigh." },
+
+            // Thigh
+            { s: "Muscles of the Thigh", m: "Rectus Femoris", o: "Anterior Inferior Iliac Spine & Rim of Acetabulum", i: "Tibial Tuberosity via Patellar Tendon", a: "Extends Lower Leg at Knee & Flexes Thigh at Hip." },
+            { s: "Muscles of the Thigh", m: "Vastus Medialis", o: "Entire Linea Aspera of Femur", i: "Tibial Tuberosity via Patellar Tendon", a: "Extends Lower Leg at Knee" },
+            { s: "Muscles of the Thigh", m: "Vastus Lateralis", o: "Proximal Half of Linea Aspera of Femur", i: "Tibial Tuberosity via Patellar Tendon", a: "Extends Lower Leg at Knee" },
+            { s: "Muscles of the Thigh", m: "Vastus Intermedius", o: "ANterior and Lateral Surface of Femur", i: "Tibial Tuberosity via Patellar Tendon", a: "Extends Lower Leg at Knee" },
+            { s: "Muscles of the Thigh", m: "Bicep Femoris", o: "Ischial Tuberosity & Linea Aspera", i: "Lateral Condyle of Tibia & Fibular Head", a: "Flexes Lower Leg at Knee, Extends & Laterally Rotates Thigh." },
+            { s: "Muscles of the Thigh", m: "Semimembranosus", o: "Ischial Tuberosity", i: "Medial Condyle of Tibia", a: "Flexes Lower Leg at Knee, Medially Rotates Lower Leg, & Extends Thigh at Hip" },
+            { s: "Muscles of the Thigh", m: "Semitendinosus", o: "Ischial Tuberosity", i: "Tibia", a: "Flexes Lower Leg at Knee, Medially Rotates Lower Leg, & Extends Thigh at Hip." },
+            { s: "Muscles of the Thigh", m: "Gracilis", o: "Inferior Ramus of Pubis", i: "Tibia", a: "Flexes Lower and Medially Rotates Leg at Knee. Adducts Thigh at Hip." },
+            { s: "Muscles of the Thigh", m: "Sartorius", o: "Anterior Superior Iliac Spine", i: "Medial Surface Near Tibial Tuberosity", a: "Flexes, Abducts, and Laterally Rotates Thigh at Hip, Flexes Lower Leg at Knee." },
+
+            // Leg
+            { s: "Muscles of the Leg", m: "Popliteus", o: "Lateral Condyle of Femur", i: "Posterior Surface of Proximal Tibial Shaft", a: "Medial Rotation of Tibia." },
+            { s: "Muscles of the Leg", m: "Peroneus (fibularis) longus", o: "Lateral Condyle of Tibia & Fibula", i: "Base of 1st Metatarsal & Medial Cuneiform Bone", a: "Plantar Flexes & Everts foot." },
+            { s: "Muscles of the Leg", m: "Peroneus (fibularis) brevis", o: "Fibula", i: "Base of 5th Metatarsal", a: "Plantar Flexes & Everts foot." },
+            { s: "Muscles of the Leg", m: "Tibialis Anterior", o: "Lateral Condyle of Tibia", i: "Base of 1st Metatarsal & Medial Cuneiform Bone", a: "Dorsiflexes & Inverts Foot" },
+            { s: "Muscles of the Leg", m: "Tibialis Posterior", o: "Tibia and Fibula", i: "Tarsals and Metatarsals", a: "Adducts, Inverts, and Plantar Flexes Foot." },
+            { s: "Muscles of the Leg", m: "Flexor Digitorum Longus", o: "Tibia", i: "Inferior Surface of Phalanges 2-5", a: "Flexes toes 2-5" },
+            { s: "Muscles of the Leg", m: "Extensor Digitorum Longus", o: "Lateral Condyle of Tibia & Fibula", i: "Superior Surface of Phalanges 2-5", a: "Extends toes 2-5" }
+        ];
+
+        // --- STATE ENGINE ---
+        const sections = [...new Set(rawData.map(d => d.s))];
+        let currentSection = 'All';
+        let mcqState = { deck: [], idx: 0, stage: 0, attempts: 0, correct: 0 };
+        let lockBoard = false;
+        let cardFailed = false;
+
+        const stageMap = [
+            { key: 'o', label: 'Stage 1/3: Origin', btnColorClass: 'loc-btn' },
+            { key: 'i', label: 'Stage 2/3: Insertion', btnColorClass: 'func-btn' },
+            { key: 'a', label: 'Stage 3/3: Action', btnColorClass: 'act-btn' }
+        ];
+
+        // --- UTILS ---
+        function shuffle(arr) {
+            let a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function normalize(str) {
+            return str.toLowerCase().replace(/[^a-z0-9]/g, '');
+        }
+
+        function generateCommonSenseHint(correctAnswer, stageIdx) {
+            let words = correctAnswer.split(/[\s,()&]+/).filter(w => w.length > 3 && !['surface', 'process', 'bone', 'bone.', 'superior', 'inferior', 'lateral', 'medial', 'anterior', 'posterior'].includes(w.toLowerCase()));
+            let keyTarget = words.length > 0 ? words[0] : correctAnswer.split(' ')[0];
+            
+            if (stageIdx === 0) return `Origins act as the stable anchor. Think about the bone or structure that doesn't move during contraction. The correct anchor involves the <strong>${keyTarget}</strong>.`;
+            if (stageIdx === 1) return `Insertions are the moving attachment points. Think about what structure is being physically pulled. The target involves the <strong>${keyTarget}</strong>.`;
+            if (stageIdx === 2) return `Muscles only pull, they never push. Based on its attachments, this muscle's main kinetic movement involves a <strong>${keyTarget}</strong> action.`;
+        }
+
+        // --- INITIALIZATION ---
+        function buildNavBar() {
+            const bar = document.getElementById('nav-bar');
+            bar.innerHTML = '';
+            
+            // Inject "ALL" master section
+            const btnAll = document.createElement('button');
+            btnAll.className = 'nav-btn';
+            btnAll.innerText = 'ALL MUSCLES';
+            btnAll.onclick = () => startSection('All');
+            bar.appendChild(btnAll);
+
+            sections.forEach(sec => {
+                const btn = document.createElement('button');
+                btn.className = 'nav-btn';
+                btn.innerText = sec.replace('Muscles of the ', '');
+                btn.onclick = () => startSection(sec);
+                bar.appendChild(btn);
+            });
+        }
+
+        function startSection(sectionName) {
+            currentSection = sectionName;
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                let matchStr = sectionName === 'All' ? 'ALL MUSCLES' : sectionName.replace('Muscles of the ', '');
+                btn.classList.toggle('active', btn.innerText === matchStr);
+            });
+
+            const filteredData = sectionName === 'All' ? rawData : rawData.filter(d => d.s === sectionName);
+            mcqState = { deck: shuffle([...filteredData]), idx: 0, stage: 0, attempts: 0, correct: 0 };
+            
+            document.getElementById('end-screen').style.display = 'none';
+            document.getElementById('target-area').style.display = 'flex';
+            document.getElementById('header-tools').style.display = 'flex';
+
+            loadCard();
+        }
+
+        function loadCard() {
+            if (mcqState.idx >= mcqState.deck.length) {
+                endSection();
+                return;
+            }
+
+            mcqState.stage = 0;
+            cardFailed = false;
+            
+            const currentMuscle = mcqState.deck[mcqState.idx];
+
+            let displaySec = currentSection === 'All' ? "All Master Deck" : currentSection.replace('Muscles of the ', '');
+            document.getElementById('prog-text').innerText = `${displaySec}: Muscle ${mcqState.idx + 1} of ${mcqState.deck.length}`;
+            
+            document.getElementById('muscle-title').innerText = currentMuscle.m;
+            document.getElementById('completion-msg').style.display = 'none';
+            document.getElementById('next-card-btn').style.display = 'none';
+            
+            renderStage();
+        }
+
+        function renderStage() {
+            lockBoard = false;
+            document.getElementById('hint-display').style.display = 'none';
+            document.getElementById('hint-btn').disabled = false;
+            document.getElementById('chop-btn').disabled = false;
+            document.getElementById('skip-stage-btn').disabled = false;
+            document.getElementById('skip-muscle-btn').disabled = false;
+
+            const stageInfo = stageMap[mcqState.stage];
+            const currentMuscle = mcqState.deck[mcqState.idx];
+            const correctAns = currentMuscle[stageInfo.key];
+
+            const cardBox = document.getElementById('card-box');
+            cardBox.className = `card-box stage-${mcqState.stage}`;
+            document.getElementById('stage-badge').innerText = stageInfo.label;
+
+            let usedNormals = new Set([normalize(correctAns)]);
+            let options = [];
+            
+            // Pool dynamically selects ALL data if the section is 'All'
+            let localPool = shuffle(currentSection === 'All' ? rawData : rawData.filter(d => d.s === currentSection));
+            
+            for (let m of localPool) {
+                let val = m[stageInfo.key];
+                let norm = normalize(val);
+                if (!usedNormals.has(norm) && options.length < 5) {
+                    options.push(val);
+                    usedNormals.add(norm);
+                }
+            }
+
+            // Fallback just in case a specific section was too small
+            if (options.length < 5) {
+                let globalPool = shuffle(rawData);
+                for (let m of globalPool) {
+                    let val = m[stageInfo.key];
+                    let norm = normalize(val);
+                    if (!usedNormals.has(norm) && options.length < 5) {
+                        options.push(val);
+                        usedNormals.add(norm);
+                    }
+                }
+            }
+
+            let finalOptions = options.map(text => ({ text: text, isCorrect: false }));
+            finalOptions.push({ text: correctAns, isCorrect: true });
+            finalOptions = shuffle(finalOptions);
+
+            const grid = document.getElementById('options-grid');
+            grid.innerHTML = '';
+            
+            finalOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'opt-btn';
+                btn.innerText = opt.text;
+                btn.onclick = () => handleGuess(btn, opt.isCorrect);
+                grid.appendChild(btn);
+            });
+        }
+
+        function handleGuess(btn, isCorrect) {
+            if (lockBoard) return;
+            
+            document.getElementById('hint-btn').disabled = true;
+            document.getElementById('chop-btn').disabled = true;
+            document.getElementById('skip-stage-btn').disabled = true;
+            document.getElementById('skip-muscle-btn').disabled = true;
+
+            if (isCorrect) {
+                lockBoard = true;
+                btn.classList.add('correct');
+                
+                document.querySelectorAll('.opt-btn').forEach(b => {
+                    if (b !== btn) b.classList.add('dimmed');
+                    b.disabled = true;
+                });
+
+                setTimeout(() => {
+                    mcqState.stage++;
+                    if (mcqState.stage > 2) {
+                        finishCard();
+                    } else {
+                        renderStage();
+                    }
+                }, 600);
+
+            } else {
+                btn.classList.add('wrong');
+                btn.disabled = true;
+                cardFailed = true;
+            }
+        }
+
+        function useChop() {
+            if (lockBoard) return;
+            
+            const grid = document.getElementById('options-grid');
+            const allBtns = Array.from(grid.querySelectorAll('.opt-btn:not(.dimmed):not(.wrong)'));
+            
+            let correctBtn = null;
+            let wrongBtns = [];
+            
+            const currentMuscle = mcqState.deck[mcqState.idx];
+            const correctAns = currentMuscle[stageMap[mcqState.stage].key];
+
+            allBtns.forEach(b => {
+                if (b.innerText === correctAns) correctBtn = b;
+                else wrongBtns.push(b);
+            });
+
+            wrongBtns = shuffle(wrongBtns);
+            const keepWrongs = wrongBtns.slice(0, 2);
+            
+            allBtns.forEach(b => {
+                if (b !== correctBtn && !keepWrongs.includes(b)) {
+                    b.classList.add('dimmed');
+                    b.disabled = true;
+                }
+            });
+
+            document.getElementById('chop-btn').disabled = true;
+        }
+
+        function useHint() {
+            if (lockBoard) return;
+            cardFailed = true; 
+            
+            const currentMuscle = mcqState.deck[mcqState.idx];
+            const correctAns = currentMuscle[stageMap[mcqState.stage].key];
+            const hintText = generateCommonSenseHint(correctAns, mcqState.stage);
+
+            document.getElementById('hint-display').innerHTML = `<strong>💡 Hint:</strong> ${hintText}`;
+            document.getElementById('hint-display').style.display = 'block';
+            document.getElementById('hint-btn').disabled = true;
+        }
+
+        function skipStage() {
+            if (lockBoard) return;
+            cardFailed = true;
+            mcqState.stage++;
+            if (mcqState.stage > 2) {
+                finishCard();
+            } else {
+                renderStage();
+            }
+        }
+
+        function skipMuscle() {
+            if (lockBoard) return;
+            cardFailed = true;
+            lockBoard = true;
+            finishCard();
+        }
+
+        function finishCard() {
+            lockBoard = true;
+            document.getElementById('hint-btn').disabled = true;
+            document.getElementById('chop-btn').disabled = true;
+            document.getElementById('skip-stage-btn').disabled = true;
+            document.getElementById('skip-muscle-btn').disabled = true;
+
+            mcqState.attempts++;
+            const msg = document.getElementById('completion-msg');
+            
+            if (cardFailed) {
+                mcqState.deck.push(mcqState.deck[mcqState.idx]);
+                msg.innerHTML = `⚠️ Muscle Completed (with errors/tools/skips).<br><span style="font-size:0.9rem; font-weight:normal; color: var(--text-main);">Card recycled to the back of the deck for review.</span>`;
+                msg.style.color = "var(--hard)";
+                msg.style.borderColor = "var(--hard)";
+                msg.style.backgroundColor = "rgba(226, 125, 96, 0.1)";
+            } else {
+                mcqState.correct++;
+                msg.innerHTML = `✅ Muscle Mastered Flawlessly!`;
+                msg.style.color = "var(--success)";
+                msg.style.borderColor = "var(--success)";
+                msg.style.backgroundColor = "rgba(140, 200, 75, 0.1)";
+            }
+
+            msg.style.display = 'block';
+            document.getElementById('next-card-btn').style.display = 'block';
+        }
+
+        function advanceToNext() {
+            mcqState.idx++;
+            loadCard();
+        }
+
+        function endSection() {
+            document.getElementById('target-area').style.display = 'none';
+            document.getElementById('header-tools').style.display = 'none';
+            document.getElementById('end-screen').style.display = 'block';
+            
+            const pct = Math.round((mcqState.correct / mcqState.attempts) * 100) || 0;
+            document.getElementById('final-score').innerHTML = `You flawlessly identified the Origin, Insertion, and Action for <strong>${mcqState.correct}</strong> muscles out of <strong>${mcqState.attempts}</strong> total attempts (${pct}% accuracy).`;
+        }
+
+        // Boot
+        buildNavBar();
+        startSection('All');
+
+    </script>
+</body>
+</html>
